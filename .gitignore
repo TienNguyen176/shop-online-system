@@ -1,34 +1,115 @@
-# Flutter
+# ===============================
+
+# FLUTTER
+
+# ===============================
+
 .dart_tool/
 .packages
+.pub/
 build/
 .flutter-plugins
 .flutter-plugins-dependencies
+.metadata
 pubspec.lock
 
+# Flutter Generated
+
+**/generated_plugin_registrant.dart
+
 # Android
-android/.gradle
-android/app/build
+
+**/android/.gradle
+**/android/app/build
+**/android/local.properties
+**/android/key.properties
+**/android/*.keystore
 
 # iOS
-ios/Pods/
-ios/.symlinks
 
-# .NET
+**/ios/Flutter/.last_build_id
+**/ios/Pods/
+**/ios/.symlinks/
+**/ios/Flutter/Flutter.framework
+**/ios/Flutter/App.framework
+
+# macOS
+
+**/macos/Pods/
+
+# Linux
+
+**/linux/flutter/ephemeral/
+
+# Windows
+
+**/windows/flutter/ephemeral/
+
+# ===============================
+
+# .NET / ASP.NET CORE
+
+# ===============================
+
 bin/
 obj/
 
-# Visual Studio
-.vs/
 *.user
 *.suo
+*.userosscache
+*.sln.docstates
 
-# VS Code
-.vscode/
+# Visual Studio cache
+
+.vs/
+
+# Rider
+
+.idea/
 
 # Logs
+
 *.log
 
-# OS
+# ASP.NET
+
+appsettings.Development.json
+
+# Entity Framework
+
+Migrations/
+
+# ===============================
+
+# VS CODE
+
+# ===============================
+
+.vscode/
+
+# ===============================
+
+# OS FILES
+
+# ===============================
+
 .DS_Store
 Thumbs.db
+
+# ===============================
+
+# NODE / WEB
+
+# ===============================
+
+node_modules/
+
+# ===============================
+
+# TEMP FILES
+
+# ===============================
+
+*.tmp
+*.temp
+*.cache
