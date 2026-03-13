@@ -1,0 +1,12 @@
+Ý nghĩa:
+Controllers:	API endpoint
+Models:		Entity database
+Data:		DbContext
+DTO:		Dữ liệu gửi nhận
+Services:	Xử lý logic
+Helpers:	Hàm phụ
+
+
+Lệnh Tạo Database:
+1. Add-Migration Init
+2. Update-Database
