@@ -3695,11 +3695,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\ShopBackend.csproj",
+      "projectUniqueName": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-online-system\\backend\\ShopBackend\\ShopBackend.csproj",
       "projectName": "ShopBackend",
-      "projectPath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\ShopBackend.csproj",
+      "projectPath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-online-system\\backend\\ShopBackend\\ShopBackend.csproj",
       "packagesPath": "C:\\Users\\sunmc\\.nuget\\packages\\",
-      "outputPath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\obj\\",
+      "outputPath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-online-system\\backend\\ShopBackend\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -1,101 +1,12 @@
 {
   "Version": 1,
   "WorkspaceRootPath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\",
-  "Documents": [
-    {
-      "AbsoluteMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|d:\\hoctap\\hk6\\trienkhaihtpm\\project\\code\\shop-system\\backend\\shopbackend\\controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|solutionrelative:controllers\\productcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|d:\\hoctap\\hk6\\trienkhaihtpm\\project\\code\\shop-system\\backend\\shopbackend\\controllers\\testcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|solutionrelative:controllers\\testcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|d:\\hoctap\\hk6\\trienkhaihtpm\\project\\code\\shop-system\\backend\\shopbackend\\dto\\productdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|solutionrelative:dto\\productdto.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|d:\\hoctap\\hk6\\trienkhaihtpm\\project\\code\\shop-system\\backend\\shopbackend\\data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|solutionrelative:data\\appdbcontext.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|d:\\hoctap\\hk6\\trienkhaihtpm\\project\\code\\shop-system\\backend\\shopbackend\\models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{2BC00C55-A3FD-4AD6-AD29-986201ACA4C1}|ShopBackend.csproj|solutionrelative:models\\product.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
-    }
-  ],
+  "Documents": [],
   "DocumentGroupContainers": [
     {
       "Orientation": 0,
       "VerticalTabListWidth": 256,
-      "DocumentGroups": [
-        {
-          "DockedWidth": 200,
-          "SelectedChildIndex": 1,
-          "Children": [
-            {
-              "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "ProductDTO.cs",
-              "DocumentMoniker": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\DTO\\ProductDTO.cs",
-              "RelativeDocumentMoniker": "DTO\\ProductDTO.cs",
-              "ToolTip": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\DTO\\ProductDTO.cs",
-              "RelativeToolTip": "DTO\\ProductDTO.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAYAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-11T01:27:00.38Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "ProductController.cs",
-              "DocumentMoniker": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Controllers\\ProductController.cs",
-              "RelativeDocumentMoniker": "Controllers\\ProductController.cs",
-              "ToolTip": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Controllers\\ProductController.cs",
-              "RelativeToolTip": "Controllers\\ProductController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-10T12:30:59.137Z",
-              "EditorCaption": ""
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "AppDbContext.cs",
-              "DocumentMoniker": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Data\\AppDbContext.cs",
-              "RelativeDocumentMoniker": "Data\\AppDbContext.cs",
-              "ToolTip": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Data\\AppDbContext.cs",
-              "RelativeToolTip": "Data\\AppDbContext.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-10T12:30:37.113Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 4,
-              "Title": "Product.cs",
-              "DocumentMoniker": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Models\\Product.cs",
-              "RelativeDocumentMoniker": "Models\\Product.cs",
-              "ToolTip": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Models\\Product.cs",
-              "RelativeToolTip": "Models\\Product.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABMAAAABAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-10T12:29:48.614Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "TestController.cs",
-              "DocumentMoniker": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Controllers\\TestController.cs",
-              "RelativeDocumentMoniker": "Controllers\\TestController.cs",
-              "ToolTip": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\Controllers\\TestController.cs",
-              "RelativeToolTip": "Controllers\\TestController.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA8AAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-03-10T12:23:08.393Z"
-            }
-          ]
-        }
-      ]
+      "DocumentGroups": []
     }
   ]
 }

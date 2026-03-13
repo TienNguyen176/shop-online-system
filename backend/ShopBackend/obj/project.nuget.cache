@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "pEa+8OfNpKw=",
+  "dgSpecHash": "0LBYLaBJgec=",
   "success": true,
-  "projectFilePath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-system\\backend\\ShopBackend\\ShopBackend.csproj",
+  "projectFilePath": "D:\\HocTap\\HK6\\TrienKhaiHTPM\\project\\code\\shop-online-system\\backend\\ShopBackend\\ShopBackend.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\sunmc\\.nuget\\packages\\humanizer.core\\2.14.1\\humanizer.core.2.14.1.nupkg.sha512",
     "C:\\Users\\sunmc\\.nuget\\packages\\microsoft.aspnetcore.authentication.jwtbearer\\8.0.0\\microsoft.aspnetcore.authentication.jwtbearer.8.0.0.nupkg.sha512",
