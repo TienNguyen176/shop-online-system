@@ -1,12 +1,13 @@
-using ShopBackend.Data;
+﻿using ShopBackend.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.FileProviders;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
+// Add services
 builder.Services.AddControllers();
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -17,7 +18,35 @@ ServerVersion.AutoDetect(
 builder.Configuration.GetConnectionString("Default")
 )));
 
+
 var app = builder.Build();
+
+// ===== CẤU HÌNH PATH ẢNH =====
+
+app.UseStaticFiles();
+
+string uploadPath;
+
+if (app.Environment.IsDevelopment())
+{
+    uploadPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+}
+else
+{
+    uploadPath = "C:/server/uploads";
+}
+
+
+// Cho phép truy cập ảnh qua URL
+app.UseStaticFiles(new StaticFileOptions
+{
+    FileProvider = new PhysicalFileProvider(uploadPath),
+    RequestPath = "/uploads"
+});
+
+
+// ==============================
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -26,7 +55,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 

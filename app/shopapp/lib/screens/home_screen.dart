@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+
 import '../models/product.dart';
-import '../data/mock_products.dart';
+import '../repositories/product_repository.dart';
 
 import '../widgets/home_header.dart';
 import '../widgets/search_bar.dart' as custom_widgets;
@@ -17,47 +19,102 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  bool loading = true;
-  List<Product> allProducts = [];
-  List<Product> products = [];
+  final ProductRepository repo = ProductRepository();
 
-  TextEditingController searchController = TextEditingController();
+  final ScrollController scrollController = ScrollController();
+  final TextEditingController searchController = TextEditingController();
+
+  List<Product> products = [];
+  List<Product> allProducts = [];
+
+  bool loading = true;
+  bool loadingMore = false;
+
+  int page = 1;
+  final int pageSize = 10;
+
+  Timer? debounce;
 
   @override
   void initState() {
     super.initState();
+
     loadProducts();
+
+    scrollController.addListener(scrollListener);
   }
 
-  Future<void> loadProducts() async {
-    await Future.delayed(const Duration(seconds: 2));
-
-    allProducts =
-        mockProducts; // Thay dổi thành dữ liệu thực gọi API VD: allProducts = await ApiService.fetchProducts();
-
-    setState(() {
-      products = allProducts;
-      loading = false;
-    });
-  }
-
-  void searchProducts(String keyword) {
-    if (keyword.isEmpty) {
-      setState(() {
-        products = allProducts;
-      });
-
-      return;
+  /// LOAD PRODUCTS
+  Future<void> loadProducts({bool refresh = false}) async {
+    if (refresh) {
+      page = 1;
+      products.clear();
     }
 
-    final results =
-        allProducts.where((product) {
-          return product.name.toLowerCase().contains(keyword.toLowerCase());
-        }).toList();
+    if (page == 1) {
+      setState(() => loading = true);
+    } else {
+      setState(() => loadingMore = true);
+    }
 
-    setState(() {
-      products = results;
+    try {
+      final data = await repo.getHomeProducts(page: page, pageSize: pageSize);
+
+      setState(() {
+        if (page == 1) {
+          products = data;
+          allProducts = data;
+        } else {
+          products.addAll(data);
+          allProducts.addAll(data);
+        }
+
+        loading = false;
+        loadingMore = false;
+      });
+    } catch (e) {
+      debugPrint("Load product error: $e");
+    }
+  }
+
+  /// INFINITE SCROLL
+  void scrollListener() {
+    if (scrollController.position.pixels >=
+            scrollController.position.maxScrollExtent - 200 &&
+        !loadingMore) {
+      page++;
+
+      loadProducts();
+    }
+  }
+
+  /// SEARCH WITH DEBOUNCE
+  void searchProducts(String keyword) {
+    if (debounce?.isActive ?? false) {
+      debounce!.cancel();
+    }
+
+    debounce = Timer(const Duration(milliseconds: 400), () {
+      if (keyword.isEmpty) {
+        setState(() => products = allProducts);
+        return;
+      }
+
+      final results =
+          allProducts.where((p) {
+            return p.name.toLowerCase().contains(keyword.toLowerCase());
+          }).toList();
+
+      setState(() => products = results);
     });
+  }
+
+  @override
+  void dispose() {
+    scrollController.dispose();
+    searchController.dispose();
+    debounce?.cancel();
+    super.dispose();
   }
 
   @override
@@ -75,21 +132,22 @@ class _HomeScreenState extends State<HomeScreen> {
               onChanged: searchProducts,
             ),
 
-            ...const [
-              SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-              BannerSlider(),
+            const BannerSlider(),
 
-              SizedBox(height: 10),
+            const SizedBox(height: 10),
 
-              CategoryList(),
+            const CategoryList(),
 
-              SizedBox(height: 10),
-            ],
+            const SizedBox(height: 10),
 
             Expanded(
               child: RefreshIndicator(
-                onRefresh: loadProducts,
+                onRefresh: () async {
+                  await loadProducts(refresh: true);
+                },
+
                 child: LayoutBuilder(
                   builder: (context, constraints) {
                     int crossAxisCount =
@@ -100,19 +158,31 @@ class _HomeScreenState extends State<HomeScreen> {
                             : 2;
 
                     return GridView.builder(
+                      controller: scrollController,
+
                       padding: const EdgeInsets.all(12),
-                      cacheExtent: 500,
-                      itemCount: loading ? 6 : products.length,
+
+                      cacheExtent: 1000,
+
+                      itemCount:
+                          loading ? 6 : products.length + (loadingMore ? 2 : 0),
 
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: crossAxisCount,
+
                         mainAxisSpacing: 12,
+
                         crossAxisSpacing: 12,
+
                         childAspectRatio: 0.68,
                       ),
 
                       itemBuilder: (context, index) {
                         if (loading) {
+                          return const LoadingCard();
+                        }
+
+                        if (index >= products.length) {
                           return const LoadingCard();
                         }
 
