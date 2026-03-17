@@ -26,6 +26,7 @@ namespace ShopBackend.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
+<<<<<<< HEAD
         // ============================
         // 🔥 ADD THIS (QUAN TRỌNG)
         // ============================
@@ -37,3 +38,7 @@ namespace ShopBackend.Models
             = new List<ProductVariant>();
     }
 }
+=======
+    }
+}
+>>>>>>> 4d9c391 (apply new gitignore rules)

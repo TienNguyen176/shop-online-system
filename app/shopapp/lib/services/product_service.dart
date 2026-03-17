@@ -3,18 +3,27 @@ import '../models/product_detail.dart';
 import 'api_client.dart';
 
 class ProductService {
+<<<<<<< HEAD
 
   /// ================= HOME =================
+=======
+  
+>>>>>>> 4d9c391 (apply new gitignore rules)
   Future<List<Product>> getHomeProducts({
     int page = 1,
     int pageSize = 10,
   }) async {
     final res = await ApiClient.dio.get(
+<<<<<<< HEAD
       "/api/products/home", // 👉 giữ nguyên nếu backend có
       queryParameters: {
         "page": page,
         "pageSize": pageSize,
       },
+=======
+      "/api/products/home",
+      queryParameters: {"page": page, "pageSize": pageSize},
+>>>>>>> 4d9c391 (apply new gitignore rules)
     );
 
     final List data = res.data;
@@ -22,6 +31,7 @@ class ProductService {
     return data.map((e) => Product.fromJson(e)).toList();
   }
 
+<<<<<<< HEAD
   /// ================= BRANDS =================
   Future<List<String>> getBrands() async {
     final res = await ApiClient.dio.get("/api/products/brands");
@@ -82,3 +92,11 @@ class ProductService {
 
   getBrandAttributes(String selectedBrand) {}
 }
+=======
+  Future<ProductDetail> getProductDetail(int id) async {
+    final res = await ApiClient.dio.get("/api/products/$id");
+
+    return ProductDetail.fromJson(res.data);
+  }
+}
+>>>>>>> 4d9c391 (apply new gitignore rules)

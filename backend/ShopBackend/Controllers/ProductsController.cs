@@ -16,6 +16,7 @@ namespace ShopBackend.Controllers
             _db = db;
         }
 
+<<<<<<< HEAD
         // ─────────────────────────────────────────────────────────────
         // GET /api/products?page=1&pageSize=10
         //      &brands=Nike,Adidas
@@ -153,13 +154,53 @@ namespace ShopBackend.Controllers
                                 .Select(i => i.ImageUrl)
                                 .FirstOrDefault()
                 })
+=======
+        // Danh sách sản phẩm cho trang chủ
+        [HttpGet("home")]
+        public async Task<IActionResult> GetHomeProducts(
+        int page = 1,
+        int pageSize = 10)
+        {
+
+            var products = await _db.Products
+
+                .OrderByDescending(p => p.Id)
+
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+
+                .Select(p => new ProductHomeDto
+                {
+                    Id = p.Id,
+
+                    Name = p.Name,
+
+                    Rating = p.RatingAvg,
+
+                    Price = _db.ProductVariants
+                        .Where(v => v.ProductId == p.Id)
+                        .Min(v => v.Price),
+
+                    Image = _db.ProductImages
+                        .Where(i => i.ProductId == p.Id && i.IsMain)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault()
+                })
+
+>>>>>>> 4d9c391 (apply new gitignore rules)
                 .ToListAsync();
 
             return Ok(products);
         }
+<<<<<<< HEAD
     // GET /api/products/{id}  (giữ nguyên code cũ)
       
         [HttpGet("{id:long}")]
+=======
+
+        // Chi tiết sản phẩm
+        [HttpGet("{id}")]
+>>>>>>> 4d9c391 (apply new gitignore rules)
         public async Task<IActionResult> GetProductDetail(long id)
         {
             // 1. Load product
@@ -171,8 +212,16 @@ namespace ShopBackend.Controllers
                     p.Name,
                     p.Description,
                     p.RatingAvg,
+<<<<<<< HEAD
                     Images = _db.ProductImages
                         .Where(i => i.ProductId == p.Id && i.VariantId == null)
+=======
+
+                    Images = _db.ProductImages
+                        .Where(i => i.ProductId == p.Id && i.VariantId == null)
+                        .OrderByDescending(i => i.IsMain)
+                        .ThenBy(i => i.Id)
+>>>>>>> 4d9c391 (apply new gitignore rules)
                         .Select(i => i.ImageUrl)
                         .ToList()
                 })
@@ -190,10 +239,18 @@ namespace ShopBackend.Controllers
                     v.Price,
                     v.Sku,
                     v.StockQuantity,
+<<<<<<< HEAD
                     Attributes = v.VariantAttributes
                         .Select(va => new
                         {
                             Name  = va.AttributeValue.Attribute.Name,
+=======
+
+                    Attributes = v.VariantAttributes
+                        .Select(va => new
+                        {
+                            Name = va.AttributeValue.Attribute.Name,
+>>>>>>> 4d9c391 (apply new gitignore rules)
                             Value = va.AttributeValue.Value
                         }).ToList()
                 })
@@ -211,7 +268,11 @@ namespace ShopBackend.Controllers
                 .GroupBy(a => a.Name)
                 .Select(g => new AttributeDto
                 {
+<<<<<<< HEAD
                     Name   = g.Key,
+=======
+                    Name = g.Key,
+>>>>>>> 4d9c391 (apply new gitignore rules)
                     Values = g.Select(x => x.Value).Distinct().ToList()
                 })
                 .ToList();
@@ -219,13 +280,20 @@ namespace ShopBackend.Controllers
             // 5. Variant matrix
             var variants = variantsData.Select(v => new VariantDto
             {
+<<<<<<< HEAD
                 VariantId  = v.Id,
                 Price      = v.Price,
                 Stock      = v.StockQuantity,
+=======
+                VariantId = v.Id,
+                Price = v.Price,
+                Stock = v.StockQuantity,
+>>>>>>> 4d9c391 (apply new gitignore rules)
                 Attributes = v.Attributes.ToDictionary(a => a.Name, a => a.Value)
             }).ToList();
 
             // 6. Images by attribute
+<<<<<<< HEAD
             var imagesByVariant = await _db.ProductImages
                 .Where(i => i.ProductId == id && i.VariantId != null)
                 .GroupBy(i => i.VariantId)
@@ -239,29 +307,73 @@ namespace ShopBackend.Controllers
             var imageDict = imagesByVariant
                 .ToDictionary(x => x.variantId, x => x.image);
 
+=======
+            // Get all images for variants of this product
+            var imagesByVariant = await _db.ProductImages
+                .Where(i => i.ProductId == id && i.VariantId != null)
+                .GroupBy(i => i.VariantId!.Value)
+                .Select(g => new
+                {
+                    variantId = g.Key,
+                    image = g
+                        .OrderByDescending(x => x.IsMain)
+                        .ThenBy(x => x.Id)
+                        .Select(x => x.ImageUrl)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            // Convert to dictionary for quick lookup
+            var imageDict = imagesByVariant
+                .ToDictionary(x => x.variantId, x => x.image);
+
+            // Find the first attribute that has images (e.g. color)
+>>>>>>> 4d9c391 (apply new gitignore rules)
             string? colorName = attributes
                 .Select(a => a.Name)
                 .FirstOrDefault(name =>
                     variants.Any(v =>
                         imageDict.ContainsKey(v.VariantId) &&
+<<<<<<< HEAD
                         v.Attributes.ContainsKey(name)));
 
             Dictionary<string, string> imagesByColor = new();
+=======
+                        v.Attributes.ContainsKey(name)
+                    )
+                );
+
+            // Build imagesByColor
+            Dictionary<string, string> imagesByColor = new();
+
+>>>>>>> 4d9c391 (apply new gitignore rules)
             if (colorName != null)
             {
                 imagesByColor = variants
                     .Where(v =>
                         v.Attributes.ContainsKey(colorName) &&
+<<<<<<< HEAD
                         imageDict.ContainsKey(v.VariantId))
                     .GroupBy(v => v.Attributes[colorName])
                     .ToDictionary(
                         g => g.Key,
                         g => imageDict[g.First().VariantId]);
+=======
+                        imageDict.ContainsKey(v.VariantId) &&
+                        imageDict[v.VariantId] != null
+                    )
+                    .GroupBy(v => v.Attributes[colorName])
+                    .ToDictionary(
+                        g => g.Key,
+                        g => imageDict[g.First().VariantId]!
+                    );
+>>>>>>> 4d9c391 (apply new gitignore rules)
             }
 
             // 7. Final DTO
             var result = new ProductDetailDto
             {
+<<<<<<< HEAD
                 Id           = product.Id,
                 Name         = product.Name,
                 Description  = product.Description,
@@ -270,11 +382,22 @@ namespace ShopBackend.Controllers
                 Rating       = (double)product.RatingAvg,
                 Attributes   = attributes,
                 Variants     = variants,
+=======
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Images = product.Images,
+                MinPrice = minPrice,
+                Rating = (double)product.RatingAvg,
+                Attributes = attributes,
+                Variants = variants,
+>>>>>>> 4d9c391 (apply new gitignore rules)
                 ImagesByColor = imagesByColor
             };
 
             return Ok(result);
         }
+<<<<<<< HEAD
         // ─────────────────────────────────────────────────────────────
 // GET /api/products/brands
 // Trả về danh sách brand duy nhất, sắp xếp theo ABC
@@ -325,3 +448,7 @@ public async Task<IActionResult> GetBrandAttributes([FromQuery] string brand)
 }
     }
 }
+=======
+    }
+}
+>>>>>>> 4d9c391 (apply new gitignore rules)

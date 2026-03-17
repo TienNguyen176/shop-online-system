@@ -16,7 +16,10 @@ namespace ShopBackend.Models
 
         public ProductAttribute Attribute { get; set; }
 
+<<<<<<< HEAD
        
 
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
     }
 }

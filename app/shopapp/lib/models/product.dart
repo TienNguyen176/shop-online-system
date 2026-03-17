@@ -98,6 +98,9 @@ class Product {
     // fallback API home
     return price ?? 0;
   }
+<<<<<<< HEAD
 
   get category => null;
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
 }

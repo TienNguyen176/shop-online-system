@@ -22,10 +22,13 @@ namespace ShopBackend.Data
 
         public DbSet<ProductAttribute> Attributes { get; set; }
 
+<<<<<<< HEAD
         public DbSet<Cart> Carts { get; set; }
         
         public DbSet<CartItem> CartItems { get; set; }
 
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<VariantAttribute>()

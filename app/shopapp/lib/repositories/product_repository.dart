@@ -6,10 +6,18 @@ import 'i_product_repository.dart';
 class ProductRepository implements IProductRepository {
   final ProductService service = ProductService();
 
+<<<<<<< HEAD
   /// ================= CACHE =================
   final Map<String, List<Product>> _homeCache = {};
   final Map<int, ProductDetail> _detailCache = {};
   final Map<String, List<Product>> _filterCache = {};
+=======
+  /// CACHE HOME
+  final Map<String, List<Product>> _homeCache = {};
+
+  /// CACHE DETAIL
+  final Map<int, ProductDetail> _detailCache = {};
+>>>>>>> 4d9c391 (apply new gitignore rules)
 
   /// ================= HOME =================
   @override
@@ -19,14 +27,22 @@ class ProductRepository implements IProductRepository {
   }) async {
     final key = "$page-$pageSize";
 
+<<<<<<< HEAD
+=======
+    /// Cache
+>>>>>>> 4d9c391 (apply new gitignore rules)
     if (_homeCache.containsKey(key)) {
       return _homeCache[key]!;
     }
 
+<<<<<<< HEAD
     final data = await service.getHomeProducts(
       page: page,
       pageSize: pageSize,
     );
+=======
+    final data = await service.getHomeProducts(page: page, pageSize: pageSize);
+>>>>>>> 4d9c391 (apply new gitignore rules)
 
     _homeCache[key] = data;
     return data;
@@ -35,11 +51,16 @@ class ProductRepository implements IProductRepository {
   /// ================= DETAIL =================
   @override
   Future<ProductDetail> getProductDetail(int id) async {
+<<<<<<< HEAD
+=======
+    /// Cache
+>>>>>>> 4d9c391 (apply new gitignore rules)
     if (_detailCache.containsKey(id)) {
       return _detailCache[id]!;
     }
 
     final data = await service.getProductDetail(id);
+<<<<<<< HEAD
 
     _detailCache[id] = data;
     return data;
@@ -89,3 +110,10 @@ class ProductRepository implements IProductRepository {
     return data;
   }
 }
+=======
+    _detailCache[id] = data;
+
+    return data;
+  }
+}
+>>>>>>> 4d9c391 (apply new gitignore rules)

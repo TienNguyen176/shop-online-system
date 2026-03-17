@@ -1,13 +1,19 @@
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:shopapp/repositories/cart_repository.dart';
 import 'package:shopapp/screens/shoppingcar.dart';
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
 import '../repositories/i_product_repository.dart';
 import '../models/product_detail.dart';
 import '../models/product_variant.dart';
 import '../config/app_config.dart';
 
+<<<<<<< HEAD
 final CartRepository cartRepo = CartRepository();
 
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
   final IProductRepository repo;
@@ -68,6 +74,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+<<<<<<< HEAD
   // ✅ ADD TO CART API (MỚI)
  // ✅ addToCart — fix null variantId
 Future<void> addToCart() async {
@@ -96,6 +103,8 @@ Future<void> addToCart() async {
   );
 }
 
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -111,7 +120,11 @@ Future<void> addToCart() async {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
 
+<<<<<<< HEAD
       /// 🔻 BOTTOM BAR
+=======
+      /// 🔻 BOTTOM BAR (Responsive + Safe)
+>>>>>>> 4d9c391 (apply new gitignore rules)
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -126,6 +139,7 @@ Future<void> addToCart() async {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
+<<<<<<< HEAD
 
                   // ✅ ONLY ADD CART HERE
                  onPressed: () async {
@@ -154,6 +168,13 @@ Future<void> addToCart() async {
 
               const SizedBox(width: 10),
 
+=======
+                  onPressed: () {},
+                  child: const Icon(Icons.add_shopping_cart),
+                ),
+              ),
+              const SizedBox(width: 10),
+>>>>>>> 4d9c391 (apply new gitignore rules)
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -174,7 +195,11 @@ Future<void> addToCart() async {
       body: SafeArea(
         child: Column(
           children: [
+<<<<<<< HEAD
             /// HEADER
+=======
+            /// 🔻 HEADER
+>>>>>>> 4d9c391 (apply new gitignore rules)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -196,27 +221,61 @@ Future<void> addToCart() async {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+<<<<<<< HEAD
                     /// IMAGE
                     AspectRatio(
                       aspectRatio: 1,
+=======
+                    /// 🔻 IMAGE (FIX FULL RESPONSIVE)
+                    AspectRatio(
+                      aspectRatio: 1, // luôn vuông, đẹp mọi màn
+>>>>>>> 4d9c391 (apply new gitignore rules)
                       child: Container(
                         color: Colors.white,
                         child: product!.images.isEmpty
                             ? const Center(
+<<<<<<< HEAD
                                 child: Icon(Icons.image_not_supported),
+=======
+                                child: Icon(
+                                  Icons.image_not_supported,
+                                  size: 50,
+                                  color: Colors.grey,
+                                ),
+>>>>>>> 4d9c391 (apply new gitignore rules)
                               )
                             : PageView(
                                 children: product!.images.map((img) {
                                   return Image.network(
                                     "${AppConfig.apiUrl}/$img",
                                     fit: BoxFit.cover,
+<<<<<<< HEAD
+=======
+
+                                    errorBuilder: (_, __, ___) => const Center(
+                                      child: Icon(Icons.broken_image),
+                                    ),
+
+                                    loadingBuilder:
+                                        (context, child, progress) {
+                                      if (progress == null) return child;
+                                      return const Center(
+                                        child:
+                                            CircularProgressIndicator(),
+                                      );
+                                    },
+>>>>>>> 4d9c391 (apply new gitignore rules)
                                   );
                                 }).toList(),
                               ),
                       ),
                     ),
 
+<<<<<<< HEAD
                     /// INFO
+=======
+                    /// 🔻 INFO
+>>>>>>> 4d9c391 (apply new gitignore rules)
                     Container(
                       width: double.infinity,
                       color: Colors.white,
@@ -224,6 +283,7 @@ Future<void> addToCart() async {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
+<<<<<<< HEAD
                           Row(
                             children: [
                               Text(
@@ -232,6 +292,19 @@ Future<void> addToCart() async {
                                   color: Colors.red,
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
+=======
+                          /// PRICE
+                          Row(
+                            children: [
+                              Flexible(
+                                child: Text(
+                                  "${variant?.price ?? product!.minPrice} đ",
+                                  style: const TextStyle(
+                                    color: Colors.red,
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+>>>>>>> 4d9c391 (apply new gitignore rules)
                                 ),
                               ),
                               const Spacer(),
@@ -241,21 +314,48 @@ Future<void> addToCart() async {
 
                           const SizedBox(height: 8),
 
+<<<<<<< HEAD
                           Text(product!.name),
 
                           const SizedBox(height: 16),
 
+=======
+                          /// NAME
+                          Text(
+                            product!.name,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+
+                          const SizedBox(height: 16),
+
+                          /// 🔥 ATTRIBUTES
+>>>>>>> 4d9c391 (apply new gitignore rules)
                           ...product!.attributes.map((attr) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+<<<<<<< HEAD
                                 Text(attr.name,
                                     style: const TextStyle(
                                         fontWeight: FontWeight.bold)),
+=======
+                                Text(
+                                  attr.name,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold),
+                                ),
+>>>>>>> 4d9c391 (apply new gitignore rules)
                                 const SizedBox(height: 8),
 
                                 Wrap(
                                   spacing: 8,
+<<<<<<< HEAD
+=======
+                                  runSpacing: 8,
+>>>>>>> 4d9c391 (apply new gitignore rules)
                                   children: attr.values.map((value) {
                                     final isSelected =
                                         selectedAttributes[attr.name] ==
@@ -269,8 +369,16 @@ Future<void> addToCart() async {
                                         });
                                       },
                                       child: Container(
+<<<<<<< HEAD
                                         padding: const EdgeInsets.symmetric(
                                             horizontal: 12, vertical: 8),
+=======
+                                        padding:
+                                            const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                          vertical: 8,
+                                        ),
+>>>>>>> 4d9c391 (apply new gitignore rules)
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -279,6 +387,12 @@ Future<void> addToCart() async {
                                                 ? Colors.red
                                                 : Colors.grey,
                                           ),
+<<<<<<< HEAD
+=======
+                                          color: isSelected
+                                              ? Colors.red[50]
+                                              : Colors.grey[200],
+>>>>>>> 4d9c391 (apply new gitignore rules)
                                         ),
                                         child: Text(value),
                                       ),
@@ -293,13 +407,29 @@ Future<void> addToCart() async {
 
                           const Divider(),
 
+<<<<<<< HEAD
                           Text(
                             "Kho: ${variant != null && variant.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}",
+=======
+                          buildRow(
+                            "Kho",
+                            variant != null && variant.stockQuantity > 0
+                                ? "Còn hàng"
+                                : "Hết hàng",
+>>>>>>> 4d9c391 (apply new gitignore rules)
                           ),
 
                           const Divider(),
 
+<<<<<<< HEAD
                           Text(product!.description),
+=======
+                          /// DESCRIPTION
+                          Text(
+                            product!.description,
+                            style: const TextStyle(color: Colors.black87),
+                          ),
+>>>>>>> 4d9c391 (apply new gitignore rules)
                         ],
                       ),
                     ),
@@ -312,4 +442,24 @@ Future<void> addToCart() async {
       ),
     );
   }
+<<<<<<< HEAD
+=======
+
+  Widget buildRow(String left, String right) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(child: Text(left)),
+          Expanded(
+            child: Text(
+              right,
+              textAlign: TextAlign.end,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+>>>>>>> 4d9c391 (apply new gitignore rules)
 }

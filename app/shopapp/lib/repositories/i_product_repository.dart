@@ -6,6 +6,7 @@ abstract class IProductRepository {
   Future<List<Product>> getHomeProducts({int page = 1, int pageSize = 10});
 
   Future<ProductDetail> getProductDetail(int id);
+<<<<<<< HEAD
    Future<List<Product>> getProducts({
     int page = 1,
     int pageSize = 10,
@@ -17,4 +18,6 @@ abstract class IProductRepository {
   });
 
   getBrands() {}
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
 }

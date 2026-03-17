@@ -4,6 +4,10 @@ class ProductVariant {
   final double price;
   final int stockQuantity;
   final DateTime? createdAt;
+<<<<<<< HEAD
+=======
+
+>>>>>>> 4d9c391 (apply new gitignore rules)
   final Map<String, String> attributes;
 
   ProductVariant({
@@ -17,6 +21,7 @@ class ProductVariant {
 
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
     return ProductVariant(
+<<<<<<< HEAD
       id: _safeInt(json["variantId"]),
       sku: json["sku"]?.toString(),
       price: _safeDouble(json["price"]),
@@ -47,3 +52,17 @@ class ProductVariant {
     return double.tryParse(v.toString()) ?? 0.0;
   }
 }
+=======
+      id: json["variantId"] ?? 0,
+      sku: json["sku"],
+      price: (json["price"] ?? 0).toDouble(),
+      stockQuantity: json["stock_quantity"] ?? 0,
+      createdAt:
+          json["created_at"] != null
+              ? DateTime.parse(json["created_at"])
+              : null,
+      attributes: Map<String, String>.from(json['attributes']),
+    );
+  }
+}
+>>>>>>> 4d9c391 (apply new gitignore rules)

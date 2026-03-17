@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
+<<<<<<< HEAD
 import 'package:shopapp/services/product_service.dart';
 import '../widgets/filter_sheet.dart';
 
 import '../models/product.dart';
 import '../models/product_filter.dart';
+=======
+
+import '../models/product.dart';
+//import '../repositories/product_repository.dart';
+>>>>>>> 4d9c391 (apply new gitignore rules)
 import '../repositories/i_product_repository.dart';
 
 import '../widgets/home_header.dart';
@@ -15,7 +21,11 @@ import '../widgets/product_card.dart';
 import '../widgets/loading_card.dart';
 
 class HomeScreen extends StatefulWidget {
+<<<<<<< HEAD
   final IProductRepository repo;
+=======
+  final IProductRepository repo; // inject từ ngoài
+>>>>>>> 4d9c391 (apply new gitignore rules)
 
   const HomeScreen({super.key, required this.repo});
 
@@ -30,15 +40,20 @@ class _HomeScreenState extends State<HomeScreen> {
   final TextEditingController searchController = TextEditingController();
 
   List<Product> products = [];
+<<<<<<< HEAD
 
   /// allProducts = data gốc từ API, KHÔNG bao giờ bị filter/category ghi đè
   List<Product> allProducts = [];
   List<String> brands = [];
+=======
+  List<Product> allProducts = [];
+>>>>>>> 4d9c391 (apply new gitignore rules)
 
   bool loading = true;
   bool loadingMore = false;
   bool hasMore = true;
 
+<<<<<<< HEAD
   /// hasApiFilter = true khi đang dùng bộ lọc (brands/price/size/color)
   /// Chỉ true khi bấm "Áp dụng" từ FilterSheet
   bool hasApiFilter = false;
@@ -51,11 +66,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<String> _categories = ["Tất cả", "Áo thun", "Áo khoác", "Giày", "Quần"];
 
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
   int page = 1;
   final int pageSize = 10;
 
   Timer? debounce;
 
+<<<<<<< HEAD
   ProductFilter currentFilter = ProductFilter();
 
   /// Token để huỷ response cũ khi có request mới
@@ -81,6 +99,20 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// ================= LOAD PRODUCTS (API) =================
+=======
+  @override
+  void initState() {
+    super.initState();
+
+    repo = widget.repo;
+
+    loadProducts();
+
+    scrollController.addListener(scrollListener);
+  }
+
+  /// LOAD PRODUCTS
+>>>>>>> 4d9c391 (apply new gitignore rules)
   Future<void> loadProducts({bool refresh = false}) async {
     if (refresh) {
       page = 1;
@@ -89,6 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!hasMore) return;
 
+<<<<<<< HEAD
     // Snapshot token + state tại thời điểm gọi
     final int token = ++_loadToken;
     final bool isApiFilter = hasApiFilter;
@@ -99,10 +132,17 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() => loading = true);
     } else {
       if (loadingMore) return;
+=======
+    if (page == 1) {
+      setState(() => loading = true);
+    } else {
+      if (loadingMore) return; // Chống gọi nhiều lần
+>>>>>>> 4d9c391 (apply new gitignore rules)
       setState(() => loadingMore = true);
     }
 
     try {
+<<<<<<< HEAD
       final data = isApiFilter
           ? await repo.getProducts(
               page: page,
@@ -184,6 +224,32 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   /// ================= SCROLL =================
+=======
+      final data = await repo.getHomeProducts(page: page, pageSize: pageSize);
+
+      setState(() {
+        if (data.length < pageSize) {
+          hasMore = false; // Hết data
+        }
+
+        if (page == 1) {
+          products = data;
+          allProducts = data;
+        } else {
+          products.addAll(data);
+          allProducts.addAll(data);
+        }
+
+        loading = false;
+        loadingMore = false;
+      });
+    } catch (e) {
+      debugPrint("Load product error: $e");
+    }
+  }
+
+  /// INFINITE SCROLL
+>>>>>>> 4d9c391 (apply new gitignore rules)
   void scrollListener() {
     if (scrollController.position.pixels >=
             scrollController.position.maxScrollExtent - 200 &&
@@ -195,6 +261,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+<<<<<<< HEAD
   /// ================= SEARCH =================
   void searchProducts(String keyword) {
   if (debounce?.isActive ?? false) debounce!.cancel();
@@ -214,12 +281,35 @@ class _HomeScreenState extends State<HomeScreen> {
     _applyLocalFilter(); // filter local theo keyword hiện tại
   });
 }
+=======
+  /// SEARCH WITH DEBOUNCE
+  void searchProducts(String keyword) {
+    if (debounce?.isActive ?? false) {
+      debounce!.cancel();
+    }
+
+    debounce = Timer(const Duration(milliseconds: 400), () {
+      if (keyword.isEmpty) {
+        setState(() => products = List.from(allProducts));
+        return;
+      }
+
+      final results =
+          allProducts.where((p) {
+            return p.name.toLowerCase().contains(keyword.toLowerCase());
+          }).toList();
+
+      setState(() => products = results);
+    });
+  }
+>>>>>>> 4d9c391 (apply new gitignore rules)
 
   @override
   void dispose() {
     scrollController.dispose();
     searchController.dispose();
     debounce?.cancel();
+<<<<<<< HEAD
     super.dispose();
   }
 
@@ -234,10 +324,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xffeef2fb),
+=======
+    scrollController.removeListener(scrollListener);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xffeef2fb),
+
+>>>>>>> 4d9c391 (apply new gitignore rules)
       body: SafeArea(
         child: Column(
           children: [
             const HomeHeader(),
+<<<<<<< HEAD
             custom_widgets.SearchBar(
               controller: searchController,
               onChanged: searchProducts,
@@ -328,11 +430,59 @@ class _HomeScreenState extends State<HomeScreen> {
                     int crossAxisCount = constraints.maxWidth > 900
                         ? 4
                         : constraints.maxWidth > 600
+=======
+
+            custom_widgets.SearchBar(
+              controller: searchController,
+              onChanged: searchProducts,
+            ),
+
+            const SizedBox(height: 10),
+
+            const BannerSlider(),
+
+            const SizedBox(height: 10),
+
+            const CategoryList(),
+
+            const SizedBox(height: 10),
+
+            Expanded(
+              child: RefreshIndicator(
+                onRefresh: () async {
+                  await loadProducts(refresh: true);
+                },
+
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    if (!loading && products.isEmpty) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 10),
+                            Text("Không có sản phẩm"),
+                          ],
+                        ),
+                      );
+                    }
+
+                    int crossAxisCount =
+                        constraints.maxWidth > 900
+                            ? 4
+                            : constraints.maxWidth > 600
+>>>>>>> 4d9c391 (apply new gitignore rules)
                             ? 3
                             : 2;
 
                     return GridView.builder(
                       controller: scrollController,
+<<<<<<< HEAD
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.all(12),
                       cacheExtent: 1000,
@@ -351,6 +501,39 @@ class _HomeScreenState extends State<HomeScreen> {
                         if (index >= products.length) {
                           return const Center(
                             child: CircularProgressIndicator(),
+=======
+
+                      physics: const BouncingScrollPhysics(),
+
+                      padding: const EdgeInsets.all(12),
+
+                      cacheExtent: 1000,
+
+                      itemCount:
+                          loading ? 6 : products.length + (loadingMore ? 2 : 0),
+
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: crossAxisCount,
+
+                        mainAxisSpacing: 12,
+
+                        crossAxisSpacing: 12,
+
+                        childAspectRatio: 0.68,
+                      ),
+
+                      itemBuilder: (context, index) {
+                        if (loading) {
+                          return const LoadingCard();
+                        }
+
+                        if (index >= products.length) {
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: CircularProgressIndicator(),
+                            ),
+>>>>>>> 4d9c391 (apply new gitignore rules)
                           );
                         }
 
@@ -369,4 +552,8 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> 4d9c391 (apply new gitignore rules)

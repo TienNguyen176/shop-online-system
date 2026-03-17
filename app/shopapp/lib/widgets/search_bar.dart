@@ -3,13 +3,19 @@ import 'package:flutter/material.dart';
 class SearchBar extends StatelessWidget {
   final TextEditingController controller;
   final Function(String) onChanged;
+<<<<<<< HEAD
   final VoidCallback? onFilter; // 👈 THÊM DÒNG NÀY
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
 
   const SearchBar({
     super.key,
     required this.controller,
     required this.onChanged,
+<<<<<<< HEAD
     this.onFilter, // 👈 THÊM DÒNG NÀY
+=======
+>>>>>>> 4d9c391 (apply new gitignore rules)
   });
 
   @override
@@ -46,10 +52,14 @@ class SearchBar extends StatelessWidget {
 
           const SizedBox(width: 10),
 
+<<<<<<< HEAD
           IconButton(
   icon: const Icon(Icons.filter_alt_outlined),
   onPressed: onFilter,
 ),
+=======
+          const Icon(Icons.filter_alt_outlined, size: 28),
+>>>>>>> 4d9c391 (apply new gitignore rules)
         ],
       ),
     );
