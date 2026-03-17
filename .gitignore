@@ -53,6 +53,7 @@ pubspec.lock
 
 bin/
 obj/
+wwwroot
 
 *.user
 *.suo
