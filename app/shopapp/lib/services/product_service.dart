@@ -4,14 +4,18 @@ import 'api_client.dart';
 
 class ProductService {
 <<<<<<< HEAD
+<<<<<<< HEAD
 
   /// ================= HOME =================
 =======
   
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+>>>>>>> 4caf251 (Add SplashScreen, Setup Build APK, Update API,NET)
   Future<List<Product>> getHomeProducts({
     int page = 1,
-    int pageSize = 10,
+    int pageSize = 8,
+    int? categoryId,
   }) async {
     final res = await ApiClient.dio.get(
 <<<<<<< HEAD
@@ -22,8 +26,16 @@ class ProductService {
       },
 =======
       "/api/products/home",
+<<<<<<< HEAD
       queryParameters: {"page": page, "pageSize": pageSize},
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+      queryParameters: {
+        "page": page,
+        "pageSize": pageSize,
+        if (categoryId != null && categoryId != 0) "categoryId": categoryId,
+      },
+>>>>>>> 4caf251 (Add SplashScreen, Setup Build APK, Update API,NET)
     );
 
     final List data = res.data;

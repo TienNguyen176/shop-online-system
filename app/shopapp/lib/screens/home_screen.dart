@@ -15,6 +15,7 @@ import '../models/product.dart';
 =======
 >>>>>>> 667b85e (update UI Home and ProductDetail Screen)
 import '../repositories/i_product_repository.dart';
+import '../repositories/category_repository.dart';
 
 import '../widgets/home_header.dart';
 import '../widgets/search_bar.dart' as custom_widgets;
@@ -38,6 +39,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final IProductRepository repo;
+
+  final categoryRepo = CategoryRepository();
 
   final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
@@ -72,7 +75,9 @@ class _HomeScreenState extends State<HomeScreen> {
 =======
 >>>>>>> 4d9c391 (apply new gitignore rules)
   int page = 1;
-  final int pageSize = 10;
+  final int pageSize = 8;
+
+  int? selectedCategoryId;
 
   Timer? debounce;
 
@@ -120,6 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (refresh) {
       page = 1;
       hasMore = true;
+
+      products.clear();
+      allProducts.clear();
     }
 
     if (!hasMore) return;
@@ -145,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
+<<<<<<< HEAD
 <<<<<<< HEAD
       final data = isApiFilter
           ? await repo.getProducts(
@@ -229,6 +238,13 @@ class _HomeScreenState extends State<HomeScreen> {
   /// ================= SCROLL =================
 =======
       final data = await repo.getHomeProducts(page: page, pageSize: pageSize);
+=======
+      final data = await repo.getHomeProducts(
+        page: page,
+        pageSize: pageSize,
+        categoryId: selectedCategoryId,
+      );
+>>>>>>> 4caf251 (Add SplashScreen, Setup Build APK, Update API,NET)
 
       setState(() {
         if (data.length < pageSize) {
@@ -247,7 +263,7 @@ class _HomeScreenState extends State<HomeScreen> {
         loadingMore = false;
       });
     } catch (e) {
-      debugPrint("Load product error: $e");
+      //debugPrint("Load product error: $e");
     }
   }
 
@@ -446,7 +462,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
-            const CategoryList(),
+            // Danh mục sản phẩm
+            CategoryList(
+              repo: categoryRepo,
+              onSelected: (categoryId) {
+                setState(() {
+                  selectedCategoryId = categoryId;
+                });
+
+                loadProducts(refresh: true);
+              },
+            ),
 
             const SizedBox(height: 10),
 

@@ -23,9 +23,10 @@ class ProductRepository implements IProductRepository {
   @override
   Future<List<Product>> getHomeProducts({
     int page = 1,
-    int pageSize = 10,
+    int pageSize = 8,
+    int? categoryId,
   }) async {
-    final key = "$page-$pageSize";
+    final key = "$page-$pageSize-$categoryId";
 
 <<<<<<< HEAD
 =======
@@ -36,6 +37,7 @@ class ProductRepository implements IProductRepository {
     }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
     final data = await service.getHomeProducts(
       page: page,
       pageSize: pageSize,
@@ -43,6 +45,13 @@ class ProductRepository implements IProductRepository {
 =======
     final data = await service.getHomeProducts(page: page, pageSize: pageSize);
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+    final data = await service.getHomeProducts(
+      page: page,
+      pageSize: pageSize,
+      categoryId: categoryId,
+    );
+>>>>>>> 4caf251 (Add SplashScreen, Setup Build APK, Update API,NET)
 
     _homeCache[key] = data;
     return data;

@@ -45,5 +45,7 @@ namespace ShopBackend.Data
                 .HasForeignKey(x => x.AttributeValueId);
         }
 
+        public DbSet<Category> Categories { get; set; }
+
     }
  }
