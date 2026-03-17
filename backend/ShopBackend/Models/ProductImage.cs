@@ -18,5 +18,8 @@ namespace ShopBackend.Models
         [Column("is_main")]
         public bool IsMain { get; set; }
 
+        [Column("variant_id")]
+        public long? VariantId { get; set; }
+
     }
 }

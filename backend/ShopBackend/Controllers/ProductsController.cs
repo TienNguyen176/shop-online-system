@@ -54,17 +54,132 @@ namespace ShopBackend.Controllers
         }
 
 
-        //// Chi tiết sản phẩm
-        //[HttpGet("{id}")]
-        //public async Task<IActionResult> GetProduct(int id)
-        //{
-        //    var product = await _db.Products
-        //        .FirstOrDefaultAsync(x => x.Id == id);
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductDetail(long id)
+        {
+            // 1. Load product
+            var product = await _db.Products
+                .Where(p => p.Id == id)
+                .Select(p => new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Description,
+                    p.RatingAvg,
 
-        //    if (product == null)
-        //        return NotFound();
+                    Images = _db.ProductImages
+                        .Where(i => i.ProductId == p.Id && i.VariantId == null)
+                        .Select(i => i.ImageUrl)
+                        .ToList()
+                })
+                .FirstOrDefaultAsync();
 
-        //    return Ok(product);
-        //}
+            if (product == null)
+                return NotFound();
+
+            // 2. Load variants
+            var variantsData = await _db.ProductVariants
+                .Where(v => v.ProductId == id)
+                .Select(v => new
+                {
+                    v.Id,
+                    v.Price,
+                    v.Sku,
+                    v.StockQuantity,
+
+                    Attributes = v.VariantAttributes
+                        .Select(va => new
+                        {
+                            Name = va.AttributeValue.Attribute.Name,
+                            Value = va.AttributeValue.Value
+                        }).ToList()
+                })
+                .ToListAsync();
+
+            if (!variantsData.Any())
+                return NotFound();
+
+            // 3. Min price
+            var minPrice = variantsData.Min(v => v.Price);
+
+            // 4. Group attributes
+            var attributes = variantsData
+                .SelectMany(v => v.Attributes)
+                .GroupBy(a => a.Name)
+                .Select(g => new AttributeDto
+                {
+                    Name = g.Key,
+                    Values = g.Select(x => x.Value).Distinct().ToList()
+                })
+                .ToList();
+
+            // 5. Variant matrix
+            var variants = variantsData.Select(v => new VariantDto
+            {
+                VariantId = v.Id,
+                Price = v.Price,
+                Stock = v.StockQuantity,
+                Attributes = v.Attributes.ToDictionary(a => a.Name, a => a.Value)
+            }).ToList();
+
+            // 6. Images by attribute
+            // Get all images for variants of this product
+            var imagesByVariant = await _db.ProductImages
+                .Where(i => i.ProductId == id && i.VariantId != null)
+                .GroupBy(i => i.VariantId)
+                .Select(g => new
+                {
+                    variantId = g.Key.Value,
+                    image = g.First().ImageUrl
+                })
+                .ToListAsync();
+
+            // Convert to dictionary for quick lookup
+            var imageDict = imagesByVariant
+                .ToDictionary(x => x.variantId, x => x.image);
+
+            // Find the first attribute that has images (e.g. color)
+            string? colorName = attributes
+                .Select(a => a.Name)
+                .FirstOrDefault(name =>
+                    variants.Any(v =>
+                        imageDict.ContainsKey(v.VariantId) &&
+                        v.Attributes.ContainsKey(name)
+                    )
+                );
+
+            // Build imagesByColor
+            Dictionary<string, string> imagesByColor = new();
+
+            if (colorName != null)
+            {
+                imagesByColor = variants
+                    .Where(v =>
+                        v.Attributes.ContainsKey(colorName) &&
+                        imageDict.ContainsKey(v.VariantId)
+                    )
+                    .GroupBy(v => v.Attributes[colorName])
+                    .ToDictionary(
+                        g => g.Key,
+                        g => imageDict[g.First().VariantId]
+                    );
+            }
+
+            // 7. Final DTO
+            var result = new ProductDetailDto
+            {
+                Id = product.Id,
+                Name = product.Name,
+                Description = product.Description,
+                Images = product.Images,
+                MinPrice = minPrice,
+                Rating = (double)product.RatingAvg,
+                Attributes = attributes,
+                Variants = variants,
+                ImagesByColor = imagesByColor
+            };
+
+            return Ok(result);
+        }
     }
 }

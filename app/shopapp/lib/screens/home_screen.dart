@@ -2,7 +2,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 
 import '../models/product.dart';
-import '../repositories/product_repository.dart';
+//import '../repositories/product_repository.dart';
+import '../repositories/i_product_repository.dart';
 
 import '../widgets/home_header.dart';
 import '../widgets/search_bar.dart' as custom_widgets;
@@ -12,14 +13,16 @@ import '../widgets/product_card.dart';
 import '../widgets/loading_card.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final IProductRepository repo; // inject từ ngoài
+
+  const HomeScreen({super.key, required this.repo});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  final ProductRepository repo = ProductRepository();
+  late final IProductRepository repo;
 
   final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
@@ -29,6 +32,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   bool loading = true;
   bool loadingMore = false;
+  bool hasMore = true;
 
   int page = 1;
   final int pageSize = 10;
@@ -39,6 +43,8 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
+    repo = widget.repo;
+
     loadProducts();
 
     scrollController.addListener(scrollListener);
@@ -48,12 +54,15 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> loadProducts({bool refresh = false}) async {
     if (refresh) {
       page = 1;
-      products.clear();
+      hasMore = true;
     }
+
+    if (!hasMore) return;
 
     if (page == 1) {
       setState(() => loading = true);
     } else {
+      if (loadingMore) return; // Chống gọi nhiều lần
       setState(() => loadingMore = true);
     }
 
@@ -61,6 +70,10 @@ class _HomeScreenState extends State<HomeScreen> {
       final data = await repo.getHomeProducts(page: page, pageSize: pageSize);
 
       setState(() {
+        if (data.length < pageSize) {
+          hasMore = false; // Hết data
+        }
+
         if (page == 1) {
           products = data;
           allProducts = data;
@@ -81,9 +94,10 @@ class _HomeScreenState extends State<HomeScreen> {
   void scrollListener() {
     if (scrollController.position.pixels >=
             scrollController.position.maxScrollExtent - 200 &&
-        !loadingMore) {
+        !loadingMore &&
+        !loading &&
+        hasMore) {
       page++;
-
       loadProducts();
     }
   }
@@ -96,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
     debounce = Timer(const Duration(milliseconds: 400), () {
       if (keyword.isEmpty) {
-        setState(() => products = allProducts);
+        setState(() => products = List.from(allProducts));
         return;
       }
 
@@ -114,6 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
     scrollController.dispose();
     searchController.dispose();
     debounce?.cancel();
+    scrollController.removeListener(scrollListener);
     super.dispose();
   }
 
@@ -150,6 +165,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 child: LayoutBuilder(
                   builder: (context, constraints) {
+                    if (!loading && products.isEmpty) {
+                      return const Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.inventory_2_outlined,
+                              size: 60,
+                              color: Colors.grey,
+                            ),
+                            SizedBox(height: 10),
+                            Text("Không có sản phẩm"),
+                          ],
+                        ),
+                      );
+                    }
+
                     int crossAxisCount =
                         constraints.maxWidth > 900
                             ? 4
@@ -159,6 +191,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
                     return GridView.builder(
                       controller: scrollController,
+
+                      physics: const BouncingScrollPhysics(),
 
                       padding: const EdgeInsets.all(12),
 
@@ -183,10 +217,18 @@ class _HomeScreenState extends State<HomeScreen> {
                         }
 
                         if (index >= products.length) {
-                          return const LoadingCard();
+                          return const Center(
+                            child: Padding(
+                              padding: EdgeInsets.all(8),
+                              child: CircularProgressIndicator(),
+                            ),
+                          );
                         }
 
-                        return ProductCard(product: products[index]);
+                        return ProductCard(
+                          product: products[index],
+                          repo: repo,
+                        );
                       },
                     );
                   },

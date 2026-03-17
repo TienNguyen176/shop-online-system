@@ -19,8 +19,7 @@ namespace ShopBackend.Models
         [Column("stock_quantity")]
         public int StockQuantity { get; set; }
 
-        [Column("created_at")]
-        public DateTime CreatedAt { get; set; }
+        public List<VariantAttribute> VariantAttributes { get; set; }
 
     }
 }
