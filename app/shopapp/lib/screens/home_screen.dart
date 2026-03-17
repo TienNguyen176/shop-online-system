@@ -59,9 +59,6 @@ class _HomeScreenState extends State<HomeScreen> {
     if (refresh) {
       page = 1;
       hasMore = true;
-
-      products.clear();
-      allProducts.clear();
     }
 
     if (!hasMore) return;
