@@ -16,16 +16,21 @@ class ProductRepository implements IProductRepository {
   @override
   Future<List<Product>> getHomeProducts({
     int page = 1,
-    int pageSize = 10,
+    int pageSize = 8,
+    int? categoryId,
   }) async {
-    final key = "$page-$pageSize";
+    final key = "$page-$pageSize-$categoryId";
 
     /// Cache
     if (_homeCache.containsKey(key)) {
       return _homeCache[key]!;
     }
 
-    final data = await service.getHomeProducts(page: page, pageSize: pageSize);
+    final data = await service.getHomeProducts(
+      page: page,
+      pageSize: pageSize,
+      categoryId: categoryId,
+    );
 
     _homeCache[key] = data;
     return data;

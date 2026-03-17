@@ -58,7 +58,7 @@ class ProductCard extends StatelessWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child:
+                child: 
                     imageUrl != null
                         ? CachedNetworkImage(
                           imageUrl: imageUrl,
@@ -125,7 +125,7 @@ class ProductCard extends StatelessWidget {
               GestureDetector(
                 onTap: () {
                   /// TODO: Add to cart
-                  debugPrint("Add to cart: ${product.id}");
+                  //debugPrint("Add to cart: ${product.id}");
                 },
                 child: Container(
                   padding: const EdgeInsets.all(6),
@@ -147,7 +147,7 @@ class ProductCard extends StatelessWidget {
                 child: GestureDetector(
                   onTap: () {
                     /// TODO: Buy now
-                    debugPrint("Buy now: ${product.id}");
+                    //debugPrint("Buy now: ${product.id}");
                   },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 6),

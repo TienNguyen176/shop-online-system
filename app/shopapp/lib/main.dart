@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
-import 'screens/home_screen.dart';
+import 'screens/splash_screen.dart';
 import 'repositories/product_repository.dart';
+import 'repositories/category_repository.dart';
 import 'repositories/i_product_repository.dart';
+import 'repositories/i_category_repository.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -19,7 +21,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     /// Inject repo global (simple DI)
-    final IProductRepository repo = ProductRepository();
+    final IProductRepository productRepo = ProductRepository();
+    final ICategoryRepository categoryRepo = CategoryRepository();
 
     return MaterialApp(
       title: 'Shop App',
@@ -31,7 +34,7 @@ class MyApp extends StatelessWidget {
       ),
 
       /// Route
-      home: HomeScreen(repo: repo),
+      home: SplashScreen(productRepo: productRepo, categoryRepo: categoryRepo),
     );
   }
 }

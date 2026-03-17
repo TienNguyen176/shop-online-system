@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../models/product.dart';
 import '../repositories/i_product_repository.dart';
+import '../repositories/category_repository.dart';
 
 import '../widgets/home_header.dart';
 import '../widgets/search_bar.dart' as custom_widgets;
@@ -23,6 +24,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final IProductRepository repo;
 
+  final categoryRepo = CategoryRepository();
+
   final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
 
@@ -34,7 +37,9 @@ class _HomeScreenState extends State<HomeScreen> {
   bool hasMore = true;
 
   int page = 1;
-  final int pageSize = 10;
+  final int pageSize = 8;
+
+  int? selectedCategoryId;
 
   Timer? debounce;
 
@@ -54,6 +59,9 @@ class _HomeScreenState extends State<HomeScreen> {
     if (refresh) {
       page = 1;
       hasMore = true;
+
+      products.clear();
+      allProducts.clear();
     }
 
     if (!hasMore) return;
@@ -66,7 +74,11 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      final data = await repo.getHomeProducts(page: page, pageSize: pageSize);
+      final data = await repo.getHomeProducts(
+        page: page,
+        pageSize: pageSize,
+        categoryId: selectedCategoryId,
+      );
 
       setState(() {
         if (data.length < pageSize) {
@@ -85,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
         loadingMore = false;
       });
     } catch (e) {
-      debugPrint("Load product error: $e");
+      //debugPrint("Load product error: $e");
     }
   }
 
@@ -152,7 +164,17 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
-            const CategoryList(),
+            // Danh mục sản phẩm
+            CategoryList(
+              repo: categoryRepo,
+              onSelected: (categoryId) {
+                setState(() {
+                  selectedCategoryId = categoryId;
+                });
+
+                loadProducts(refresh: true);
+              },
+            ),
 
             const SizedBox(height: 10),
 
