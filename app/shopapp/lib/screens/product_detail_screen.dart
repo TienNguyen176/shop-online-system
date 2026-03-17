@@ -121,10 +121,14 @@ Future<void> addToCart() async {
       backgroundColor: const Color(0xfff5f5f5),
 
 <<<<<<< HEAD
+<<<<<<< HEAD
       /// 🔻 BOTTOM BAR
 =======
       /// 🔻 BOTTOM BAR (Responsive + Safe)
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+      /// BOTTOM BAR
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -196,10 +200,14 @@ Future<void> addToCart() async {
         child: Column(
           children: [
 <<<<<<< HEAD
+<<<<<<< HEAD
             /// HEADER
 =======
             /// 🔻 HEADER
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+            /// HEADER
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -222,6 +230,7 @@ Future<void> addToCart() async {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 <<<<<<< HEAD
+<<<<<<< HEAD
                     /// IMAGE
                     AspectRatio(
                       aspectRatio: 1,
@@ -230,6 +239,11 @@ Future<void> addToCart() async {
                     AspectRatio(
                       aspectRatio: 1, // luôn vuông, đẹp mọi màn
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+                    /// IMAGE
+                    AspectRatio(
+                      aspectRatio: 1,
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
                       child: Container(
                         color: Colors.white,
                         child: product!.images.isEmpty
@@ -248,9 +262,13 @@ Future<void> addToCart() async {
                                 children: product!.images.map((img) {
                                   return Image.network(
                                     "${AppConfig.apiUrl}/$img",
+<<<<<<< HEAD
                                     fit: BoxFit.cover,
 <<<<<<< HEAD
 =======
+=======
+                                    fit: BoxFit.contain,
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
 
                                     errorBuilder: (_, __, ___) => const Center(
                                       child: Icon(Icons.broken_image),
@@ -272,10 +290,14 @@ Future<void> addToCart() async {
                     ),
 
 <<<<<<< HEAD
+<<<<<<< HEAD
                     /// INFO
 =======
                     /// 🔻 INFO
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+                    /// INFO
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
                     Container(
                       width: double.infinity,
                       color: Colors.white,
@@ -308,7 +330,7 @@ Future<void> addToCart() async {
                                 ),
                               ),
                               const Spacer(),
-                              const Text("đã bán: 2"),
+                              const Text("Đã bán: 0"),
                             ],
                           ),
 
@@ -331,8 +353,12 @@ Future<void> addToCart() async {
 
                           const SizedBox(height: 16),
 
+<<<<<<< HEAD
                           /// 🔥 ATTRIBUTES
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+                          /// ATTRIBUTES
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
                           ...product!.attributes.map((attr) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

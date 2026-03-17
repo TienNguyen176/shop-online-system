@@ -9,8 +9,11 @@ import '../models/product_filter.dart';
 =======
 
 import '../models/product.dart';
+<<<<<<< HEAD
 //import '../repositories/product_repository.dart';
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+>>>>>>> 667b85e (update UI Home and ProductDetail Screen)
 import '../repositories/i_product_repository.dart';
 
 import '../widgets/home_header.dart';
