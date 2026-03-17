@@ -10,125 +10,124 @@ class ProductCard extends StatelessWidget {
   final Product product;
   final IProductRepository repo; // Add repo
 
-  const ProductCard({
-    super.key,
-    required this.product,
-    required this.repo,
-  });
+  const ProductCard({super.key, required this.product, required this.repo});
 
   @override
   Widget build(BuildContext context) {
-
     /// Tránh null image
-    final imageUrl = (product.mainImage != null &&
-            product.mainImage!.isNotEmpty)
-        ? "${AppConfig.apiUrl}/${product.mainImage}"
-        : null;
+    final imageUrl =
+        (product.mainImage != null && product.mainImage!.isNotEmpty)
+            ? "${AppConfig.apiUrl}/${product.mainImage}"
+            : null;
 
-    return GestureDetector(
-      onTap: () {
-        /// Navigate --> detail
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProductDetailScreen(
-              productId: product.id,
-              repo: repo,
-            ),
+    //print("${AppConfig.apiUrl}/${product.mainImage}");
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.blue[50],
+        borderRadius: BorderRadius.circular(14),
+
+        /// Shadow
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 4,
+            offset: const Offset(0, 2),
           ),
-        );
-      },
+        ],
+      ),
+      padding: const EdgeInsets.all(10),
 
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.blue[50],
-          borderRadius: BorderRadius.circular(14),
-
-          /// Shadow
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            )
-          ],
-        ),
-        padding: const EdgeInsets.all(10),
-
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            /// IMAGE
-            Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          /// IMAGE
+          Expanded(
+            child: GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder:
+                        (_) => ProductDetailScreen(
+                          productId: product.id,
+                          repo: repo,
+                        ),
+                  ),
+                );
+              },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: imageUrl != null
-                    ? CachedNetworkImage(
-                        imageUrl: imageUrl,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
+                child:
+                    imageUrl != null
+                        ? CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.contain,
+                          width: double.infinity,
 
-                        placeholder: (context, url) => Container(
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
+                          placeholder:
+                              (context, url) => Container(
+                                color: Colors.grey[200],
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                ),
+                              ),
 
-                        errorWidget: (context, url, error) => Container(
+                          errorWidget:
+                              (context, url, error) => Container(
+                                color: Colors.grey[200],
+                                child: const Icon(Icons.image_not_supported),
+                              ),
+                        )
+                        : Container(
                           color: Colors.grey[200],
-                          child: const Icon(Icons.image_not_supported),
+                          child: const Center(child: Icon(Icons.image)),
                         ),
-                      )
-                    : Container(
-                        color: Colors.grey[200],
-                        child: const Center(
-                          child: Icon(Icons.image),
-                        ),
-                      ),
               ),
             ),
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-            /// NAME
-            Text(
-              product.name,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
+          /// NAME
+          Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis),
 
-            const SizedBox(height: 4),
+          const SizedBox(height: 4),
 
-            /// PRICE + RATING
-            Row(
-              children: [
-                /// PRICE
-                Text(
-                  "${product.minPrice.toStringAsFixed(0)} đ",
-                  style: const TextStyle(
-                    color: Colors.red,
-                    fontWeight: FontWeight.bold,
-                  ),
+          /// PRICE + RATING
+          Row(
+            children: [
+              /// PRICE
+              Text(
+                "${product.minPrice.toStringAsFixed(0)} đ",
+                style: const TextStyle(
+                  color: Colors.red,
+                  fontWeight: FontWeight.bold,
                 ),
+              ),
 
-                const Spacer(),
+              const Spacer(),
 
-                /// RATING
-                const Icon(Icons.star, color: Colors.orange, size: 16),
+              /// RATING
+              const Icon(Icons.star, color: Colors.orange, size: 16),
 
-                Text(
-                  product.ratingAvg.toStringAsFixed(1),
-                ),
-              ],
-            ),
+              Text(product.ratingAvg.toStringAsFixed(1)),
+            ],
+          ),
 
-            const SizedBox(height: 8),
+          const SizedBox(height: 8),
 
-            /// BUTTON
-            Row(
-              children: [
-                Container(
+          /// BUTTONS
+          Row(
+            children: [
+              GestureDetector(
+                onTap: () {
+                  /// TODO: Add to cart
+                  debugPrint("Add to cart: ${product.id}");
+                },
+                child: Container(
                   padding: const EdgeInsets.all(6),
                   decoration: const BoxDecoration(
                     color: Colors.red,
@@ -140,10 +139,16 @@ class ProductCard extends StatelessWidget {
                     color: Colors.white,
                   ),
                 ),
+              ),
 
-                const SizedBox(width: 10),
+              const SizedBox(width: 10),
 
-                Expanded(
+              Expanded(
+                child: GestureDetector(
+                  onTap: () {
+                    /// TODO: Buy now
+                    debugPrint("Buy now: ${product.id}");
+                  },
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 6),
                     decoration: BoxDecoration(
@@ -158,10 +163,10 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                 ),
-              ],
-            ),
-          ],
-        ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

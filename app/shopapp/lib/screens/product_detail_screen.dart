@@ -79,7 +79,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
 
-      /// 🔻 BOTTOM BAR (Responsive + Safe)
+      /// BOTTOM BAR
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -119,7 +119,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            /// 🔻 HEADER
+            /// HEADER
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -141,9 +141,9 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// 🔻 IMAGE (FIX FULL RESPONSIVE)
+                    /// IMAGE
                     AspectRatio(
-                      aspectRatio: 1, // luôn vuông, đẹp mọi màn
+                      aspectRatio: 1,
                       child: Container(
                         color: Colors.white,
                         child: product!.images.isEmpty
@@ -158,7 +158,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 children: product!.images.map((img) {
                                   return Image.network(
                                     "${AppConfig.apiUrl}/$img",
-                                    fit: BoxFit.cover,
+                                    fit: BoxFit.contain,
 
                                     errorBuilder: (_, __, ___) => const Center(
                                       child: Icon(Icons.broken_image),
@@ -178,7 +178,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       ),
                     ),
 
-                    /// 🔻 INFO
+                    /// INFO
                     Container(
                       width: double.infinity,
                       color: Colors.white,
@@ -200,7 +200,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                 ),
                               ),
                               const Spacer(),
-                              const Text("đã bán: 2"),
+                              const Text("Đã bán: 0"),
                             ],
                           ),
 
@@ -217,7 +217,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                           const SizedBox(height: 16),
 
-                          /// 🔥 ATTRIBUTES
+                          /// ATTRIBUTES
                           ...product!.attributes.map((attr) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
