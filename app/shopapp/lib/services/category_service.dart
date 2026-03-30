@@ -1,5 +1,5 @@
 import '../models/category.dart';
-import 'api_client.dart';
+import '../core/api/api_client.dart';
 
 class CategoryService {
   /// GET TREE (level 1)

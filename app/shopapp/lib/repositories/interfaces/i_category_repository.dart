@@ -1,4 +1,4 @@
-import '../models/category.dart';
+import '../../models/category.dart';
 
 abstract class ICategoryRepository {
 

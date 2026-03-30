@@ -1,16 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 
-import '../models/product.dart';
-import '../repositories/i_product_repository.dart';
+import '../../../../models/product.dart';
 import '../screens/product_detail_screen.dart';
-import '../config/app_config.dart';
+import '../../../../core/config/app_config.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
-  final IProductRepository repo; // Add repo
 
-  const ProductCard({super.key, required this.product, required this.repo});
+  const ProductCard({super.key, required this.product});
 
   @override
   Widget build(BuildContext context) {
@@ -48,17 +46,13 @@ class ProductCard extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder:
-                        (_) => ProductDetailScreen(
-                          productId: product.id,
-                          repo: repo,
-                        ),
+                    builder: (_) => ProductDetailScreen(productId: product.id),
                   ),
                 );
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: 
+                child:
                     imageUrl != null
                         ? CachedNetworkImage(
                           imageUrl: imageUrl,
