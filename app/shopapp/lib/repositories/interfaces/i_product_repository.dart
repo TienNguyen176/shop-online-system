@@ -1,5 +1,5 @@
-import '../models/product_detail.dart';
-import '../models/product.dart';
+import '../../models/product_detail.dart';
+import '../../models/product.dart';
 
 abstract class IProductRepository {
 

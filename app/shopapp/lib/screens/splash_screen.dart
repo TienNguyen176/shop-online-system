@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
-import '../repositories/i_product_repository.dart';
-import '../repositories/i_category_repository.dart';
-import 'home_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../repositories/interfaces/i_category_repository.dart';
+
+import '../features/user/home/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
-  final IProductRepository productRepo;
-  final ICategoryRepository categoryRepo;
-
-  const SplashScreen({
-    super.key,
-    required this.productRepo,
-    required this.categoryRepo,
-  });
+  const SplashScreen({super.key});
 
   @override
   State<SplashScreen> createState() => _SplashScreenState();
@@ -23,32 +18,32 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    initApp();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      initApp();
+    });
   }
 
   Future<void> initApp() async {
     try {
       setState(() => loadingText = "Đang tải dữ liệu...");
 
+      final categoryRepo = context.read<ICategoryRepository>();
+
+      /// LOAD DATA
       await Future.wait([
-        widget.productRepo.getHomeProducts(page: 1),
-        widget.productRepo.getHomeProducts(page: 2),
-        widget.categoryRepo.getCategories(),
+        categoryRepo.getCategories(),
       ]).timeout(const Duration(seconds: 10));
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
 
-      setState(() => loadingText = "Hoàn tất");
-
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => HomeScreen(repo: widget.productRepo)),
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
       );
     } catch (e) {
-      //debugPrint("Splash error: $e");
-
       if (!mounted) return;
 
       showDialog(
@@ -61,7 +56,7 @@ class _SplashScreenState extends State<SplashScreen> {
                 TextButton(
                   onPressed: () {
                     Navigator.pop(context);
-                    initApp(); // retry
+                    initApp();
                   },
                   child: const Text("Thử lại"),
                 ),
@@ -79,6 +74,7 @@ class _SplashScreenState extends State<SplashScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            /// LOGO
             ClipRRect(
               borderRadius: BorderRadius.circular(20),
               child: Image.asset(
@@ -91,12 +87,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
             const SizedBox(height: 24),
 
-            // Loading
             const CircularProgressIndicator(),
 
             const SizedBox(height: 16),
 
-            // Text trạng thái
             Text(
               loadingText,
               style: const TextStyle(fontSize: 14, color: Colors.grey),

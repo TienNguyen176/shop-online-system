@@ -1,6 +1,6 @@
-import '../models/category.dart';
-import '../services/category_service.dart';
-import 'i_category_repository.dart';
+import '../../models/category.dart';
+import '../../services/category_service.dart';
+import '../interfaces/i_category_repository.dart';
 
 class CategoryRepository implements ICategoryRepository {
   final CategoryService service = CategoryService();
@@ -17,7 +17,6 @@ class CategoryRepository implements ICategoryRepository {
 
     final data = await service.getCategories();
 
-    /// Thêm "Tất cả"
     _cache = [Category(id: 0, name: "Tất cả", slug: "all"), ...data];
 
     return _cache!;

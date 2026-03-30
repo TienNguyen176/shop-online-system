@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../models/category.dart';
-import '../repositories/i_category_repository.dart';
+import '../../../../models/category.dart';
+import '../../../../repositories/interfaces/i_category_repository.dart';
 
 class CategoryList extends StatefulWidget {
   final ICategoryRepository repo;

@@ -1,7 +1,7 @@
-import '../models/product.dart';
-import '../models/product_detail.dart';
-import '../services/product_service.dart';
-import 'i_product_repository.dart';
+import '../../models/product.dart';
+import '../../models/product_detail.dart';
+import '../../services/product_service.dart';
+import '../interfaces/i_product_repository.dart';
 
 class ProductRepository implements IProductRepository {
   final ProductService service = ProductService();

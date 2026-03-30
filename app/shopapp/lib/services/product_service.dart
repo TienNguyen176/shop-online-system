@@ -1,6 +1,6 @@
 import '../models/product.dart';
 import '../models/product_detail.dart';
-import 'api_client.dart';
+import '../core/api/api_client.dart';
 
 class ProductService {
   Future<List<Product>> getHomeProducts({
