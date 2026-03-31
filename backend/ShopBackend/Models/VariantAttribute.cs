@@ -14,6 +14,5 @@ namespace ShopBackend.Models
         public ProductVariant Variant { get; set; }
 
         public AttributeValue AttributeValue { get; set; }
-
     }
 }

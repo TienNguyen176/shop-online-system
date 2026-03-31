@@ -3,73 +3,95 @@ using Microsoft.EntityFrameworkCore;
 using ShopBackend.Data;
 using ShopBackend.DTOs;
 
-[ApiController]
-[Route("api/categories")]
-public class CategoriesController : ControllerBase
+namespace ShopBackend.Controllers
 {
-    private readonly AppDbContext _db;
-
-    public CategoriesController(AppDbContext db)
+    [ApiController]
+    [Route("api/categories")]
+    public class CategoriesController : ControllerBase
     {
-        _db = db;
-    }
+        private readonly AppDbContext _db;
 
-    // GET: api/categories/tree
-    [HttpGet("tree")]
-    public async Task<IActionResult> GetCategoryTree()
-    {
-        var categories = await _db.Categories.AsNoTracking().ToListAsync();
-
-        // Map sang DTO
-        var dict = categories.ToDictionary(
-            c => c.Id,
-            c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name,
-                Slug = c.Slug,
-                Image = c.Image
-            });
-
-        List<CategoryDto> roots = new();
-
-        foreach (var c in categories)
+        public CategoriesController(AppDbContext db)
         {
-            if (c.ParentId == null)
-            {
-                roots.Add(dict[c.Id]);
-            }
-            else if (dict.ContainsKey(c.ParentId.Value))
-            {
-                dict[c.ParentId.Value].Children.Add(dict[c.Id]);
-            }
+            _db = db;
         }
 
-        return Ok(roots);
-    }
+        // GET: api/categories
+        [HttpGet]
+        public async Task<IActionResult> GetAll()
+        {
+            var categories = await _db.Categories
+                .AsNoTracking()
+                .Select(c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Slug = c.Slug,
+                    Image = c.Image,
+                    ParentId = c.ParentId,
+                })
+                .ToListAsync();
 
-    // GET: api/categories/{id}
-    [HttpGet("{id}")]
-    public async Task<IActionResult> GetCategoryById(long id)
-    {
-        var category = await _db.Categories.FindAsync(id);
+            return Ok(categories);
+        }
 
-        if (category == null)
-            return NotFound();
+        // GET: api/categories/tree
+        [HttpGet("tree")]
+        public async Task<IActionResult> GetCategoryTree()
+        {
+            var categories = await _db.Categories.AsNoTracking().ToListAsync();
 
-        return Ok(category);
-    }
+            // Map sang DTO
+            var dict = categories.ToDictionary(
+                c => c.Id,
+                c => new CategoryDto
+                {
+                    Id = c.Id,
+                    Name = c.Name,
+                    Slug = c.Slug,
+                    Image = c.Image
+                });
 
-    // GET: api/categories/slug/{slug}
-    [HttpGet("slug/{slug}")]
-    public async Task<IActionResult> GetBySlug(string slug)
-    {
-        var category = await _db.Categories
-            .FirstOrDefaultAsync(c => c.Slug == slug);
+            List<CategoryDto> roots = new();
 
-        if (category == null)
-            return NotFound();
+            foreach (var c in categories)
+            {
+                if (c.ParentId == null)
+                {
+                    roots.Add(dict[c.Id]);
+                }
+                else if (dict.ContainsKey(c.ParentId.Value))
+                {
+                    dict[c.ParentId.Value].Children.Add(dict[c.Id]);
+                }
+            }
 
-        return Ok(category);
+            return Ok(roots);
+        }
+
+        // GET: api/categories/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetCategoryById(long id)
+        {
+            var category = await _db.Categories.FindAsync(id);
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
+        }
+
+        // GET: api/categories/slug/{slug}
+        [HttpGet("slug/{slug}")]
+        public async Task<IActionResult> GetBySlug(string slug)
+        {
+            var category = await _db.Categories
+                .FirstOrDefaultAsync(c => c.Slug == slug);
+
+            if (category == null)
+                return NotFound();
+
+            return Ok(category);
+        }
     }
 }

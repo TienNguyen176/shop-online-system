@@ -19,7 +19,7 @@ namespace ShopBackend.Models
         [Column("stock_quantity")]
         public int StockQuantity { get; set; }
 
-        public List<VariantAttribute> VariantAttributes { get; set; }
+        public ICollection<VariantAttribute> Attributes { get; set; }
 
     }
 }

@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShopBackend.Models
@@ -23,8 +25,15 @@ namespace ShopBackend.Models
         [Column("rating_count")]
         public int RatingCount { get; set; }
 
+        [Column("sold_count")]
+        public int SoldCount { get; set; }
+
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
+        // Use proper typed navigation properties so EF and calling code can access members
+        public List<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+
+        public List<ProductImage> Images { get; set; } = new List<ProductImage>();
     }
 }

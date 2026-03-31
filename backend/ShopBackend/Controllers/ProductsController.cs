@@ -16,41 +16,64 @@ namespace ShopBackend.Controllers
             _db = db;
         }
 
-        // Danh sách sản phẩm cho trang chủ
-        [HttpGet("home")]
-        public async Task<IActionResult> GetHomeProducts(
-        int page = 1,
-        int pageSize = 10)
+        // GET: api/products
+        [HttpGet]
+        public async Task<IActionResult> GetProducts(
+            int page = 1,
+            int pageSize = 10,
+            long? categoryId = null)
         {
+            var query = _db.Products.AsQueryable();
 
-            var products = await _db.Products
+            if (categoryId.HasValue && categoryId != 0)
+            {
+                var categoryIds = await GetAllChildIds(categoryId.Value);
 
+                query = query.Where(p =>
+                    p.CategoryId.HasValue &&
+                    categoryIds.Contains(p.CategoryId.Value)
+                );
+            }
+
+            var products = await query
                 .OrderByDescending(p => p.Id)
-
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-
                 .Select(p => new ProductHomeDto
                 {
                     Id = p.Id,
-
                     Name = p.Name,
-
                     Rating = p.RatingAvg,
 
                     Price = _db.ProductVariants
                         .Where(v => v.ProductId == p.Id)
-                        .Min(v => v.Price),
+                        .Select(v => (decimal?)v.Price)
+                        .Min() ?? 0,
 
                     Image = _db.ProductImages
                         .Where(i => i.ProductId == p.Id && i.IsMain)
                         .Select(i => i.ImageUrl)
                         .FirstOrDefault()
                 })
-
                 .ToListAsync();
 
             return Ok(products);
+        }
+
+        private async Task<List<long>> GetAllChildIds(long parentId)
+        {
+            var result = new List<long> { parentId };
+
+            var children = await _db.Categories
+                .Where(c => c.ParentId == parentId)
+                .ToListAsync();
+
+            foreach (var child in children)
+            {
+                result.AddRange(await GetAllChildIds(child.Id));
+            }
+
+            return result;
         }
 
         // Chi tiết sản phẩm
@@ -89,9 +112,10 @@ namespace ShopBackend.Controllers
                     v.Sku,
                     v.StockQuantity,
 
-                    Attributes = v.VariantAttributes
+                    Attributes = v.Attributes
                         .Select(va => new
                         {
+                            Id = va.AttributeValue.Attribute.Id,
                             Name = va.AttributeValue.Attribute.Name,
                             Value = va.AttributeValue.Value
                         }).ToList()
@@ -110,6 +134,7 @@ namespace ShopBackend.Controllers
                 .GroupBy(a => a.Name)
                 .Select(g => new AttributeDto
                 {
+                    Id = g.First().Id,
                     Name = g.Key,
                     Values = g.Select(x => x.Value).Distinct().ToList()
                 })

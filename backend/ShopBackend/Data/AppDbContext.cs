@@ -29,7 +29,7 @@ namespace ShopBackend.Data
 
             modelBuilder.Entity<VariantAttribute>()
                 .HasOne(x => x.Variant)
-                .WithMany(v => v.VariantAttributes)
+                .WithMany(v => v.Attributes)
                 .HasForeignKey(x => x.VariantId);
 
             modelBuilder.Entity<VariantAttribute>()

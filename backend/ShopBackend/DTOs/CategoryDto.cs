@@ -10,6 +10,8 @@
 
         public string? Image { get; set; }
 
+        public long? ParentId { get; set; }
+
         public List<CategoryDto> Children { get; set; } = new();
 
     }

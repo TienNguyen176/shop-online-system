@@ -1,6 +1,6 @@
-import '../models/product.dart';
-import '../models/product_detail.dart';
-import '../core/api/api_client.dart';
+import '../../models/product.dart';
+import '../../models/product_detail.dart';
+import '../../core/api/api_client.dart';
 
 class ProductService {
   Future<List<Product>> getHomeProducts({
@@ -9,7 +9,7 @@ class ProductService {
     int? categoryId,
   }) async {
     final res = await ApiClient.dio.get(
-      "/api/products/home",
+      "/api/products/",
       queryParameters: {
         "page": page,
         "pageSize": pageSize,
