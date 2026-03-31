@@ -98,4 +98,6 @@ class Product {
     // fallback API home
     return price ?? 0;
   }
+
+  get category => null;
 }

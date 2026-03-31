@@ -16,5 +16,7 @@ namespace ShopBackend.Models
 
         public ProductAttribute Attribute { get; set; }
 
+       
+
     }
 }
