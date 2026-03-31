@@ -24,6 +24,7 @@ namespace ShopBackend.Models
         public int StockQuantity { get; set; }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // ✅ Navigation property — CartController cần cái này
         [ForeignKey("ProductId")]
         public Product? Product { get; set; }
@@ -33,6 +34,9 @@ namespace ShopBackend.Models
 }
 =======
         public List<VariantAttribute> VariantAttributes { get; set; }
+=======
+        public ICollection<VariantAttribute> Attributes { get; set; }
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
 
     }
 }

@@ -28,7 +28,6 @@ namespace ShopBackend.Models
         public ProductVariant Variant { get; set; }
 
         public AttributeValue AttributeValue { get; set; }
-
     }
 }
 >>>>>>> 4d9c391 (apply new gitignore rules)

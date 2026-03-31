@@ -96,13 +96,16 @@ class HomeProvider extends ChangeNotifier {
   /// ===============================
   /// LOAD MORE
   /// ===============================
-  void loadMore() {
+  Future<void> loadMore() async {
     if (loadingMore || loading || !hasMore || isFetching) return;
 
     loadingMore = true;
     notifyListeners();
 
-    loadProducts();
+    await loadProducts();
+
+    loadingMore = false;
+    notifyListeners();
   }
 
   /// ===============================
@@ -131,7 +134,7 @@ class HomeProvider extends ChangeNotifier {
   void selectCategory(int id) {
     if (isFetching) return;
 
-    selectedCategoryId = id;
+    selectedCategoryId = id == 0 ? null : id;
     loadProducts(refresh: true);
   }
 

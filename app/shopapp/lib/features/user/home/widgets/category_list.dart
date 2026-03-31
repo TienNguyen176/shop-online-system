@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
-import '../../../../models/category.dart';
-import '../../../../repositories/interfaces/i_category_repository.dart';
+import 'package:provider/provider.dart';
+
+import '../../../admin/category/providers/category_provider.dart';
 
 class CategoryList extends StatefulWidget {
+<<<<<<< HEAD
 <<<<<<< HEAD
 <<<<<<< HEAD
   final Function(String)? onCategorySelected;
@@ -18,30 +20,18 @@ class CategoryList extends StatefulWidget {
 
   const CategoryList({super.key, required this.repo, required this.onSelected});
 >>>>>>> 4caf251 (Add SplashScreen, Setup Build APK, Update API,NET)
+=======
+  final Function(int categoryId) onSelected;
+
+  const CategoryList({super.key, required this.onSelected});
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
 
   @override
   State<CategoryList> createState() => _CategoryListState();
 }
 
 class _CategoryListState extends State<CategoryList> {
-  int selected = 0;
-  List<Category> categories = [];
-  bool isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    load();
-  }
-
-  Future<void> load() async {
-    final data = await widget.repo.getCategories();
-
-    setState(() {
-      categories = data;
-      isLoading = false;
-    });
-  }
+  int selectedCategoryId = 0;
 
   @override
 <<<<<<< HEAD
@@ -70,6 +60,7 @@ class _CategoryListState extends State<CategoryList> {
           bool isSelected = selected == index;
 =======
   Widget build(BuildContext context) {
+<<<<<<< HEAD
     if (isLoading) {
       return const SizedBox(
         height: 40,
@@ -137,9 +128,57 @@ class _CategoryListState extends State<CategoryList> {
                 ),
               ),
             ),
+=======
+    return Consumer<CategoryProvider>(
+      builder: (context, provider, _) {
+        if (provider.isLoading) {
+          return const SizedBox(
+            height: 40,
+            child: Center(child: CircularProgressIndicator()),
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
           );
-        },
-      ),
+        }
+
+        final categories = provider.categories;
+
+        return SizedBox(
+          height: 40,
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: categories.length,
+            itemBuilder: (context, index) {
+              final cat = categories[index];
+              final isSelected = selectedCategoryId == cat.id;
+
+              return GestureDetector(
+                onTap: () {
+                  setState(() => selectedCategoryId = cat.id);
+
+                  widget.onSelected(cat.id);
+                },
+                child: Container(
+                  margin: const EdgeInsets.only(right: 12),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 8,
+                  ),
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: isSelected ? Colors.blue : Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    cat.name,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white : Colors.black,
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        );
+      },
     );
   }
 <<<<<<< HEAD

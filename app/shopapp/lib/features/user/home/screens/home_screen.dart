@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../../../repositories/interfaces/i_category_repository.dart';
 import '../providers/home_provider.dart';
 
 import '../widgets/home_header.dart';
@@ -30,7 +29,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!_initialized) {
       _initialized = true;
-      context.read<HomeProvider>().loadProducts();
+
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<HomeProvider>().loadProducts();
+      });
     }
   }
 
@@ -86,8 +88,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
                 /// CATEGORY
                 CategoryList(
-                  repo: context.read<ICategoryRepository>(),
-                  onSelected: provider.selectCategory,
+                  onSelected: (categoryId) {
+                    context.read<HomeProvider>().selectCategory(categoryId);
+                  },
                 ),
 
                 const SizedBox(height: 10),

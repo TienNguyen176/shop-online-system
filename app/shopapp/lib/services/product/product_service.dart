@@ -1,6 +1,6 @@
-import '../models/product.dart';
-import '../models/product_detail.dart';
-import '../core/api/api_client.dart';
+import '../../models/product.dart';
+import '../../models/product_detail.dart';
+import '../../core/api/api_client.dart';
 
 class ProductService {
 <<<<<<< HEAD
@@ -18,6 +18,7 @@ class ProductService {
     int? categoryId,
   }) async {
     final res = await ApiClient.dio.get(
+<<<<<<< HEAD:app/shopapp/lib/services/product_service.dart
 <<<<<<< HEAD
       "/api/products/home", // 👉 giữ nguyên nếu backend có
       queryParameters: {
@@ -30,6 +31,9 @@ class ProductService {
       queryParameters: {"page": page, "pageSize": pageSize},
 >>>>>>> 4d9c391 (apply new gitignore rules)
 =======
+=======
+      "/api/products/",
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete)):app/shopapp/lib/services/product/product_service.dart
       queryParameters: {
         "page": page,
         "pageSize": pageSize,

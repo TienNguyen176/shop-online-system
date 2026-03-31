@@ -11,5 +11,7 @@ namespace ShopBackend.Models
 
         public string Name { get; set; }
 
+        public ICollection<AttributeValue> Values { get; set; }
+
     }
 }

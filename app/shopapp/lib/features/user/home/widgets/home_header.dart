@@ -8,16 +8,25 @@ class HomeHeader extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       child: Row(
-        children: const [
-          CircleAvatar(radius: 18, backgroundColor: Colors.blue),
+        children: [
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, '/admin');
+            },
+            child: const CircleAvatar(
+              radius: 18,
+              backgroundColor: Colors.blue,
+              child: Icon(Icons.person, color: Colors.white, size: 18),
+            ),
+          ),
 
-          Spacer(),
+          const Spacer(),
 
-          Icon(Icons.shopping_bag_outlined),
+          const Icon(Icons.shopping_bag_outlined),
 
-          SizedBox(width: 16),
+          const SizedBox(width: 16),
 
-          Icon(Icons.notifications_none),
+          const Icon(Icons.notifications_none),
         ],
       ),
     );

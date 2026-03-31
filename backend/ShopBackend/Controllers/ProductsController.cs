@@ -17,6 +17,7 @@ namespace ShopBackend.Controllers
         }
 
 <<<<<<< HEAD
+<<<<<<< HEAD
         // ─────────────────────────────────────────────────────────────
         // GET /api/products?page=1&pageSize=10
         //      &brands=Nike,Adidas
@@ -26,10 +27,14 @@ namespace ShopBackend.Controllers
         //      &search=áo
         //      &sortBy=price_asc|price_desc|newest|rating
         // ─────────────────────────────────────────────────────────────
+=======
+        // GET: api/products
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
         [HttpGet]
         public async Task<IActionResult> GetProducts(
             int page = 1,
             int pageSize = 10,
+<<<<<<< HEAD
             [FromQuery] List<string>? brands = null,
             [FromQuery] List<string>? colors = null,
             [FromQuery] List<string>? sizes = null,
@@ -160,34 +165,47 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> GetHomeProducts(
         int page = 1,
         int pageSize = 10)
+=======
+            long? categoryId = null)
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
         {
+            var query = _db.Products.AsQueryable();
 
-            var products = await _db.Products
+            if (categoryId.HasValue && categoryId != 0)
+            {
+                var categoryIds = await GetAllChildIds(categoryId.Value);
 
+                query = query.Where(p =>
+                    p.CategoryId.HasValue &&
+                    categoryIds.Contains(p.CategoryId.Value)
+                );
+            }
+
+            var products = await query
                 .OrderByDescending(p => p.Id)
-
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
-
                 .Select(p => new ProductHomeDto
                 {
                     Id = p.Id,
-
                     Name = p.Name,
-
                     Rating = p.RatingAvg,
 
                     Price = _db.ProductVariants
                         .Where(v => v.ProductId == p.Id)
-                        .Min(v => v.Price),
+                        .Select(v => (decimal?)v.Price)
+                        .Min() ?? 0,
 
                     Image = _db.ProductImages
                         .Where(i => i.ProductId == p.Id && i.IsMain)
                         .Select(i => i.ImageUrl)
                         .FirstOrDefault()
                 })
+<<<<<<< HEAD
 
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
                 .ToListAsync();
 
             return Ok(products);
@@ -197,6 +215,22 @@ namespace ShopBackend.Controllers
       
         [HttpGet("{id:long}")]
 =======
+
+        private async Task<List<long>> GetAllChildIds(long parentId)
+        {
+            var result = new List<long> { parentId };
+
+            var children = await _db.Categories
+                .Where(c => c.ParentId == parentId)
+                .ToListAsync();
+
+            foreach (var child in children)
+            {
+                result.AddRange(await GetAllChildIds(child.Id));
+            }
+
+            return result;
+        }
 
         // Chi tiết sản phẩm
         [HttpGet("{id}")]
@@ -246,9 +280,10 @@ namespace ShopBackend.Controllers
                             Name  = va.AttributeValue.Attribute.Name,
 =======
 
-                    Attributes = v.VariantAttributes
+                    Attributes = v.Attributes
                         .Select(va => new
                         {
+                            Id = va.AttributeValue.Attribute.Id,
                             Name = va.AttributeValue.Attribute.Name,
 >>>>>>> 4d9c391 (apply new gitignore rules)
                             Value = va.AttributeValue.Value
@@ -269,8 +304,12 @@ namespace ShopBackend.Controllers
                 .Select(g => new AttributeDto
                 {
 <<<<<<< HEAD
+<<<<<<< HEAD
                     Name   = g.Key,
 =======
+=======
+                    Id = g.First().Id,
+>>>>>>> 070fa5f (update CRUD Product (Create, Delete))
                     Name = g.Key,
 >>>>>>> 4d9c391 (apply new gitignore rules)
                     Values = g.Select(x => x.Value).Distinct().ToList()
