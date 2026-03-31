@@ -12,4 +12,12 @@ class ProductFilter {
     this.minPrice,
     this.maxPrice,
   });
+
+  static ProductFilter from(ProductFilter other) => ProductFilter(
+  brands: List.from(other.brands),
+  colors: List.from(other.colors),
+  sizes: List.from(other.sizes),
+  minPrice: other.minPrice,
+  maxPrice: other.maxPrice,
+);
 }

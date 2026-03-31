@@ -58,6 +58,9 @@ class _HomeScreenState extends State<HomeScreen> {
 
   ProductFilter currentFilter = ProductFilter();
 
+  /// Token để huỷ response cũ khi có request mới
+  int _loadToken = 0;
+
   @override
   void initState() {
     super.initState();
@@ -86,6 +89,12 @@ class _HomeScreenState extends State<HomeScreen> {
 
     if (!hasMore) return;
 
+    // Snapshot token + state tại thời điểm gọi
+    final int token = ++_loadToken;
+    final bool isApiFilter = hasApiFilter;
+    final ProductFilter snapFilter = ProductFilter.from(currentFilter);
+    final String snapSearch = searchController.text;
+
     if (page == 1) {
       setState(() => loading = true);
     } else {
@@ -94,21 +103,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
 
     try {
-      final data = hasApiFilter
+      final data = isApiFilter
           ? await repo.getProducts(
               page: page,
               pageSize: pageSize,
-              brands: currentFilter.brands.isEmpty ? null : currentFilter.brands,
-              colors: currentFilter.colors.isEmpty ? null : currentFilter.colors,
-              sizes: currentFilter.sizes.isEmpty ? null : currentFilter.sizes,
-              minPrice: currentFilter.minPrice,
-              maxPrice: currentFilter.maxPrice,
-              search: searchController.text,
+              brands: snapFilter.brands.isEmpty ? null : snapFilter.brands,
+              colors: snapFilter.colors.isEmpty ? null : snapFilter.colors,
+              sizes: snapFilter.sizes.isEmpty ? null : snapFilter.sizes,
+              minPrice: snapFilter.minPrice,
+              maxPrice: snapFilter.maxPrice,
+              search: snapSearch,
             )
           : await repo.getHomeProducts(
               page: page,
               pageSize: pageSize,
             );
+
+      // Nếu có request mới hơn đã được gọi thì bỏ qua response này
+      if (token != _loadToken) {
+        debugPrint(">>> Bỏ qua response cũ (token $token != $_loadToken)");
+        return;
+      }
 
       if (page == 1) {
         allProducts = data;
@@ -122,10 +137,10 @@ class _HomeScreenState extends State<HomeScreen> {
         loadingMore = false;
       });
 
-      // Sau khi load xong luôn apply lại category + search local
       _applyLocalFilter();
     } catch (e) {
       debugPrint("Load error: $e");
+      if (token != _loadToken) return;
       setState(() {
         loading = false;
         loadingMore = false;
@@ -154,42 +169,18 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// ================= FILTER (FilterSheet) =================
   Future<void> applyFilter(ProductFilter filter) async {
-    setState(() {
-      loading = true;
-      page = 1;
-      hasMore = true;
-      hasApiFilter = true;
-      products.clear();
-      allProducts.clear();
-      currentFilter = filter;
-    });
+    // Cập nhật state trước, tăng token để huỷ request cũ
+    hasApiFilter = true;
+    currentFilter = filter;
+    page = 1;
+    hasMore = true;
+    allProducts = [];
+    products = [];
 
+    setState(() => loading = true);
     scrollController.jumpTo(0);
 
-    try {
-      final data = await repo.getProducts(
-        page: 1,
-        pageSize: pageSize,
-        brands: filter.brands.isEmpty ? null : filter.brands,
-        colors: filter.colors.isEmpty ? null : filter.colors,
-        sizes: filter.sizes.isEmpty ? null : filter.sizes,
-        minPrice: filter.minPrice,
-        maxPrice: filter.maxPrice,
-        search: searchController.text,
-      );
-
-      allProducts = data;
-
-      setState(() {
-        if (data.length < pageSize) hasMore = false;
-        loading = false;
-      });
-
-      _applyLocalFilter();
-    } catch (e) {
-      debugPrint("Filter error: $e");
-      setState(() => loading = false);
-    }
+    await loadProducts(refresh: true);
   }
 
   /// ================= SCROLL =================
@@ -206,13 +197,23 @@ class _HomeScreenState extends State<HomeScreen> {
 
   /// ================= SEARCH =================
   void searchProducts(String keyword) {
-    if (debounce?.isActive ?? false) debounce!.cancel();
+  if (debounce?.isActive ?? false) debounce!.cancel();
 
-    debounce = Timer(const Duration(milliseconds: 400), () {
-      // Luôn filter local — search chỉ lọc trên allProducts đã có
-      _applyLocalFilter();
-    });
-  }
+  debounce = Timer(const Duration(milliseconds: 400), () async {
+    // Bỏ filter cũ, category cũ
+    hasApiFilter = false;
+    currentFilter = ProductFilter();
+    selectedCategory = "";
+    _selectedCategoryIndex = 0;
+
+    // Không gán searchController.text nữa!
+    // searchController.text = keyword;
+
+    setState(() => loading = true);
+    await loadProducts(refresh: true);
+    _applyLocalFilter(); // filter local theo keyword hiện tại
+  });
+}
 
   @override
   void dispose() {
@@ -285,14 +286,15 @@ class _HomeScreenState extends State<HomeScreen> {
               selectedIndex: _selectedCategoryIndex,
               onCategorySelected: (category) async {
                 if (category == "Tất cả") {
-                  // Reset hoàn toàn về home
-                  setState(() {
-                    selectedCategory = "";
-                    hasApiFilter = false;
-                    currentFilter = ProductFilter();
-                    _selectedCategoryIndex = 0;
-                  });
+                  hasApiFilter = false;
+                  currentFilter = ProductFilter();
+                  selectedCategory = "";
+                  _selectedCategoryIndex = 0;
+                  allProducts = [];
+                  products = [];
                   searchController.clear();
+
+                  setState(() => loading = true);
                   await loadProducts(refresh: true);
                 } else {
                   // Chỉ set category rồi filter local, KHÔNG gọi API
@@ -308,13 +310,13 @@ class _HomeScreenState extends State<HomeScreen> {
             Expanded(
               child: RefreshIndicator(
                 onRefresh: () async {
-                  setState(() {
-                    currentFilter = ProductFilter();
-                    hasApiFilter = false;
-                    selectedCategory = "";
-                    _selectedCategoryIndex = 0;
-                  });
+                  hasApiFilter = false;
+                  currentFilter = ProductFilter();
+                  selectedCategory = "";
+                  _selectedCategoryIndex = 0;
                   searchController.clear();
+
+                  setState(() => loading = true);
                   await loadProducts(refresh: true);
                 },
                 child: LayoutBuilder(
