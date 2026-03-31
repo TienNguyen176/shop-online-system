@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 
 class CategoryList extends StatefulWidget {
   final Function(String)? onCategorySelected;
+  final int selectedIndex;
 
-  const CategoryList({super.key, this.onCategorySelected});
+  const CategoryList({super.key, this.onCategorySelected, this.selectedIndex = 0});
 
   @override
   State<CategoryList> createState() => _CategoryListState();
@@ -19,6 +20,20 @@ class _CategoryListState extends State<CategoryList> {
     "Giày",
     "Quần",
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    selected = widget.selectedIndex;
+  }
+
+  @override
+  void didUpdateWidget(CategoryList oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.selectedIndex != oldWidget.selectedIndex) {
+      setState(() => selected = widget.selectedIndex);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -46,6 +46,11 @@ class _HomeScreenState extends State<HomeScreen> {
   /// selectedCategory = category đang chọn, "" = tất cả
   String selectedCategory = "";
 
+  /// index của category đang chọn, dùng để sync với CategoryList
+  int _selectedCategoryIndex = 0;
+
+  final List<String> _categories = ["Tất cả", "Áo thun", "Áo khoác", "Giày", "Quần"];
+
   int page = 1;
   final int pageSize = 10;
 
@@ -277,6 +282,7 @@ class _HomeScreenState extends State<HomeScreen> {
             const BannerSlider(),
             const SizedBox(height: 10),
             CategoryList(
+              selectedIndex: _selectedCategoryIndex,
               onCategorySelected: (category) async {
                 if (category == "Tất cả") {
                   // Reset hoàn toàn về home
@@ -284,12 +290,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     selectedCategory = "";
                     hasApiFilter = false;
                     currentFilter = ProductFilter();
+                    _selectedCategoryIndex = 0;
                   });
                   searchController.clear();
                   await loadProducts(refresh: true);
                 } else {
                   // Chỉ set category rồi filter local, KHÔNG gọi API
-                  setState(() => selectedCategory = category);
+                  setState(() {
+                    selectedCategory = category;
+                    _selectedCategoryIndex = _categories.indexOf(category);
+                  });
                   _applyLocalFilter();
                 }
               },
@@ -302,6 +312,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     currentFilter = ProductFilter();
                     hasApiFilter = false;
                     selectedCategory = "";
+                    _selectedCategoryIndex = 0;
                   });
                   searchController.clear();
                   await loadProducts(refresh: true);
