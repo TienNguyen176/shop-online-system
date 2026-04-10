@@ -54,6 +54,7 @@ pubspec.lock
 bin/
 obj/
 wwwroot
+pushpublish/
 
 *.user
 *.suo
