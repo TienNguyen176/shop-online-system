@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:shopapp/features/user/auth/providers/auth_provider.dart';
 
 import 'features/admin/attribute/providers/attribute_provider.dart';
 import 'features/user/product/providers/product_detail_provider.dart';
@@ -8,6 +9,7 @@ import 'repositories/impl/attribute_repository.dart';
 import 'repositories/impl/product_admin_repository.dart';
 import 'repositories/impl/product_repository.dart';
 import 'repositories/impl/category_repository.dart';
+import 'repositories/impl/auth_repository.dart';
 
 import 'repositories/interfaces/i_product_repository.dart';
 import 'repositories/interfaces/i_category_repository.dart';
@@ -15,6 +17,8 @@ import 'repositories/interfaces/i_category_repository.dart';
 import 'features/user/home/providers/home_provider.dart';
 import 'features/admin/category/providers/category_provider.dart';
 import 'features/admin/product/providers/product_admin_provider.dart';
+
+import 'services/auth/social_auth_service.dart';
 
 import 'routes/app_routes.dart';
 
@@ -27,7 +31,7 @@ Future<void> main() async {
   final categoryRepo = CategoryRepository();
   final attributeRepo = AttributeRepository();
   final adminProductRepo = ProductAdminRepository();
-
+  final authRepo = AuthRepository();
   runApp(
     MultiProvider(
       providers: [
@@ -38,7 +42,9 @@ Future<void> main() async {
         /// FEATURE PROVIDER
         ChangeNotifierProvider(create: (_) => HomeProvider(productRepo)),
 
-        ChangeNotifierProvider(create: (_) => ProductDetailProvider(productRepo)),
+        ChangeNotifierProvider(
+          create: (_) => ProductDetailProvider(productRepo),
+        ),
 
         ChangeNotifierProvider(
           create:
@@ -51,6 +57,10 @@ Future<void> main() async {
 
         ChangeNotifierProvider(
           create: (_) => ProductAdminProvider(adminProductRepo),
+        ),
+
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(authRepo, SocialAuthService()),
         ),
       ],
       child: const MyApp(),
@@ -73,7 +83,7 @@ class MyApp extends StatelessWidget {
       ),
 
       // ROUTES SYSTEM
-      initialRoute: AppRoutes.splash,
+      initialRoute: AppRoutes.login,
       routes: AppRoutes.routes,
     );
   }
