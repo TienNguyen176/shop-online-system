@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:shopapp/repositories/cart_repository.dart';
+import 'package:shopapp/screens/shoppingcar.dart';
 import '../repositories/i_product_repository.dart';
 import '../models/product_detail.dart';
 import '../models/product_variant.dart';
 import '../config/app_config.dart';
+
+final CartRepository cartRepo = CartRepository();
 
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
@@ -64,6 +68,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  // ✅ ADD TO CART API (MỚI)
+ // ✅ addToCart — fix null variantId
+Future<void> addToCart() async {
+  final variant = selectedVariant;
+
+  if (variant == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Vui lòng chọn phân loại sản phẩm")),
+    );
+    return;
+  }
+
+  // ✅ Kiểm tra variantId null trước khi gọi API
+  final int? vid = variant.variantId;
+  if (vid == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Biến thể không hợp lệ")),
+    );
+    return;
+  }
+
+  await cartRepo.addToCart(
+    productId: widget.productId,
+    variantId: vid,   // ✅ đã check null, không crash
+    quantity: 1,
+  );
+}
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -79,7 +111,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return Scaffold(
       backgroundColor: const Color(0xfff5f5f5),
 
-      /// 🔻 BOTTOM BAR (Responsive + Safe)
+      /// 🔻 BOTTOM BAR
       bottomNavigationBar: SafeArea(
         child: Container(
           padding: const EdgeInsets.all(8),
@@ -94,11 +126,34 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {},
+
+                  // ✅ ONLY ADD CART HERE
+                 onPressed: () async {
+  try {
+    await addToCart();
+
+    if (!mounted) return;
+
+    // ✅ Chuyển sang màn hình giỏ hàng
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const Shoppingcar()),
+    );
+  } catch (e) {
+    print("❌ ADD TO CART ERROR: $e");
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Lỗi: $e")),
+    );
+  }
+},
+
                   child: const Icon(Icons.add_shopping_cart),
                 ),
               ),
+
               const SizedBox(width: 10),
+
               Expanded(
                 child: ElevatedButton(
                   style: ElevatedButton.styleFrom(
@@ -119,7 +174,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            /// 🔻 HEADER
+            /// HEADER
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 8),
               child: Row(
@@ -141,44 +196,27 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    /// 🔻 IMAGE (FIX FULL RESPONSIVE)
+                    /// IMAGE
                     AspectRatio(
-                      aspectRatio: 1, // luôn vuông, đẹp mọi màn
+                      aspectRatio: 1,
                       child: Container(
                         color: Colors.white,
                         child: product!.images.isEmpty
                             ? const Center(
-                                child: Icon(
-                                  Icons.image_not_supported,
-                                  size: 50,
-                                  color: Colors.grey,
-                                ),
+                                child: Icon(Icons.image_not_supported),
                               )
                             : PageView(
                                 children: product!.images.map((img) {
                                   return Image.network(
                                     "${AppConfig.apiUrl}/$img",
                                     fit: BoxFit.cover,
-
-                                    errorBuilder: (_, __, ___) => const Center(
-                                      child: Icon(Icons.broken_image),
-                                    ),
-
-                                    loadingBuilder:
-                                        (context, child, progress) {
-                                      if (progress == null) return child;
-                                      return const Center(
-                                        child:
-                                            CircularProgressIndicator(),
-                                      );
-                                    },
                                   );
                                 }).toList(),
                               ),
                       ),
                     ),
 
-                    /// 🔻 INFO
+                    /// INFO
                     Container(
                       width: double.infinity,
                       color: Colors.white,
@@ -186,17 +224,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          /// PRICE
                           Row(
                             children: [
-                              Flexible(
-                                child: Text(
-                                  "${variant?.price ?? product!.minPrice} đ",
-                                  style: const TextStyle(
-                                    color: Colors.red,
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                  ),
+                              Text(
+                                "${variant?.price ?? product!.minPrice} đ",
+                                style: const TextStyle(
+                                  color: Colors.red,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                               const Spacer(),
@@ -206,32 +241,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                           const SizedBox(height: 8),
 
-                          /// NAME
-                          Text(
-                            product!.name,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
+                          Text(product!.name),
 
                           const SizedBox(height: 16),
 
-                          /// 🔥 ATTRIBUTES
                           ...product!.attributes.map((attr) {
                             return Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(
-                                  attr.name,
-                                  style: const TextStyle(
-                                      fontWeight: FontWeight.bold),
-                                ),
+                                Text(attr.name,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.bold)),
                                 const SizedBox(height: 8),
 
                                 Wrap(
                                   spacing: 8,
-                                  runSpacing: 8,
                                   children: attr.values.map((value) {
                                     final isSelected =
                                         selectedAttributes[attr.name] ==
@@ -245,11 +269,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                         });
                                       },
                                       child: Container(
-                                        padding:
-                                            const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                          vertical: 8,
-                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 12, vertical: 8),
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(8),
@@ -258,9 +279,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                                                 ? Colors.red
                                                 : Colors.grey,
                                           ),
-                                          color: isSelected
-                                              ? Colors.red[50]
-                                              : Colors.grey[200],
                                         ),
                                         child: Text(value),
                                       ),
@@ -275,20 +293,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
 
                           const Divider(),
 
-                          buildRow(
-                            "Kho",
-                            variant != null && variant.stockQuantity > 0
-                                ? "Còn hàng"
-                                : "Hết hàng",
+                          Text(
+                            "Kho: ${variant != null && variant.stockQuantity > 0 ? "Còn hàng" : "Hết hàng"}",
                           ),
 
                           const Divider(),
 
-                          /// DESCRIPTION
-                          Text(
-                            product!.description,
-                            style: const TextStyle(color: Colors.black87),
-                          ),
+                          Text(product!.description),
                         ],
                       ),
                     ),
@@ -298,23 +309,6 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget buildRow(String left, String right) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(
-        children: [
-          Expanded(child: Text(left)),
-          Expanded(
-            child: Text(
-              right,
-              textAlign: TextAlign.end,
-            ),
-          ),
-        ],
       ),
     );
   }

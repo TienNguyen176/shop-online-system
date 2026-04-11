@@ -26,5 +26,14 @@ namespace ShopBackend.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
+        // ============================
+        // 🔥 ADD THIS (QUAN TRỌNG)
+        // ============================
+
+        public ICollection<ProductImage> ProductImages { get; set; }
+            = new List<ProductImage>();
+
+        public ICollection<ProductVariant> ProductVariants { get; set; }
+            = new List<ProductVariant>();
     }
 }

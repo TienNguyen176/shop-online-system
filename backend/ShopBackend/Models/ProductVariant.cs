@@ -12,14 +12,17 @@ namespace ShopBackend.Models
         [Column("product_id")]
         public long ProductId { get; set; }
 
-        public string Sku { get; set; }
+        public string? Sku { get; set; }
 
         public decimal Price { get; set; }
 
         [Column("stock_quantity")]
         public int StockQuantity { get; set; }
 
-        public List<VariantAttribute> VariantAttributes { get; set; }
+        // ✅ Navigation property — CartController cần cái này
+        [ForeignKey("ProductId")]
+        public Product? Product { get; set; }
 
+        public List<VariantAttribute>? VariantAttributes { get; set; }
     }
 }
