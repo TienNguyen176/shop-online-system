@@ -6,7 +6,7 @@ plugins {
 }
 
 android {
-    namespace = "com.tdc.group4.netx4shop"
+    namespace = "com.tdc.group4.next4shop"
     compileSdk = 36
     ndkVersion = "27.0.12077973"
 
