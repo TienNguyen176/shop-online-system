@@ -1,12 +1,24 @@
 
-1. Fix Thể Loại (Load từ API)
+1. Gộp code
 
-2. Gọi API Load dữ liệu thật (Load mặc định khoảng 10 sản phẩm, cuộn xuống thì load thêm cứ 1 lần 10 sản phẩm)
+2. Fix CRUD Product
 
-3. Xử lý App cho mượt mà hơn
+3. CRUD Category
 
-4. Xử lý Banner (Load Sản Phẩm Hot, Khoảng 5-6 sản phẩm)
+4. CRUD Attribute
 
-5. Xử lý lọc Sản Phẩm theo Loại
+5. Duyệt đơn (Thanh toán = VietQR)
 
-6. Xử lý (Lưu lại lịch sử từng search (nếu có thể :V))
+6. Fix giao diện Home (Thêm thanh BottomBar)
+
+7. Config hiển thị ảnh theo attribute
+
+8. Fix hiển thị Product Detail
+
+9. Fix Fitter (Bộ lọc sản phẩm)
+
+10. Hoàn thiện sản phẩm (Sprint 3): Comment Code / SRS / TestCase / DefectList / Biên bản họp nhóm / Tài liệu hướng dẫn sử dụng App (Sprint 3)
+
+11. Bổ sung animation (tùy chọn)
+
+12. Xử lý khi bấm thêm giỏ hàng (thêm xong => hỏi user chọn phân loại hoặc set phân loại đầu tiên mặc định)

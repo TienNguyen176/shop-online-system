@@ -4,8 +4,9 @@ import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 class SocialAuthService {
   /// ===== GOOGLE LOGIN =====
   final GoogleSignIn _googleSignIn = GoogleSignIn(
+    scopes: ['email'],
     serverClientId:
-        "212389975320-albvfp983jp3mio5mbn0uldb4uqkpm62.apps.googleusercontent.com",
+        "666877172796-cba34lb94j9c7rivvhgu9or68e4nkb1u.apps.googleusercontent.com",
   );
 
   Future<String?> loginGoogle() async {
@@ -19,6 +20,7 @@ class SocialAuthService {
       final auth = await account.authentication;
 
       print("ID TOKEN: ${auth.idToken}");
+      
       print("ACCESS TOKEN: ${auth.accessToken}");
 
       print(_googleSignIn);

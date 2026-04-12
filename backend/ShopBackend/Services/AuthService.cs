@@ -48,6 +48,7 @@ namespace ShopBackend.Services
                     Email = info.Email,
                     FullName = info.Name,
                     Avatar = info.Picture,
+                    Role = "user",
                     CreatedAt = DateTime.UtcNow
                 };
 
