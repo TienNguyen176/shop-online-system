@@ -6,7 +6,7 @@ class SocialAuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email'],
     serverClientId:
-        "666877172796-cba34lb94j9c7rivvhgu9or68e4nkb1u.apps.googleusercontent.com",
+        "212389975320-3rvpgf36pbo397j9g7j73e2oa07aagp0.apps.googleusercontent.com",
   );
 
   Future<String?> loginGoogle() async {
@@ -20,7 +20,7 @@ class SocialAuthService {
       final auth = await account.authentication;
 
       print("ID TOKEN: ${auth.idToken}");
-      
+
       print("ACCESS TOKEN: ${auth.accessToken}");
 
       print(_googleSignIn);
