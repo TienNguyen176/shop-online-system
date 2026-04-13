@@ -16,4 +16,9 @@ class ApiClient {
         ..interceptors.add(
           LogInterceptor(requestBody: true, responseBody: true),
         );
+
+  /// 🔥 THÊM HÀM NÀY
+  static void setToken(String token) {
+    dio.options.headers["Authorization"] = "Bearer $token";
+  }
 }
