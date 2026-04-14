@@ -39,10 +39,10 @@ class _SplashScreenState extends State<SplashScreen> {
 
       if (!mounted) return;
 
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (_) => const HomeScreen()),
-      // );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const HomeScreen()),
+      );
     } catch (e) {
       if (!mounted) return;
 

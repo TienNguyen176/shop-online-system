@@ -14,6 +14,7 @@ class ProductFilter {
   });
 
   static ProductFilter from(ProductFilter other) => ProductFilter(
+<<<<<<< HEAD
   brands: List.from(other.brands),
   colors: List.from(other.colors),
   sizes: List.from(other.sizes),
@@ -21,3 +22,12 @@ class ProductFilter {
   maxPrice: other.maxPrice,
 );
 }
+=======
+    brands: List.from(other.brands),
+    colors: List.from(other.colors),
+    sizes: List.from(other.sizes),
+    minPrice: other.minPrice,
+    maxPrice: other.maxPrice,
+  );
+}
+>>>>>>> b0bf4c1 (15/4: Function CartItem (Add, Delete))

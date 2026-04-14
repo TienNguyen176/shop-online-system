@@ -15,7 +15,7 @@ namespace ShopBackend.Models
         [Required]
         [StringLength(100)]
         public string Value { get; set; }
-
+        
         public ProductAttribute Attribute { get; set; }
 
 <<<<<<< HEAD

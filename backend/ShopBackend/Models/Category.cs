@@ -8,10 +8,10 @@ public class Category
     public long Id { get; set; }
 
     [Required]
-    public string Name { get; set; }
+    public required string Name { get; set; }
 
     [Required]
-    public string Slug { get; set; }
+    public required string Slug { get; set; }
 
     [Column("parent_id")]
     public long? ParentId { get; set; }

@@ -21,7 +21,51 @@ namespace ShopBackend.Controllers
         // GET ALL
         // =========================
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts(int page = 1, int pageSize = 10) { var query = from p in _db.Products join c in _db.Categories on p.CategoryId equals c.Id into pc from c in pc.DefaultIfEmpty() select new { p.Id, p.Name, p.Brand, p.Description, CategoryId = p.CategoryId, CategoryName = c != null ? c.Name : null, Rating = p.RatingAvg, Image = _db.ProductImages.Where(i => i.ProductId == p.Id && i.IsMain).Select(i => i.ImageUrl).FirstOrDefault() }; var total = await query.CountAsync(); var data = await query.OrderByDescending(p => p.Id).Skip((page - 1) * pageSize).Take(pageSize).ToListAsync(); return Ok(new { total, page, pageSize, data }); }
+        public async Task<IActionResult> GetAllProducts(int page = 1, int pageSize = 10)
+        {
+            var query =
+                from p in _db.Products
+                join c in _db.Categories
+                    on p.CategoryId equals c.Id into pc
+                from c in pc.DefaultIfEmpty()
+
+                join img in _db.ProductImages
+                    on p.Id equals img.ProductId into pi
+                from img in pi
+                    .Where(i => i.IsMain)
+                    .DefaultIfEmpty()
+
+                select new
+                {
+                    p.Id,
+                    p.Name,
+                    p.Brand,
+                    p.Description,
+
+                    CategoryId = p.CategoryId,
+                    CategoryName = c != null ? c.Name : null,
+
+                    Rating = p.RatingAvg,
+
+                    Image = img != null ? img.ImageUrl : null
+                };
+
+            var total = await query.CountAsync();
+
+            var data = await query
+                .OrderByDescending(p => p.Id)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            return Ok(new
+            {
+                total,
+                page,
+                pageSize,
+                data
+            });
+        }
 
         // =========================
         // CREATE
@@ -225,20 +269,20 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> DeleteProduct(long id)
         {
             var product = await _db.Products
-                .Include(p => p.Variants)
+                .Include(p => p.ProductVariants)
                     .ThenInclude(v => v.Attributes)
-                .Include(p => p.Images)
+                .Include(p => p.ProductImages)
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return NotFound();
 
             // delete children first
             _db.VariantAttributes.RemoveRange(
-                product.Variants.SelectMany(v => v.Attributes)
+                product.ProductVariants.SelectMany(v => v.Attributes)
             );
 
-            _db.ProductVariants.RemoveRange(product.Variants);
-            _db.ProductImages.RemoveRange(product.Images);
+            _db.ProductVariants.RemoveRange(product.ProductVariants);
+            _db.ProductImages.RemoveRange(product.ProductImages);
 
             _db.Products.Remove(product);
 
