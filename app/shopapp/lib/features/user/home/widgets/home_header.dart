@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../widgets/cart_item_badge.dart';
+
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
@@ -22,7 +24,7 @@ class HomeHeader extends StatelessWidget {
 
           const Spacer(),
 
-          const Icon(Icons.shopping_bag_outlined),
+          const CartIconWithBadge(),
 
           const SizedBox(width: 16),
 

@@ -10,14 +10,14 @@ namespace ShopBackend.Models
         [Key]
         public long Id { get; set; }
 
-        public string Name { get; set; }
+        public required string Name { get; set; }
 
-        public string Description { get; set; }
+        public required string Description { get; set; }
 
         [Column("category_id")]
         public long? CategoryId { get; set; }
 
-        public string Brand { get; set; }
+        public required string Brand { get; set; }
 
         [Column("rating_avg")]
         public decimal RatingAvg { get; set; }
@@ -31,9 +31,13 @@ namespace ShopBackend.Models
         [Column("created_at")]
         public DateTime CreatedAt { get; set; }
 
-        // Use proper typed navigation properties so EF and calling code can access members
-        public List<ProductVariant> Variants { get; set; } = new List<ProductVariant>();
+        // Navigation properties
+        public ICollection<ProductImage> ProductImages { get; set; }
+            = new List<ProductImage>();
 
-        public List<ProductImage> Images { get; set; } = new List<ProductImage>();
+        public ICollection<ProductVariant> ProductVariants { get; set; }
+            = new List<ProductVariant>();
+
+        public Category? Category { get; set; }
     }
 }

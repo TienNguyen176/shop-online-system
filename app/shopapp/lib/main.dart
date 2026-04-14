@@ -10,6 +10,7 @@ import 'repositories/impl/product_admin_repository.dart';
 import 'repositories/impl/product_repository.dart';
 import 'repositories/impl/category_repository.dart';
 import 'repositories/impl/auth_repository.dart';
+import 'repositories/impl/cart_repository.dart';
 
 import 'repositories/interfaces/i_product_repository.dart';
 import 'repositories/interfaces/i_category_repository.dart';
@@ -17,6 +18,7 @@ import 'repositories/interfaces/i_category_repository.dart';
 import 'features/user/home/providers/home_provider.dart';
 import 'features/admin/category/providers/category_provider.dart';
 import 'features/admin/product/providers/product_admin_provider.dart';
+import 'features/user/cart/providers/cart_provider.dart';
 
 import 'services/auth/social_auth_service.dart';
 
@@ -27,11 +29,14 @@ Future<void> main() async {
 
   await dotenv.load(fileName: ".env");
 
+  final authRepo = AuthRepository();
   final productRepo = ProductRepository();
   final categoryRepo = CategoryRepository();
   final attributeRepo = AttributeRepository();
   final adminProductRepo = ProductAdminRepository();
-  final authRepo = AuthRepository();
+
+  final cartRepo = CartRepository();
+
   runApp(
     MultiProvider(
       providers: [
@@ -40,12 +45,18 @@ Future<void> main() async {
         Provider<ICategoryRepository>.value(value: categoryRepo),
 
         /// FEATURE PROVIDER
+        /// HOME SCREEN
         ChangeNotifierProvider(create: (_) => HomeProvider(productRepo)),
 
+        /// PRODUCT DETAIL SCREEN
         ChangeNotifierProvider(
           create: (_) => ProductDetailProvider(productRepo),
         ),
 
+        /// CART SCREEN
+        ChangeNotifierProvider(create: (_) => CartProvider(cartRepo)),
+
+        /// ADMIN CATEGORY
         ChangeNotifierProvider(
           create:
               (context) =>
@@ -53,12 +64,15 @@ Future<void> main() async {
                     ..loadCategories(),
         ),
 
+        /// ADMIN ATTRIBUTE
         ChangeNotifierProvider(create: (_) => AttributeProvider(attributeRepo)),
 
+        /// ADMIN PRODUCT
         ChangeNotifierProvider(
           create: (_) => ProductAdminProvider(adminProductRepo),
         ),
 
+        /// AUTH
         ChangeNotifierProvider(
           create: (_) => AuthProvider(authRepo, SocialAuthService()),
         ),
@@ -83,7 +97,7 @@ class MyApp extends StatelessWidget {
       ),
 
       // ROUTES SYSTEM
-      initialRoute: AppRoutes.login,
+      initialRoute: AppRoutes.splash,
       routes: AppRoutes.routes,
     );
   }

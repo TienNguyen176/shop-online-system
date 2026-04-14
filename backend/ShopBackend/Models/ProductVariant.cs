@@ -19,6 +19,10 @@ namespace ShopBackend.Models
         [Column("stock_quantity")]
         public int StockQuantity { get; set; }
 
+        // Navigation property — CartController needs to include this when fetching cart items
+        [ForeignKey("ProductId")]
+        public Product? Product { get; set; }
+
         public ICollection<VariantAttribute> Attributes { get; set; }
 
     }

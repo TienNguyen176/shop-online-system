@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/config/app_config.dart';
+import '../../../../helpers/cart_helper.dart';
 import '../providers/product_detail_provider.dart';
 
 class ProductDetailScreen extends StatefulWidget {
@@ -14,6 +15,8 @@ class ProductDetailScreen extends StatefulWidget {
 }
 
 class _ProductDetailScreenState extends State<ProductDetailScreen> {
+  bool _loading = false;
+
   @override
   void initState() {
     super.initState();
@@ -57,8 +60,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                      onPressed: () {},
-                      child: const Icon(Icons.add_shopping_cart),
+                      onPressed:
+                          _loading ? null : () => _handleAddToCart(provider),
+                      child:
+                          _loading
+                              ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  color: Colors.white,
+                                ),
+                              )
+                              : const Icon(Icons.add_shopping_cart),
                     ),
                   ),
                   const SizedBox(width: 10),
@@ -289,5 +303,21 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _handleAddToCart(ProductDetailProvider provider) async {
+    if (_loading) return;
+
+    setState(() => _loading = true);
+
+    try {
+      await CartHelper.addToCart(
+        context: context,
+        productId: provider.product!.id,
+        selectedVariant: provider.selectedVariant,
+      );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
   }
 }

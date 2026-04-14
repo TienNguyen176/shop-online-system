@@ -20,25 +20,32 @@ class ProductDetailProvider extends ChangeNotifier {
 
     final data = await repo.getProductDetail(productId);
 
-    Map<String, String> defaultSelected = {};
-    for (var attr in data.attributes) {
-      if (attr.values.isNotEmpty) {
-        defaultSelected[attr.name] = attr.values.first;
-      }
+    product = data;
+
+    /// Chọn variant mặc định
+    if (data.variants.isNotEmpty) {
+      final defaultVariant = data.variants.firstWhere(
+        (v) => v.stockQuantity > 0,
+        orElse: () => data.variants.first,
+      );
+
+      /// Derive attributes từ variant
+      selectedAttributes = Map.from(defaultVariant.attributes);
+    } else {
+      selectedAttributes = {};
     }
 
-    product = data;
-    selectedAttributes = defaultSelected;
     loading = false;
-
     notifyListeners();
   }
 
+  /// Chọn attribute
   void select(String key, String value) {
     selectedAttributes[key] = value;
     notifyListeners();
   }
 
+  /// Derive variant từ attributes
   ProductVariant? get selectedVariant {
     if (product == null) return null;
 
@@ -51,7 +58,7 @@ class ProductDetailProvider extends ChangeNotifier {
         }
         return true;
       });
-    } catch (e) {
+    } catch (_) {
       return null;
     }
   }
