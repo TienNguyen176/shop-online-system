@@ -2,7 +2,7 @@ using ShopBackend.Models;
 
 namespace ShopBackend.Services.Payment
 {
-    public class MoMoService : IPaymentService
+    public class MoMoService
     {
         public string CreatePaymentUrl(Order order, string ipAddress)
         {

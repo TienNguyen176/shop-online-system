@@ -193,7 +193,13 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
                       _qty(cart, item),
                       IconButton(
                         icon: const Icon(Icons.delete_outline),
-                        onPressed: () => cart.deleteItem(item.id),
+                        onPressed: () async {
+                          final confirm = await _confirmDeleteDialog();
+
+                          if (confirm) {
+                            cart.deleteItem(item.id);
+                          }
+                        },
                       ),
                     ],
                   ),
@@ -348,26 +354,50 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
   Future<bool> _confirmDeleteDialog() async {
     return await showDialog<bool>(
           context: context,
-          builder:
-              (_) => AlertDialog(
-                title: const Text("Xoá sản phẩm?"),
-                content: const Text(
-                  "Bạn có chắc muốn xoá sản phẩm này khỏi giỏ hàng không?",
+          barrierDismissible: false,
+          builder: (context) {
+            return Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(
+                  maxWidth: 400, // tablet/web không bị quá rộng
                 ),
-                actions: [
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, false),
-                    child: const Text("Huỷ"),
+                child: AlertDialog(
+                  insetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 24,
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  title: const Text(
+                    "Xoá sản phẩm?",
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  content: const Text(
+                    "Bạn có chắc muốn xoá sản phẩm này khỏi giỏ hàng không?",
+                  ),
+                  actionsPadding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      child: const Text("Huỷ"),
                     ),
-                    onPressed: () => Navigator.pop(context, true),
-                    child: const Text("Xoá"),
-                  ),
-                ],
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      onPressed: () => Navigator.pop(context, true),
+                      child: const Text("Xoá"),
+                    ),
+                  ],
+                ),
               ),
+            );
+          },
         ) ??
         false;
   }
