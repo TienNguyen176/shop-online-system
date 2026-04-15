@@ -1,155 +1,188 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopBackend.Data;
-using ShopBackend.DTOs;
 using ShopBackend.Models;
-using ShopBackend.Services.Payment;
+using ShopBackend.Models.Vnpay;
+using ShopBackend.Services.Vnpay;
 
 namespace ShopBackend.Controllers
 {
     [ApiController]
-    [Route("api/payment")]
+    [Route("api/[controller]")]
     public class PaymentController : ControllerBase
     {
+        private readonly IVnPayService _vnPayService;
         private readonly AppDbContext _db;
-        private readonly VNPayService _vnpay;
 
-        public PaymentController(AppDbContext db, VNPayService vnpay)
+        public PaymentController(IVnPayService vnPayService, AppDbContext db)
         {
+            _vnPayService = vnPayService;
             _db = db;
-            _vnpay = vnpay;
         }
 
-        [HttpPost("checkout")]
-        public IActionResult Checkout(CheckoutRequest req)
+        // =====================================
+        // 1. CREATE ORDER + ORDER ITEMS + PAYMENT
+        // =====================================
+        [HttpPost("create-vnpay-url")]
+        public IActionResult CreatePaymentUrl([FromBody] PaymentInformationModel model)
         {
-            using var tx = _db.Database.BeginTransaction();
-
+            // =====================
+            // 1. CREATE ORDER
+            // =====================
             var order = new Order
             {
-                UserId = req.UserId,
-                TotalPrice = req.TotalPrice,
-                OrderCode = "ORD_" + DateTimeOffset.UtcNow.ToUnixTimeMilliseconds(),
+                OrderCode = $"ORD_{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
+                UserId = model.UserId,
+                TotalPrice = (decimal)model.Amount,
                 Status = "PENDING",
-                CreatedAt = DateTime.UtcNow
+                ShippingName = model.Name,
+                ShippingPhone = model.Phone,
+                ShippingAddress = model.Address
             };
 
             _db.Orders.Add(order);
             _db.SaveChanges();
 
-            foreach (var i in req.Items)
+            // =====================
+            // 2. INSERT ORDER ITEMS
+            // =====================
+            if (model.Items != null && model.Items.Count > 0)
             {
-                _db.OrderItems.Add(new OrderItem
+                foreach (var item in model.Items)
                 {
-                    OrderId = order.Id,
-                    ProductId = i.ProductId,
-                    VariantId = i.VariantId,
-                    Quantity = i.Quantity,
-                    Price = i.Price
-                });
+                    _db.OrderItems.Add(new OrderItem
+                    {
+                        OrderId = order.Id,
+                        ProductId = item.ProductId,
+                        VariantId = item.VariantId,
+                        ProductName = item.ProductName,
+                        VariantName = item.VariantName,
+                        Quantity = item.Quantity,
+                        Price = item.Price
+                    });
+                }
+
+                _db.SaveChanges();
             }
 
+            // =====================
+            // 3. CREATE PAYMENT
+            // =====================
+            var payment = new Payment
+            {
+                OrderId = order.Id,
+                PaymentMethodId = 2, // VNPAY
+                Amount = (decimal)model.Amount,
+                Status = "PENDING"
+            };
+
+            _db.Payments.Add(payment);
             _db.SaveChanges();
-            tx.Commit();
 
-            var ip = HttpContext.Connection.RemoteIpAddress?.ToString();
+            // =====================
+            // 4. BUILD VNPay MODEL
+            // =====================
+            model.OrderDescription = $"Order {order.OrderCode}";
+            model.Name = order.OrderCode;
 
-            var url = _vnpay.CreatePaymentUrl(order, ip);
+            var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
 
             return Ok(new
             {
-                order.Id,
+                orderId = order.Id,
+                orderCode = order.OrderCode,
                 paymentUrl = url
             });
         }
 
+        // =====================================
+        // 2. RETURN URL (UI ONLY - KHÔNG UPDATE DB)
+        // =====================================
         [HttpGet("vnpay-return")]
         public IActionResult Return()
         {
-            if (!_vnpay.ValidateReturn(Request.Query))
-                return BadRequest("Invalid signature");
+            var response = _vnPayService.PaymentExecute(Request.Query);
 
-            var orderCode = Request.Query["vnp_TxnRef"].ToString();
-            var responseCode = Request.Query["vnp_ResponseCode"].ToString();
+            if (response == null)
+            {
+                return Redirect("https://shopapp.ddns.net/payment-failed");
+            }
 
-            var order = _db.Orders.FirstOrDefault(x => x.OrderCode == orderCode);
-            if (order == null) return BadRequest("Not found");
+            if (response.VnPayResponseCode == "00")
+            {
+                return Redirect("https://shopapp.ddns.net/payment-success");
+            }
 
-            order.Status = responseCode == "00" ? "PAID" : "FAILED";
-
-            _db.SaveChanges();
-
-            return Redirect("myapp://payment-success");
+            return Redirect("https://shopapp.ddns.net/payment-failed");
         }
 
+        // =====================================
+        // 3. IPN (SERVER TO SERVER - MAIN LOGIC)
+        // =====================================
         [HttpGet("vnpay-ipn")]
         public IActionResult Ipn()
         {
-            var vnpData = Request.Query.ToDictionary(x => x.Key, x => x.Value.ToString());
+            var response = _vnPayService.PaymentExecute(Request.Query);
 
-            // =========================
-            // 1. VERIFY SIGNATURE
-            // =========================
-            if (!_vnpay.ValidateReturn(Request.Query))
+            // =====================
+            // 1. VALIDATE BASIC
+            // =====================
+            if (response == null || string.IsNullOrEmpty(response.OrderId))
+                return Ok(new { RspCode = "01", Message = "Invalid data" });
+
+            if (!long.TryParse(response.OrderId, out long orderId))
+                return Ok(new { RspCode = "01", Message = "Invalid order id" });
+
+            var payment = _db.Payments
+                .FirstOrDefault(x => x.OrderId == orderId);
+
+            if (payment == null)
+                return Ok(new { RspCode = "01", Message = "Payment not found" });
+
+            // =====================
+            // 2. PREVENT DUPLICATE
+            // =====================
+            if (payment.Status == "SUCCESS")
+                return Ok(new { RspCode = "02", Message = "Already processed" });
+
+            // =====================
+            // 3. CHECK AMOUNT (SECURITY)
+            // =====================
+            var amountFromVnpay = response.Amount / 100;
+
+            if (payment.Amount != amountFromVnpay)
+                return Ok(new { RspCode = "04", Message = "Invalid amount" });
+
+            // =====================
+            // 4. CHECK SUCCESS
+            // =====================
+            if (response.Success && response.VnPayResponseCode == "00")
             {
-                return Ok(new
+                // UPDATE PAYMENT
+                payment.Status = "SUCCESS";
+                payment.TransactionId = response.TransactionId;
+                payment.VnpResponseCode = response.VnPayResponseCode;
+                payment.PaidAt = DateTime.Now;
+
+                // UPDATE ORDER
+                var order = _db.Orders.FirstOrDefault(x => x.Id == orderId);
+                if (order != null)
                 {
-                    RspCode = "97",
-                    Message = "Invalid signature"
-                });
+                    order.Status = "PAID";
+                }
+
+                _db.SaveChanges();
+
+                return Ok(new { RspCode = "00", Message = "Success" });
             }
 
-            // =========================
-            // 2. GET ORDER
-            // =========================
-            var orderCode = vnpData["vnp_TxnRef"];
-
-            var order = _db.Orders.FirstOrDefault(x => x.OrderCode == orderCode);
-
-            if (order == null)
-            {
-                return Ok(new
-                {
-                    RspCode = "01",
-                    Message = "Order not found"
-                });
-            }
-
-            // =========================
-            // 3. CHECK AMOUNT (IMPORTANT)
-            // =========================
-            var vnpAmount = long.Parse(vnpData["vnp_Amount"]);
-            var expectedAmount = (long)(order.TotalPrice * 100);
-
-            if (vnpAmount != expectedAmount)
-            {
-                return Ok(new
-                {
-                    RspCode = "04",
-                    Message = "Invalid amount"
-                });
-            }
-
-            // =========================
-            // 4. UPDATE ORDER STATUS
-            // =========================
-            var responseCode = vnpData["vnp_ResponseCode"];
-
-            if (responseCode == "00")
-                order.Status = "PAID";
-            else
-                order.Status = "FAILED";
-
+            // =====================
+            // 5. FAILED
+            // =====================
+            payment.Status = "FAILED";
             _db.SaveChanges();
 
-            // =========================
-            // 5. RETURN SUCCESS TO VNPay
-            // =========================
-            return Ok(new
-            {
-                RspCode = "00",
-                Message = "Confirm Success"
-            });
+            return Ok(new { RspCode = "97", Message = "Failed" });
         }
     }
 }

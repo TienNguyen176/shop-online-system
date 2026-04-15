@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -60,8 +60,12 @@ namespace ShopBackend.Models
         public Category? Category { get; set; }
 >>>>>>> b0bf4c1 (15/4: Function CartItem (Add, Delete))
     }
+<<<<<<< HEAD
 }
 =======
     }
 }
 >>>>>>> 4d9c391 (apply new gitignore rules)
+=======
+}
+>>>>>>> 0b456da (15/4: Function Payment VNPAY (Test Environment))

@@ -4,7 +4,8 @@ using Microsoft.Extensions.FileProviders;
 using ShopBackend.Services;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using ShopBackend.Services.Payment;
+using ShopBackend.Services.Vnpay;
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
@@ -17,14 +18,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
 
-builder.Services.Configure<VnpayOptions>(
-    builder.Configuration.GetSection("VNPAY"));
-
-builder.Services.AddScoped<VNPayService>();
-
-builder.Services.AddScoped<PaymentFactory>();
-builder.Services.AddScoped<VNPayService>();
-builder.Services.AddScoped<MoMoService>();
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 
 // ===== Config JWT =====
 builder.Services.AddScoped<JwtService>();

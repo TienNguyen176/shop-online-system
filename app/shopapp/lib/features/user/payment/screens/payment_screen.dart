@@ -58,8 +58,8 @@ class _PaymentScreenState extends State<PaymentScreen> {
             RadioListTile<int>(
               value: 3,
               groupValue: method,
-              title: const Text("MoMo"),
-              onChanged: (v) => setState(() => method = v!),
+              title: const Text("MoMo (coming soon)"),
+              onChanged: null,
             ),
 
             const SizedBox(height: 20),
@@ -70,39 +70,57 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   provider.loading
                       ? null
                       : () async {
+                        final name = nameCtrl.text.trim();
+                        final phone = phoneCtrl.text.trim();
+                        final address = addressCtrl.text.trim();
+
+                        if (name.isEmpty || phone.isEmpty || address.isEmpty) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Vui lòng nhập đầy đủ thông tin"),
+                            ),
+                          );
+                          return;
+                        }
+
+                        final amount = widget.request.items.fold(
+                          0.0,
+                          (sum, item) => sum + item.price * item.quantity,
+                        );
+
                         final updatedRequest = CheckoutRequest(
-                          userId: widget.request.userId,
-                          totalPrice: widget.request.totalPrice,
-                          paymentMethodId: method,
-                          shippingName: nameCtrl.text,
-                          shippingPhone: phoneCtrl.text,
-                          shippingAddress: addressCtrl.text,
+                          amount: amount,
+                          name: name,
+                          orderType: "billpayment",
+                          orderDescription: "Thanh toan don hang",
                           items: widget.request.items,
+                          shippingName: name,
+                          shippingPhone: phone,
+                          shippingAddress: address,
                         );
 
                         await context.read<PaymentProvider>().checkout(
                           updatedRequest,
                         );
 
-                        if (context.read<PaymentProvider>().paymentUrl !=
-                            null) {
+                        final url = context.read<PaymentProvider>().paymentUrl;
+
+                        if (url != null && url.isNotEmpty) {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder:
-                                  (_) => PaymentWebViewScreen(
-                                    url:
-                                        context
-                                            .read<PaymentProvider>()
-                                            .paymentUrl!,
-                                  ),
+                              builder: (_) => PaymentWebViewScreen(url: url),
                             ),
                           );
                         }
                       },
               child:
                   provider.loading
-                      ? const CircularProgressIndicator()
+                      ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
                       : const Text("ĐẶT HÀNG"),
             ),
           ],

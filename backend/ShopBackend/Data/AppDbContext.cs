@@ -26,8 +26,6 @@ namespace ShopBackend.Data
 
         public DbSet<Payment> Payments { get; set; }
 
-        public DbSet<PaymentMethod> PaymentMethods { get; set; }
-
         public DbSet<ProductImage> ProductImages { get; set; }
 
         public DbSet<ProductVariant> ProductVariants { get; set; }
