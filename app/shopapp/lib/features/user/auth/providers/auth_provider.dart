@@ -39,7 +39,7 @@ class AuthProvider extends ChangeNotifier {
       user = res['user']; // <-- PHẢI CÓ DÒNG NÀY
     } catch (e) {
       error = "Login failed";
-      print(e);
+      debugPrint(e.toString());
     } finally {
       loading = false;
       notifyListeners();
@@ -69,7 +69,7 @@ class AuthProvider extends ChangeNotifier {
       user = res['user'];
     } catch (e) {
       error = "Login failed";
-      print(e);
+      debugPrint(e.toString());
     } finally {
       loading = false;
       notifyListeners();
@@ -92,7 +92,7 @@ class AuthProvider extends ChangeNotifier {
 
       user = res; // KHÔNG merge nữa
     } catch (e) {
-      print("Update profile error: $e");
+      debugPrint("Update profile error: $e");
     } finally {
       loading = false;
       notifyListeners();

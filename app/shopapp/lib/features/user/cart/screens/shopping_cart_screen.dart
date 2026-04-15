@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/config/app_config.dart';
+import '../../../../models/checkout_request.dart';
+import '../../payment/screens/payment_screen.dart';
+import '../../payment/utils/order_mapper.dart';
 import '../providers/cart_provider.dart';
 import '../../../../models/cart_item.dart';
 import '../../auth/providers/auth_provider.dart';
@@ -289,7 +292,40 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
               const SizedBox(width: 10),
 
               ElevatedButton(
-                onPressed: selected == 0 ? null : () {},
+                onPressed:
+                    selected == 0
+                        ? null
+                        : () {
+                          final user = context.read<AuthProvider>().user;
+                          if (user == null) return;
+
+                          final cart = context.read<CartProvider>();
+
+                          final selectedItems =
+                              cart.items
+                                  .where((e) => cart.selectedIds.contains(e.id))
+                                  .toList();
+
+                          final request = CheckoutRequest(
+                            userId: user['id'],
+                            totalPrice: cart.totalPrice,
+                            paymentMethodId: 2, // default VNPAY
+                            shippingName: "",
+                            shippingPhone: "",
+                            shippingAddress: "",
+                            items:
+                                selectedItems
+                                    .map((e) => mapCartItem(e))
+                                    .toList(),
+                          );
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => PaymentScreen(request: request),
+                            ),
+                          );
+                        },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: selected == 0 ? Colors.grey : primary,
                   padding: const EdgeInsets.symmetric(

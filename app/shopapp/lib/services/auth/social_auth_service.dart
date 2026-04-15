@@ -1,3 +1,4 @@
+import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
@@ -13,21 +14,21 @@ class SocialAuthService {
     try {
       final account = await _googleSignIn.signIn();
 
-      print("ACCOUNT: $account");
+      //print("ACCOUNT: $account");
 
       if (account == null) return null;
 
       final auth = await account.authentication;
 
-      print("ID TOKEN: ${auth.idToken}");
-      
-      print("ACCESS TOKEN: ${auth.accessToken}");
+      //print("ID TOKEN: ${auth.idToken}");
 
-      print(_googleSignIn);
+      //print("ACCESS TOKEN: ${auth.accessToken}");
+
+      //print(_googleSignIn);
 
       return auth.idToken;
     } catch (e) {
-      print("Google login error: $e");
+      debugPrint("Google login error: $e");
       return null;
     }
   }
@@ -41,7 +42,7 @@ class SocialAuthService {
 
       return result.accessToken?.tokenString;
     } catch (e) {
-      print("Facebook login error: $e");
+      debugPrint("Facebook login error: $e");
       return null;
     }
   }
