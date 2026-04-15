@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -8,7 +8,7 @@ namespace ShopBackend.Models
     public class User
     {
         public int Id { get; set; }
-        
+
         [Column("provider")]
         public required string Provider { get; set; } // google | facebook
 

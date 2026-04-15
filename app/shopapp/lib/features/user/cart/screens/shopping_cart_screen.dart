@@ -45,7 +45,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
           backgroundColor: bg,
           appBar: _appBar(),
 
-          // 🔥 FIX SHOPEE LAYOUT
+          // FIX SHOPEE LAYOUT
           body: Stack(children: [_buildList(cart), _bottomBar(cart)]),
         );
       },
@@ -312,17 +312,23 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
                                   .where((e) => cart.selectedIds.contains(e.id))
                                   .toList();
 
+                          final total = selectedItems.fold(
+                            0.0,
+                            (sum, item) => sum + item.price * item.quantity,
+                          );
+
                           final request = CheckoutRequest(
-                            userId: user['id'],
-                            totalPrice: cart.totalPrice,
-                            paymentMethodId: 2, // default VNPAY
-                            shippingName: "",
-                            shippingPhone: "",
-                            shippingAddress: "",
+                            amount: total,
+                            name: user['name'] ?? "User",
+                            orderType: "billpayment",
+                            orderDescription: "Thanh toan don hang",
                             items:
                                 selectedItems
                                     .map((e) => mapCartItem(e))
                                     .toList(),
+                            shippingName: user['name'] ?? "",
+                            shippingPhone: "",
+                            shippingAddress: "",
                           );
 
                           Navigator.push(

@@ -4,7 +4,7 @@ import '../models/checkout_request.dart';
 class PaymentService {
   Future<String> checkout(CheckoutRequest request) async {
     final res = await ApiClient.dio.post(
-      "/api/payment/checkout",
+      "/api/payment/create-vnpay-url",
       data: request.toJson(),
     );
 

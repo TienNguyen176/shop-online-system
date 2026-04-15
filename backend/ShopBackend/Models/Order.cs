@@ -1,6 +1,4 @@
-using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-
 
 namespace ShopBackend.Models
 {
@@ -9,7 +7,7 @@ namespace ShopBackend.Models
         public long Id { get; set; }
 
         [Column("order_code")]
-        public string OrderCode { get; set; } = $"ORD_{DateTime.Now.Ticks}";
+        public required string OrderCode { get; set; }
 
         [Column("user_id")]
         public long? UserId { get; set; }
@@ -30,5 +28,8 @@ namespace ShopBackend.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        // NAVIGATION
+        public List<Payment> Payments { get; set; }
     }
 }
