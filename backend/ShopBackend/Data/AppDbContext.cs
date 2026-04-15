@@ -20,6 +20,14 @@ namespace ShopBackend.Data
 
         public DbSet<CartItem> CartItems { get; set; }
 
+        public DbSet<Order> Orders { get; set; }
+
+        public DbSet<OrderItem> OrderItems { get; set; }
+
+        public DbSet<Payment> Payments { get; set; }
+
+        public DbSet<PaymentMethod> PaymentMethods { get; set; }
+
         public DbSet<ProductImage> ProductImages { get; set; }
 
         public DbSet<ProductVariant> ProductVariants { get; set; }

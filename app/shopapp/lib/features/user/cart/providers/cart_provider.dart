@@ -108,6 +108,10 @@ class CartProvider extends ChangeNotifier {
       );
 
       await loadCart(_userId);
+
+      /// AUTO SELECT NEW ITEMS
+      _selectedIds.addAll(_items.map((e) => e.id));
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
       notifyListeners();
@@ -117,7 +121,6 @@ class CartProvider extends ChangeNotifier {
   /// ================= UPDATE =================
 
   Future<void> updateQuantity(int itemId, int quantity) async {
-    /// optimistic UI
     final index = _items.indexWhere((e) => e.id == itemId);
     if (index == -1) return;
 
@@ -125,10 +128,17 @@ class CartProvider extends ChangeNotifier {
 
     _items[index] = CartItem(
       id: oldItem.id,
+
+      productId: oldItem.productId,
+      variantId: oldItem.variantId,
+
       name: oldItem.name,
+      variantName: oldItem.variantName,
+
       price: oldItem.price,
       image: oldItem.image,
       rating: oldItem.rating,
+
       quantity: quantity,
     );
 
@@ -137,7 +147,6 @@ class CartProvider extends ChangeNotifier {
     try {
       await repo.updateQuantity(itemId, quantity);
     } catch (e) {
-      /// rollback nếu fail
       _items[index] = oldItem;
       _error = e.toString();
       notifyListeners();
@@ -174,5 +183,10 @@ class CartProvider extends ChangeNotifier {
   void clearError() {
     _error = null;
     notifyListeners();
+  }
+
+  /// Lấy danh sách sản phẩm đã chọn để thanh toán
+  List<CartItem> getCheckoutItems() {
+    return _items.where((e) => _selectedIds.contains(e.id)).toList();
   }
 }

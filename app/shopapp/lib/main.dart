@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
-import 'package:shopapp/features/user/auth/providers/auth_provider.dart';
+
+import 'features/user/auth/providers/auth_provider.dart';
 
 import 'features/admin/attribute/providers/attribute_provider.dart';
+import 'features/user/payment/providers/payment_provider.dart';
 import 'features/user/product/providers/product_detail_provider.dart';
 import 'repositories/impl/attribute_repository.dart';
+import 'repositories/impl/payment_repository.dart';
 import 'repositories/impl/product_admin_repository.dart';
 import 'repositories/impl/product_repository.dart';
 import 'repositories/impl/category_repository.dart';
@@ -36,6 +39,7 @@ Future<void> main() async {
   final adminProductRepo = ProductAdminRepository();
 
   final cartRepo = CartRepository();
+  final paymentRepo = PaymentRepository();
 
   runApp(
     MultiProvider(
@@ -55,6 +59,9 @@ Future<void> main() async {
 
         /// CART SCREEN
         ChangeNotifierProvider(create: (_) => CartProvider(cartRepo)),
+
+        /// PAYMENT SCREEN
+        ChangeNotifierProvider(create: (_) => PaymentProvider(paymentRepo)),
 
         /// ADMIN CATEGORY
         ChangeNotifierProvider(

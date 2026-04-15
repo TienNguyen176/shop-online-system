@@ -45,8 +45,10 @@ class AuthRepository implements IAuthRepository {
     return _token;
   }
 
+  @override
   Map<String, dynamic>? getCurrentUser() => _cache;
 
+  @override
   void logout() {
     _cache = null;
     _token = null;
