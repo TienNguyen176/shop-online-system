@@ -1,3 +1,5 @@
+using ShopBackend.Models;
+
 namespace ShopBackend.DTOs
 {
     public class CheckoutRequest
@@ -9,14 +11,6 @@ namespace ShopBackend.DTOs
         public required string ShippingAddress { get; set; }
         public int PaymentMethodId { get; set; }
 
-        public List<CheckoutItem> Items { get; set; }
-    }
-
-    public class CheckoutItem
-    {
-        public int ProductId { get; set; }
-        public int VariantId { get; set; }
-        public int Quantity { get; set; }
-        public decimal Price { get; set; }
+        public List<OrderItem> Items { get; set; }
     }
 }

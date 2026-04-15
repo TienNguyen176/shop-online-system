@@ -9,11 +9,18 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.WebHost.UseUrls("http://0.0.0.0:5000");
 
+var vnpayConfig = builder.Configuration.GetSection("VNPAY");
+
 // ===== ADD SERVICES =====
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
+
+builder.Services.Configure<VnpayOptions>(
+    builder.Configuration.GetSection("VNPAY"));
+
+builder.Services.AddScoped<VNPayService>();
 
 builder.Services.AddScoped<PaymentFactory>();
 builder.Services.AddScoped<VNPayService>();

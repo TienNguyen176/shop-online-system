@@ -1,68 +1,105 @@
+using Microsoft.Extensions.Options;
 using ShopBackend.Models;
-using ShopBackend.Utils;
+using System.Globalization;
+using System.Net;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ShopBackend.Services.Payment
 {
-    public class VNPayService : IPaymentService
+    public class VNPayService
     {
-        private readonly string vnp_Url = "https://sandbox.vnpayment.vn/paymentv2/vpcpay.html";
-        private readonly string vnp_TmnCode = "3V73MVZ1";
-        private readonly string vnp_HashSecret = "LJS0H5H6POWRN0A80PBRTNMFPPGLPD5J";
+        private readonly VnpayOptions _config;
+
+        public VNPayService(IOptions<VnpayOptions> config)
+        {
+            _config = config.Value;
+        }
 
         public string CreatePaymentUrl(Order order, string ipAddress)
         {
-            var vnpay = new VnPayLibrary();
+            var vnpParams = new SortedDictionary<string, string>();
 
-            // ======================
-            // FIX IP (production-safe)
-            // ======================
-            if (string.IsNullOrEmpty(ipAddress) ||
-                ipAddress.StartsWith("::1") ||
-                ipAddress.Contains(":") ||
-                ipAddress.StartsWith("192.") ||
-                ipAddress.StartsWith("10.") ||
-                ipAddress.StartsWith("127."))
+            long amount = (long)(order.TotalPrice * 100);
+
+            vnpParams.Add("vnp_Version", _config.Version);
+            vnpParams.Add("vnp_Command", "pay");
+            vnpParams.Add("vnp_TmnCode", _config.TmnCode);
+            vnpParams.Add("vnp_Amount", amount.ToString());
+            vnpParams.Add("vnp_CurrCode", "VND");
+            vnpParams.Add("vnp_TxnRef", order.OrderCode);
+            vnpParams.Add("vnp_OrderInfo", $"Thanh toan don hang {order.OrderCode}");
+            vnpParams.Add("vnp_OrderType", _config.OrderType);
+            vnpParams.Add("vnp_Locale", "vn");
+
+            vnpParams.Add("vnp_ReturnUrl", _config.ReturnUrl);
+            vnpParams.Add("vnp_IpAddr", FixIp(ipAddress));
+
+            vnpParams.Add("vnp_CreateDate", GetVNTime());
+            vnpParams.Add("vnp_ExpireDate", GetVNTimePlusMinutes(15));
+
+            // BUILD QUERY + HASH
+            var signData = string.Join("&", vnpParams.Select(x => $"{x.Key}={x.Value}"));
+            var secureHash = HmacSHA512(_config.HashSecret, signData);
+
+            var query = new StringBuilder();
+
+            foreach (var item in vnpParams)
             {
-                ipAddress = "127.0.0.1";
+                query.Append($"{item.Key}={WebUtility.UrlEncode(item.Value)}&");
             }
 
-            // ======================
-            // VNPay requires amount * 100
-            // ======================
-            long amount = Convert.ToInt64(order.TotalPrice * 100);
+            query.Append($"vnp_SecureHash={secureHash}");
 
-            // ======================
-            // REQUEST DATA (A-Z SORT WILL BE HANDLED BY LIB)
-            // ======================
-            vnpay.AddRequestData("vnp_Amount", amount.ToString());
-            vnpay.AddRequestData("vnp_Command", "pay");
-            vnpay.AddRequestData("vnp_CreateDate", DateTime.Now.ToString("yyyyMMddHHmmss"));
-            vnpay.AddRequestData("vnp_CurrCode", "VND");
-            vnpay.AddRequestData("vnp_IpAddr", ipAddress);
-            vnpay.AddRequestData("vnp_Locale", "vn");
+            return _config.BaseUrl + "?" + query;
+        }
 
-            vnpay.AddRequestData(
-                "vnp_OrderInfo",
-                $"Thanh toan don hang {order.OrderCode}"
+        public bool ValidateReturn(IQueryCollection query)
+        {
+            var vnpData = query.ToDictionary(x => x.Key, x => x.Value.ToString());
+
+            var secureHash = vnpData["vnp_SecureHash"];
+            vnpData.Remove("vnp_SecureHash");
+            vnpData.Remove("vnp_SecureHashType");
+
+            var signData = string.Join("&",
+                vnpData.OrderBy(x => x.Key)
+                       .Select(x => $"{x.Key}={x.Value}")
             );
 
-            vnpay.AddRequestData("vnp_ReturnUrl", "https://shopapp.ddns.net/payment/vnpay-return");
-            vnpay.AddRequestData("vnp_TmnCode", vnp_TmnCode);
+            var checkHash = HmacSHA512(_config.HashSecret, signData);
 
-            vnpay.AddRequestData("vnp_TxnRef", order.OrderCode);
-            vnpay.AddRequestData("vnp_Version", "2.1.0");
+            return checkHash.Equals(secureHash, StringComparison.OrdinalIgnoreCase);
+        }
 
-            // ======================
-            // DEBUG (optional - remove in production)
-            // ======================
-            Console.WriteLine($"ORDER: {order.TotalPrice}");
-            Console.WriteLine($"AMOUNT: {amount}");
+        private string HmacSHA512(string key, string data)
+        {
+            using var hmac = new HMACSHA512(Encoding.UTF8.GetBytes(key));
+            var hash = hmac.ComputeHash(Encoding.UTF8.GetBytes(data));
+            return BitConverter.ToString(hash).Replace("-", "").ToLower();
+        }
 
-            var url = vnpay.CreateRequestUrl(vnp_Url, vnp_HashSecret);
+        private string GetVNTime()
+        {
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(
+                DateTime.UtcNow,
+                "SE Asia Standard Time"
+            ).ToString("yyyyMMddHHmmss");
+        }
 
-            Console.WriteLine($"VNPay URL: {url}");
+        private string GetVNTimePlusMinutes(int min)
+        {
+            return TimeZoneInfo.ConvertTimeBySystemTimeZoneId(
+                DateTime.UtcNow.AddMinutes(min),
+                "SE Asia Standard Time"
+            ).ToString("yyyyMMddHHmmss");
+        }
 
-            return url;
+        private string FixIp(string ip)
+        {
+            if (string.IsNullOrEmpty(ip)) return "127.0.0.1";
+            if (ip.Contains(":")) return "127.0.0.1";
+            return ip;
         }
     }
 }
