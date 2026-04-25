@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:provider/provider.dart';
+import 'package:shopapp/features/user/auth/providers/auth_provider.dart';
+import 'package:shopapp/features/user/oderstus/orderstatus.dart';
 
 import '../../../../widgets/cart_item_badge.dart';
+
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -18,11 +23,47 @@ class HomeHeader extends StatelessWidget {
             child: const CircleAvatar(
               radius: 18,
               backgroundColor: Colors.blue,
-              child: Icon(Icons.person, color: Colors.white, size: 18),
+              child: Icon(
+                Icons.person,
+                color: Colors.white,
+                size: 18,
+              ),
             ),
           ),
 
           const Spacer(),
+
+          /// icon đơn hàng
+     GestureDetector(
+  onTap: () async {
+    // Lấy userId từ AuthProvider thay vì SecureStorage
+    final auth = Provider.of<AuthProvider>(context, listen: false);
+    
+    if (!auth.isLoggedIn || auth.user == null) {
+      print("Chưa login");
+      return;
+    }
+
+    final userId = auth.user!['id'];
+    print("userId: $userId");
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => Orderstatus(
+          userId: userId is int ? userId : int.parse(userId.toString()),
+        ),
+      ),
+    );
+  },
+  child: const Icon(
+    Icons.receipt_long,
+    size: 28,
+    color: Colors.black,
+  ),
+),
+
+          const SizedBox(width: 16),
 
           const CartIconWithBadge(),
 

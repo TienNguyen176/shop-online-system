@@ -27,4 +27,6 @@ class AppRoutes {
     adminProducts:
         (context) => const AdminLayout(initialRoute: '/admin/products'),
   };
+
+  static var home;
 }

@@ -15,7 +15,7 @@ namespace ShopBackend.Models
         public string Status { get; set; } = "PENDING";
 
         [Column("total_price")]
-        public decimal TotalPrice { get; set; }
+        public decimal? TotalPrice { get; set; }
 
         [Column("shipping_name")]
         public string ShippingName { get; set; }
