@@ -4,8 +4,13 @@ import '../product/screens/product_list_screen.dart';
 
 class AdminLayout extends StatefulWidget {
   final String initialRoute;
+  final int userId;
 
-  const AdminLayout({super.key, required this.initialRoute});
+  const AdminLayout({
+    super.key,
+    required this.initialRoute,
+    required this.userId,
+  });
 
   @override
   State<AdminLayout> createState() => _AdminLayoutState();
@@ -16,14 +21,25 @@ class _AdminLayoutState extends State<AdminLayout> {
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-  final List<_AdminPage> pages = [
-    _AdminPage("Dashboard", Icons.dashboard, DashboardScreen()),
-    _AdminPage("Products", Icons.shopping_bag, ProductListScreen()),
-  ];
+  final List<_AdminPage> pages = [];
 
   @override
   void initState() {
     super.initState();
+
+    pages.addAll([
+      _AdminPage(
+        "Dashboard",
+        Icons.dashboard,
+        DashboardScreen(),
+      ),
+
+      _AdminPage(
+        "Products",
+        Icons.shopping_bag,
+        ProductListScreen(),
+      ),
+    ]);
 
     if (widget.initialRoute == '/admin/products') {
       index = 1;
@@ -32,7 +48,7 @@ class _AdminLayoutState extends State<AdminLayout> {
 
   void changeTab(int i) {
     setState(() => index = i);
-    Navigator.pop(context); // close drawer
+    Navigator.pop(context);
   }
 
   @override
@@ -58,7 +74,6 @@ class _AdminLayoutState extends State<AdminLayout> {
             children: [
               const SizedBox(height: 60),
 
-              // HEADER
               const CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.blue,
@@ -78,7 +93,6 @@ class _AdminLayoutState extends State<AdminLayout> {
 
               const SizedBox(height: 30),
 
-              // MENU
               Expanded(
                 child: ListView.builder(
                   itemCount: pages.length,

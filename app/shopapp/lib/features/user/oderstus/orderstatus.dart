@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import '../../../models/order_model.dart';
 
 class Orderstatus extends StatefulWidget {
-  final int userId; // nhận userId từ màn trước
+  final int userId; // nhận userId từ màn trước truyền qua
 
   const Orderstatus({
     super.key,

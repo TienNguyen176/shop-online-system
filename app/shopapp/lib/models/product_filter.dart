@@ -14,10 +14,10 @@ class ProductFilter {
   });
 
   static ProductFilter from(ProductFilter other) => ProductFilter(
-    brands: List.from(other.brands),
-    colors: List.from(other.colors),
-    sizes: List.from(other.sizes),
-    minPrice: other.minPrice,
-    maxPrice: other.maxPrice,
-  );
+  brands: List.from(other.brands),
+  colors: List.from(other.colors),
+  sizes: List.from(other.sizes),
+  minPrice: other.minPrice,
+  maxPrice: other.maxPrice,
+);
 }

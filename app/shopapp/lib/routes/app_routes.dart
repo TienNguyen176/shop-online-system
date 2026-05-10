@@ -22,10 +22,15 @@ class AppRoutes {
 
     //userProfile: (context) => const ProfileScreen(),
 
-    admin: (context) => const AdminLayout(initialRoute: '/admin'),
+    admin: (context) => AdminLayout(
+      initialRoute: '/admin',
+      userId: ModalRoute.of(context)!.settings.arguments as int? ?? 0,
+    ),
 
-    adminProducts:
-        (context) => const AdminLayout(initialRoute: '/admin/products'),
+    adminProducts: (context) => AdminLayout(
+      initialRoute: '/admin/products',
+      userId: ModalRoute.of(context)!.settings.arguments as int? ?? 0,
+    ),
   };
 
   static var home;
