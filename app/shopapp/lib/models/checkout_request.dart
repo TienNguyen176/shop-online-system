@@ -1,6 +1,7 @@
 import 'order_item.dart';
 
 class CheckoutRequest {
+  final int userId;
   final double amount;
   final String name;
   final String orderType;
@@ -13,6 +14,7 @@ class CheckoutRequest {
   final String shippingAddress;
 
   CheckoutRequest({
+    required this.userId,
     required this.amount,
     required this.name,
     required this.orderType,
@@ -24,6 +26,7 @@ class CheckoutRequest {
   });
 
   Map<String, dynamic> toJson() => {
+    "userId": userId,
     "amount": amount,
     "name": name,
     "orderType": orderType,

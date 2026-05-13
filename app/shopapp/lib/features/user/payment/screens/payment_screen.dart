@@ -89,6 +89,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
                         );
 
                         final updatedRequest = CheckoutRequest(
+                          userId: widget.request.userId,
                           amount: amount,
                           name: name,
                           orderType: "billpayment",

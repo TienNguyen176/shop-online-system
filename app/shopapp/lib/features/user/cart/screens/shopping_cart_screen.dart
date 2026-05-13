@@ -318,6 +318,10 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
                           );
 
                           final request = CheckoutRequest(
+                            userId:
+                                user['id'] is int
+                                    ? user['id']
+                                    : int.parse(user['id'].toString()),
                             amount: total,
                             name: user['name'] ?? "User",
                             orderType: "billpayment",

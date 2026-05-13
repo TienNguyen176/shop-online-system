@@ -6,6 +6,7 @@ import 'features/user/auth/providers/auth_provider.dart';
 
 import 'features/admin/attribute/providers/attribute_provider.dart';
 import 'features/user/payment/providers/payment_provider.dart';
+import 'features/user/notification/providers/notification_provider.dart';
 import 'features/user/product/providers/product_detail_provider.dart';
 import 'repositories/impl/attribute_repository.dart';
 import 'repositories/impl/payment_repository.dart';
@@ -62,6 +63,9 @@ Future<void> main() async {
 
         /// PAYMENT SCREEN
         ChangeNotifierProvider(create: (_) => PaymentProvider(paymentRepo)),
+
+        /// NOTIFICATION SCREEN
+        ChangeNotifierProvider(create: (_) => NotificationProvider()),
 
         /// ADMIN CATEGORY
         ChangeNotifierProvider(

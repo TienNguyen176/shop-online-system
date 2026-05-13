@@ -7,7 +7,7 @@ class SocialAuthService {
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email'],
     serverClientId:
-        "897951752219-l420dna8rh5kl9fktpfn3eicjnq4r2om.apps.googleusercontent.com",
+        "666877172796-cba34lb94j9c7rivvhgu9or68e4nkb1u.apps.googleusercontent.com",
   );
 
   Future<String?> loginGoogle() async {

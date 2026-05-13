@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 
 import '../../auth/providers/auth_provider.dart';
 import '../../oderstus/orderstatus.dart';
-
+import '../../../../routes/app_routes.dart';
 import '../../../../widgets/cart_item_badge.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -17,7 +17,7 @@ class HomeHeader extends StatelessWidget {
         children: [
           GestureDetector(
             onTap: () {
-              Navigator.pushNamed(context, '/admin');
+              Navigator.pushNamed(context, AppRoutes.userProfile);
             },
             child: const CircleAvatar(
               radius: 18,
@@ -68,7 +68,16 @@ class HomeHeader extends StatelessWidget {
 
           const SizedBox(width: 16),
 
-          const Icon(Icons.notifications_none),
+          GestureDetector(
+            onTap: () {
+              Navigator.pushNamed(context, AppRoutes.notifications);
+            },
+            child: const Icon(
+              Icons.notifications_none,
+              size: 28,
+              color: Colors.black,
+            ),
+          ),
         ],
       ),
     );
