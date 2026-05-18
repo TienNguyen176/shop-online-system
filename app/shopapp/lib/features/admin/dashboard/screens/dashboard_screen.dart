@@ -1,10 +1,11 @@
-import 'dart:convert';
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+
+import '../providers/dashboard_provider.dart';
 
 class DashboardScreen extends StatefulWidget {
- 
   const DashboardScreen({super.key});
 
   @override
@@ -13,9 +14,6 @@ class DashboardScreen extends StatefulWidget {
 
 class _DashboardScreenState extends State<DashboardScreen>
     with SingleTickerProviderStateMixin {
-  List<Map<String, dynamic>> data = [];
-  bool isLoading = true;
-
   late AnimationController _animController;
   late Animation<double> _anim;
 
@@ -35,7 +33,13 @@ class _DashboardScreenState extends State<DashboardScreen>
       duration: const Duration(milliseconds: 900),
     );
     _anim = CurvedAnimation(parent: _animController, curve: Curves.easeOut);
-    getStatistic();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await context.read<DashboardProvider>().loadStatistic();
+      if (mounted) {
+        _animController.forward(from: 0);
+      }
+    });
   }
 
   @override
@@ -44,249 +48,232 @@ class _DashboardScreenState extends State<DashboardScreen>
     super.dispose();
   }
 
-  Future<void> getStatistic() async {
-    try {
-      final response = await http.get(
-  Uri.parse("http://192.168.1.9:5000/api/Statistic"),
-);
-      if (response.statusCode == 200) {
-        final List jsonData = jsonDecode(response.body);
-        setState(() {
-          data = jsonData.asMap().entries.map((e) {
-            return {
-              "title": e.value["title"],
-              "percent": e.value["percent"],
-              "color": chartColors[e.key % chartColors.length],
-            };
-          }).toList();
-          isLoading = false;
-        });
-        _animController.forward();
-      }
-    } catch (e) {
-      debugPrint("Lỗi API: $e");
-      setState(() => isLoading = false);
-    }
-  }
-
-  /// Sản phẩm có % cao nhất từ API
-  Map<String, dynamic>? get _topItem {
-    if (data.isEmpty) return null;
-    return data.reduce((a, b) => a["percent"] > b["percent"] ? a : b);
-  }
-
-  /// Sản phẩm có % thấp nhất từ API
-  Map<String, dynamic>? get _bottomItem {
-    if (data.isEmpty) return null;
-    return data.reduce((a, b) => a["percent"] < b["percent"] ? a : b);
-  }
-
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
 
-    if (isLoading) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF0D1117),
-        body: Center(
-          child: CircularProgressIndicator(color: Color(0xFF4F8EF7)),
-        ),
-      );
-    }
+    return Consumer<DashboardProvider>(
+      builder: (_, dashboard, __) {
+        if (dashboard.loading) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF0D1117),
+            body: Center(
+              child: CircularProgressIndicator(color: Color(0xFF4F8EF7)),
+            ),
+          );
+        }
 
-    if (data.isEmpty) {
-      return const Scaffold(
-        backgroundColor: Color(0xFF0D1117),
-        body: Center(
-          child: Text(
-            "Chưa có dữ liệu",
-            style: TextStyle(color: Color(0xFF7D8590)),
-          ),
-        ),
-      );
-    }
-
-    return Scaffold(
-      backgroundColor: const Color(0xFF0D1117),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 8),
-
-              // ── SUMMARY CARDS: top vs bottom từ API ──
-              Row(
-                children: [
-                  _StatCard(
-                    label: _topItem!["title"],
-                    value: "${_topItem!["percent"]}%",
-                    badge: "Cao nhất",
-                    isUp: true,
-                  ),
-                  const SizedBox(width: 10),
-                  _StatCard(
-                    label: _bottomItem!["title"],
-                    value: "${_bottomItem!["percent"]}%",
-                    badge: "Thấp nhất",
-                    isUp: false,
-                  ),
-                ],
+        if (dashboard.items.isEmpty) {
+          return const Scaffold(
+            backgroundColor: Color(0xFF0D1117),
+            body: Center(
+              child: Text(
+                "Chưa có dữ liệu",
+                style: TextStyle(color: Color(0xFF7D8590)),
               ),
+            ),
+          );
+        }
 
-              const SizedBox(height: 14),
+        final data =
+            dashboard.items.asMap().entries.map((entry) {
+              return _ChartData(
+                title: entry.value.title,
+                percent: entry.value.percent,
+                color: chartColors[entry.key % chartColors.length],
+              );
+            }).toList();
 
-              // ── DONUT CARD ──
-              _SectionCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        return Scaffold(
+          backgroundColor: const Color(0xFF0D1117),
+          body: SafeArea(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      _StatCard(
+                        label: dashboard.topItem!.title,
+                        value: "${dashboard.topItem!.percent}%",
+                        badge: "Cao nhất",
+                        isUp: true,
+                      ),
+                      const SizedBox(width: 10),
+                      _StatCard(
+                        label: dashboard.bottomItem!.title,
+                        value: "${dashboard.bottomItem!.percent}%",
+                        badge: "Thấp nhất",
+                        isUp: false,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 14),
+                  _SectionCard(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          "Phân bổ danh mục",
-                          style: TextStyle(
-                            color: Color(0xFFF0F6FC),
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                          ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              "Phân bổ danh mục",
+                              style: TextStyle(
+                                color: Color(0xFFF0F6FC),
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF21262D),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                "${DateTime.now().year}",
+                                style: const TextStyle(
+                                  color: Color(0xFF7D8590),
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 10,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFF21262D),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            "${DateTime.now().year}",
-                            style: const TextStyle(
-                              color: Color(0xFF7D8590),
-                              fontSize: 11,
+                        const SizedBox(height: 20),
+                        Center(
+                          child: SizedBox(
+                            width: size.width * 0.5,
+                            height: size.width * 0.5,
+                            child: AnimatedBuilder(
+                              animation: _anim,
+                              builder:
+                                  (_, __) => Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      CustomPaint(
+                                        size: Size(
+                                          size.width * 0.5,
+                                          size.width * 0.5,
+                                        ),
+                                        painter: _DonutPainter(
+                                          data,
+                                          _anim.value,
+                                        ),
+                                      ),
+                                      Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        children: [
+                                          Text(
+                                            "${dashboard.totalPercent}%",
+                                            style: const TextStyle(
+                                              color: Color(0xFFF0F6FC),
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                          const Text(
+                                            "Tổng",
+                                            style: TextStyle(
+                                              color: Color(0xFF7D8590),
+                                              fontSize: 11,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
                             ),
                           ),
                         ),
+                        const SizedBox(height: 18),
+                        GridView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          gridDelegate:
+                              const SliverGridDelegateWithFixedCrossAxisCount(
+                                crossAxisCount: 2,
+                                crossAxisSpacing: 8,
+                                mainAxisSpacing: 8,
+                                childAspectRatio: 2.8,
+                              ),
+                          itemCount: data.length,
+                          itemBuilder:
+                              (_, i) => _LegendItem(
+                                color: data[i].color,
+                                title: data[i].title,
+                                percent: data[i].percent,
+                              ),
+                        ),
                       ],
                     ),
-
-                    const SizedBox(height: 20),
-
-                    Center(
-                      child: SizedBox(
-                        width: size.width * 0.5,
-                        height: size.width * 0.5,
-                        child: AnimatedBuilder(
-                          animation: _anim,
-                          builder: (_, __) => Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              CustomPaint(
-                                size: Size(size.width * 0.5, size.width * 0.5),
-                                painter: _DonutPainter(data, _anim.value),
-                              ),
-                              Column(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    "${data.fold<int>(0, (sum, e) => sum + (e["percent"] as int))}%",
-                                    style: const TextStyle(
-                                      color: Color(0xFFF0F6FC),
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                  const Text(
-                                    "Tổng",
-                                    style: TextStyle(
-                                      color: Color(0xFF7D8590),
-                                      fontSize: 11,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 18),
-
-                    // Legend từ API
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                        childAspectRatio: 2.8,
-                      ),
-                      itemCount: data.length,
-                      itemBuilder: (_, i) => _LegendItem(
-                        color: data[i]["color"],
-                        title: data[i]["title"],
-                        percent: data[i]["percent"],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-
-              const SizedBox(height: 14),
-
-              // ── BAR BREAKDOWN ──
-              const Padding(
-                padding: EdgeInsets.only(bottom: 10),
-                child: Text(
-                  "Chi tiết",
-                  style: TextStyle(
-                    color: Color(0xFFF0F6FC),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
                   ),
-                ),
-              ),
-
-              _SectionCard(
-                child: Column(
-                  children: data.asMap().entries.map((e) {
-                    return Padding(
-                      padding: EdgeInsets.only(
-                        bottom: e.key < data.length - 1 ? 12 : 0,
+                  const SizedBox(height: 14),
+                  const Padding(
+                    padding: EdgeInsets.only(bottom: 10),
+                    child: Text(
+                      "Chi tiết",
+                      style: TextStyle(
+                        color: Color(0xFFF0F6FC),
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
                       ),
-                      child: AnimatedBuilder(
-                        animation: _anim,
-                        builder: (_, __) => _BarRow(
-                          label: e.value["title"],
-                          percent: e.value["percent"],
-                          color: e.value["color"],
-                          animValue: _anim.value,
-                        ),
-                      ),
-                    );
-                  }).toList(),
-                ),
+                    ),
+                  ),
+                  _SectionCard(
+                    child: Column(
+                      children:
+                          data.asMap().entries.map((entry) {
+                            return Padding(
+                              padding: EdgeInsets.only(
+                                bottom: entry.key < data.length - 1 ? 12 : 0,
+                              ),
+                              child: AnimatedBuilder(
+                                animation: _anim,
+                                builder:
+                                    (_, __) => _BarRow(
+                                      label: entry.value.title,
+                                      percent: entry.value.percent,
+                                      color: entry.value.color,
+                                      animValue: _anim.value,
+                                    ),
+                              ),
+                            );
+                          }).toList(),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
               ),
-
-              const SizedBox(height: 24),
-            ],
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }
 
-// ── STAT CARD ──
+class _ChartData {
+  final String title;
+  final int percent;
+  final Color color;
+
+  const _ChartData({
+    required this.title,
+    required this.percent,
+    required this.color,
+  });
+}
+
 class _StatCard extends StatelessWidget {
   final String label, value, badge;
   final bool isUp;
+
   const _StatCard({
     required this.label,
     required this.value,
@@ -330,9 +317,7 @@ class _StatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
               decoration: BoxDecoration(
-                color: isUp
-                    ? const Color(0xFF0D3226)
-                    : const Color(0xFF2D1117),
+                color: isUp ? const Color(0xFF0D3226) : const Color(0xFF2D1117),
                 borderRadius: BorderRadius.circular(20),
               ),
               child: Row(
@@ -341,17 +326,19 @@ class _StatCard extends StatelessWidget {
                   Icon(
                     isUp ? Icons.trending_up : Icons.trending_down,
                     size: 11,
-                    color: isUp
-                        ? const Color(0xFF3FB950)
-                        : const Color(0xFFF85149),
+                    color:
+                        isUp
+                            ? const Color(0xFF3FB950)
+                            : const Color(0xFFF85149),
                   ),
                   const SizedBox(width: 3),
                   Text(
                     badge,
                     style: TextStyle(
-                      color: isUp
-                          ? const Color(0xFF3FB950)
-                          : const Color(0xFFF85149),
+                      color:
+                          isUp
+                              ? const Color(0xFF3FB950)
+                              : const Color(0xFFF85149),
                       fontSize: 11,
                     ),
                   ),
@@ -365,9 +352,9 @@ class _StatCard extends StatelessWidget {
   }
 }
 
-// ── SECTION CARD ──
 class _SectionCard extends StatelessWidget {
   final Widget child;
+
   const _SectionCard({required this.child});
 
   @override
@@ -385,11 +372,11 @@ class _SectionCard extends StatelessWidget {
   }
 }
 
-// ── LEGEND ITEM ──
 class _LegendItem extends StatelessWidget {
   final Color color;
   final String title;
   final int percent;
+
   const _LegendItem({
     required this.color,
     required this.title,
@@ -412,28 +399,30 @@ class _LegendItem extends StatelessWidget {
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),
           ),
           const SizedBox(width: 8),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                title,
-                style: const TextStyle(
-                  color: Color(0xFF7D8590),
-                  fontSize: 11,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Color(0xFF7D8590),
+                    fontSize: 11,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-              Text(
-                "$percent%",
-                style: const TextStyle(
-                  color: Color(0xFFF0F6FC),
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
+                Text(
+                  "$percent%",
+                  style: const TextStyle(
+                    color: Color(0xFFF0F6FC),
+                    fontSize: 14,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -441,12 +430,12 @@ class _LegendItem extends StatelessWidget {
   }
 }
 
-// ── BAR ROW ──
 class _BarRow extends StatelessWidget {
   final String label;
   final int percent;
   final Color color;
   final double animValue;
+
   const _BarRow({
     required this.label,
     required this.percent,
@@ -476,7 +465,7 @@ class _BarRow extends StatelessWidget {
             ),
             child: FractionallySizedBox(
               alignment: Alignment.centerLeft,
-              widthFactor: (percent / 100) * animValue,
+              widthFactor: (percent.clamp(0, 100) / 100) * animValue,
               child: Container(
                 decoration: BoxDecoration(
                   color: color,
@@ -504,9 +493,8 @@ class _BarRow extends StatelessWidget {
   }
 }
 
-// ── DONUT PAINTER ──
 class _DonutPainter extends CustomPainter {
-  final List<Map<String, dynamic>> data;
+  final List<_ChartData> data;
   final double progress;
 
   _DonutPainter(this.data, this.progress);
@@ -514,24 +502,26 @@ class _DonutPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
-    final paint = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 28
-      ..strokeCap = StrokeCap.butt;
+
+    final paint =
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 28
+          ..strokeCap = StrokeCap.butt;
 
     double startAngle = -pi / 2;
     const gap = 0.04;
 
-    for (int i = 0; i < data.length; i++) {
-      final sweep = (data[i]["percent"] / 100) * 2 * pi * progress;
-      paint.color = data[i]["color"];
+    for (final item in data) {
+      final sweep = (item.percent / 100) * 2 * pi * progress;
+      paint.color = item.color;
       canvas.drawArc(
         Rect.fromCircle(
           center: Offset(size.width / 2, size.height / 2),
           radius: size.width / 2.4,
         ),
         startAngle + gap / 2,
-        sweep - gap,
+        max(0, sweep - gap),
         false,
         paint,
       );
@@ -540,6 +530,7 @@ class _DonutPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _DonutPainter old) =>
-      old.progress != progress || old.data != data;
+  bool shouldRepaint(covariant _DonutPainter oldDelegate) {
+    return oldDelegate.progress != progress || oldDelegate.data != data;
+  }
 }
