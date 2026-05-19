@@ -6,12 +6,14 @@ import '../../../../core/config/app_config.dart';
 
 class AdminProductCard extends StatelessWidget {
   final AdminProduct product;
+  final VoidCallback? onTap;
   final VoidCallback? onEdit;
   final VoidCallback? onDelete;
 
   const AdminProductCard({
     super.key,
     required this.product,
+    this.onTap,
     this.onEdit,
     this.onDelete,
   });
@@ -26,10 +28,13 @@ class AdminProductCard extends StatelessWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
             /// IMAGE
             Container(
               width: 60,
@@ -130,7 +135,8 @@ class AdminProductCard extends StatelessWidget {
                     PopupMenuItem(value: "delete", child: Text("Xóa")),
                   ],
             ),
-          ],
+            ],
+          ),
         ),
       ),
     );

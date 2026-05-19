@@ -27,9 +27,9 @@ class CartRepository implements ICartRepository {
   }
 
   @override
-  Future<List<CartItem>> getCart(int userId) async {
+  Future<List<CartItem>> getCart(int userId, {bool forceRefresh = false}) async {
     /// dùng cache nếu có
-    if (_cartCache.containsKey(userId)) {
+    if (!forceRefresh && _cartCache.containsKey(userId)) {
       return _cartCache[userId]!;
     }
 

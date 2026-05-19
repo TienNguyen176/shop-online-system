@@ -30,7 +30,10 @@ namespace ShopBackend.Controllers
             decimal? minPrice = null,
             decimal? maxPrice = null)
         {
-            var query = _db.Products.AsQueryable();
+            var query = _db.Products
+                .IgnoreQueryFilters()
+                .Where(p => p.IsDeleted == false)
+                .AsQueryable();
 
             if (!string.IsNullOrWhiteSpace(search))
             {
@@ -126,7 +129,8 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> GetBrands()
         {
             var brands = await _db.Products
-                .Where(p => p.Brand != null && p.Brand != "")
+                .IgnoreQueryFilters()
+                .Where(p => p.IsDeleted == false && p.Brand != null && p.Brand != "")
                 .Select(p => p.Brand)
                 .Distinct()
                 .OrderBy(b => b)
@@ -140,6 +144,8 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> GetBannerProducts()
         {
             var products = await _db.Products
+                .IgnoreQueryFilters()
+                .Where(p => p.IsDeleted == false)
                 .OrderByDescending(p => p.CreatedAt)
                 .ThenByDescending(p => p.SoldCount)
                 .Take(5)
@@ -188,7 +194,8 @@ namespace ShopBackend.Controllers
         {
             // 1. Load product
             var product = await _db.Products
-                .Where(p => p.Id == id)
+                .IgnoreQueryFilters()
+                .Where(p => p.Id == id && p.IsDeleted == false)
                 .Select(p => new
                 {
                     p.Id,

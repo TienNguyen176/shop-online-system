@@ -18,7 +18,8 @@ class ShoppingCartScreen extends StatefulWidget {
   State<ShoppingCartScreen> createState() => _ShoppingCartScreenState();
 }
 
-class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
+class _ShoppingCartScreenState extends State<ShoppingCartScreen>
+    with WidgetsBindingObserver {
   static const primary = Color(0xff2563eb);
   static const primaryDark = Color(0xff1d4ed8);
   static const bg = Color(0xffeef2fb);
@@ -29,7 +30,21 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) => _reloadCart());
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _reloadCart();
+    }
   }
 
   /// Định dạng tiền theo kiểu Việt Nam, dùng dấu chấm tách hàng nghìn.
@@ -144,10 +159,13 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     }
 
     if (cart.items.isEmpty) {
-      return const Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
+      return RefreshIndicator(
+        color: primary,
+        onRefresh: _reloadCart,
+        child: ListView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(32, 120, 32, 140),
+          children: const [
             Icon(
               Icons.shopping_cart_outlined,
               size: 72,
@@ -161,6 +179,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
                 fontSize: 16,
                 fontWeight: FontWeight.w800,
               ),
+              textAlign: TextAlign.center,
             ),
             SizedBox(height: 4),
             Text(
@@ -173,11 +192,16 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
       );
     }
 
-    return ListView.separated(
-      padding: const EdgeInsets.fromLTRB(22, 8, 22, 140),
-      itemCount: cart.items.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 12),
-      itemBuilder: (_, i) => _cartItem(cart, cart.items[i]),
+    return RefreshIndicator(
+      color: primary,
+      onRefresh: _reloadCart,
+      child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.fromLTRB(22, 8, 22, 140),
+        itemCount: cart.items.length,
+        separatorBuilder: (_, __) => const SizedBox(height: 12),
+        itemBuilder: (_, i) => _cartItem(cart, cart.items[i]),
+      ),
     );
   }
 
@@ -506,14 +530,15 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
   }
 
   /// Tải lại giỏ hàng của user hiện tại.
-  void _reloadCart() {
+  Future<void> _reloadCart() async {
+    if (!mounted) return;
     final user = context.read<AuthProvider>().user;
     if (user == null) return;
 
     final id = user['id'];
     final userId = id is int ? id : int.tryParse(id.toString());
     if (userId != null) {
-      context.read<CartProvider>().loadCart(userId, force: true);
+      await context.read<CartProvider>().loadCart(userId, force: true);
     }
   }
 }

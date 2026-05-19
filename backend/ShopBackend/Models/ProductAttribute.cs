@@ -9,9 +9,9 @@ namespace ShopBackend.Models
         [Key]
         public long Id { get; set; }
 
-        public string Name { get; set; }
+        public string Name { get; set; } = string.Empty;
 
-        public ICollection<AttributeValue> Values { get; set; }
+        public ICollection<AttributeValue> Values { get; set; } = new List<AttributeValue>();
 
     }
 }

@@ -27,12 +27,13 @@ class ProductRepository implements IProductRepository {
     double? minRating,
     double? minPrice,
     double? maxPrice,
+    bool forceRefresh = false,
   }) async {
     final key =
         "$page-$pageSize-$categoryId-$categoryIds-$search-$brand-$brands-$minRating-$minPrice-$maxPrice";
 
     /// Cache
-    if (_homeCache.containsKey(key)) {
+    if (!forceRefresh && _homeCache.containsKey(key)) {
       return _homeCache[key]!;
     }
 
@@ -54,8 +55,8 @@ class ProductRepository implements IProductRepository {
   }
 
   @override
-  Future<List<String>> getBrands() async {
-    if (_brandCache != null) {
+  Future<List<String>> getBrands({bool forceRefresh = false}) async {
+    if (!forceRefresh && _brandCache != null) {
       return _brandCache!;
     }
 
@@ -65,8 +66,8 @@ class ProductRepository implements IProductRepository {
   }
 
   @override
-  Future<List<Product>> getBannerProducts() async {
-    if (_bannerCache != null) {
+  Future<List<Product>> getBannerProducts({bool forceRefresh = false}) async {
+    if (!forceRefresh && _bannerCache != null) {
       return _bannerCache!;
     }
 
@@ -77,9 +78,12 @@ class ProductRepository implements IProductRepository {
 
   /// ================= DETAIL =================
   @override
-  Future<ProductDetail> getProductDetail(int id) async {
+  Future<ProductDetail> getProductDetail(
+    int id, {
+    bool forceRefresh = false,
+  }) async {
     /// Cache
-    if (_detailCache.containsKey(id)) {
+    if (!forceRefresh && _detailCache.containsKey(id)) {
       return _detailCache[id]!;
     }
 

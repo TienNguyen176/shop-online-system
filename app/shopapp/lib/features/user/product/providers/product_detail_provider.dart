@@ -20,11 +20,22 @@ class ProductDetailProvider extends ChangeNotifier {
   Map<String, String> selectedAttributes = {};
 
   /// Tải chi tiết sản phẩm và tự chọn biến thể còn hàng đầu tiên làm mặc định.
-  Future<void> load(int productId) async {
-    loading = true;
-    notifyListeners();
+  Future<void> load(int productId, {bool silent = false}) async {
+    if (!silent) {
+      loading = true;
+      notifyListeners();
+    }
 
-    final data = await repo.getProductDetail(productId);
+    ProductDetail data;
+    try {
+      data = await repo.getProductDetail(productId, forceRefresh: silent);
+    } catch (_) {
+      product = null;
+      selectedAttributes = {};
+      loading = false;
+      notifyListeners();
+      return;
+    }
 
     product = data;
 

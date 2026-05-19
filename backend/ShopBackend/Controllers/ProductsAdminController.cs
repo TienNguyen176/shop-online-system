@@ -24,7 +24,8 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> GetAllProducts(int page = 1, int pageSize = 10)
         {
             var query =
-                from p in _db.Products
+                from p in _db.Products.IgnoreQueryFilters()
+                where p.IsDeleted == false
                 join c in _db.Categories
                     on p.CategoryId equals c.Id into pc
                 from c in pc.DefaultIfEmpty()
@@ -76,121 +77,31 @@ namespace ShopBackend.Controllers
             if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
                 return BadRequest("Invalid data");
 
-            if (dto.Variants == null || !dto.Variants.Any())
-                return BadRequest("Variants required");
-
             await using var tx = await _db.Database.BeginTransactionAsync();
 
             try
             {
                 var product = new Product
                 {
-                    Name = dto.Name,
-                    Description = dto.Description,
+                    Name = dto.Name.Trim(),
+                    Description = dto.Description ?? string.Empty,
                     CategoryId = dto.CategoryId,
-                    Brand = dto.Brand
+                    Brand = dto.Brand ?? string.Empty,
+                    CreatedAt = DateTime.UtcNow
                 };
 
                 _db.Products.Add(product);
                 await _db.SaveChangesAsync();
 
-                // CACHE ATTRIBUTES
-                var attributeCache = await _db.Attributes
-                    .ToDictionaryAsync(a => a.Name, a => a);
-
-                var attributeValueCache = await _db.AttributeValues
-                    .ToDictionaryAsync(av => $"{av.AttributeId}_{av.Value}", av => av);
-
-                var variants = new List<ProductVariant>();
-
-                foreach (var v in dto.Variants)
-                {
-                    var variant = new ProductVariant
-                    {
-                        ProductId = product.Id,
-                        Price = v.Price,
-                        StockQuantity = v.StockQuantity
-                    };
-
-                    variants.Add(variant);
-                }
-
-                _db.ProductVariants.AddRange(variants);
-                await _db.SaveChangesAsync();
-
-                var variantAttributes = new List<VariantAttribute>();
-
-                for (int i = 0; i < dto.Variants.Count; i++)
-                {
-                    var vDto = dto.Variants[i];
-                    var variant = variants[i];
-
-                    if (vDto.Attributes == null) continue;
-
-                    foreach (var kv in vDto.Attributes)
-                    {
-                        var name = kv.Key.Trim();
-                        var value = kv.Value.Trim();
-
-                        if (!attributeCache.TryGetValue(name, out var attr))
-                        {
-                            attr = new ProductAttribute { Name = name };
-                            _db.Attributes.Add(attr);
-                            await _db.SaveChangesAsync();
-                            attributeCache[name] = attr;
-                        }
-
-                        var key = $"{attr.Id}_{value}";
-                        if (!attributeValueCache.TryGetValue(key, out var attrValue))
-                        {
-                            attrValue = new AttributeValue
-                            {
-                                AttributeId = attr.Id,
-                                Value = value
-                            };
-                            _db.AttributeValues.Add(attrValue);
-                            await _db.SaveChangesAsync();
-                            attributeValueCache[key] = attrValue;
-                        }
-
-                        variantAttributes.Add(new VariantAttribute
-                        {
-                            VariantId = variant.Id,
-                            AttributeValueId = attrValue.Id
-                        });
-                    }
-                }
-
-                _db.VariantAttributes.AddRange(variantAttributes);
-                await _db.SaveChangesAsync();
-
-                // SKU
-                foreach (var v in variants)
-                {
-                    v.Sku = $"{Slugify(product.Brand)}-{product.Id}-{Guid.NewGuid().ToString()[..6]}";
-                }
-
-                await _db.SaveChangesAsync();
-
-                // IMAGES
                 if (dto.Images != null)
                 {
                     var images = new List<ProductImage>();
 
                     foreach (var img in dto.Images)
                     {
-                        int? variantId = null;
-
-                        if (img.VariantIndex.HasValue &&
-                            img.VariantIndex.Value < variants.Count)
-                        {
-                            variantId = (int?)variants[img.VariantIndex.Value].Id;
-                        }
-
                         images.Add(new ProductImage
                         {
                             ProductId = product.Id,
-                            VariantId = variantId,
                             ImageUrl = img.ImageUrl,
                             IsMain = img.IsMain
                         });
@@ -212,44 +123,27 @@ namespace ShopBackend.Controllers
         }
 
         // =========================
-        // UPDATE (RECREATE)
+        // UPDATE
         // =========================
         [HttpPut("{id}")]
         public async Task<IActionResult> UpdateProduct(long id, [FromBody] AdminProductDto dto)
         {
-            var product = await _db.Products.FindAsync(id);
+            var product = await _db.Products.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
             if (product == null) return NotFound();
+
+            if (dto == null || string.IsNullOrWhiteSpace(dto.Name))
+                return BadRequest("Invalid data");
 
             await using var tx = await _db.Database.BeginTransactionAsync();
 
             try
             {
-                product.Name = dto.Name;
-                product.Description = dto.Description;
+                product.Name = dto.Name.Trim();
+                product.Description = dto.Description ?? string.Empty;
                 product.CategoryId = dto.CategoryId;
-                product.Brand = dto.Brand;
-
-                // DELETE ALL OLD
-                var variantIds = await _db.ProductVariants
-                    .Where(x => x.ProductId == id)
-                    .Select(x => x.Id)
-                    .ToListAsync();
-
-                _db.VariantAttributes.RemoveRange(
-                    _db.VariantAttributes.Where(x => variantIds.Contains(x.VariantId)));
-
-                _db.ProductImages.RemoveRange(
-                    _db.ProductImages.Where(x => x.ProductId == id));
-
-                _db.ProductVariants.RemoveRange(
-                    _db.ProductVariants.Where(x => x.ProductId == id));
+                product.Brand = dto.Brand ?? string.Empty;
 
                 await _db.SaveChangesAsync();
-
-                // REUSE CREATE LOGIC
-                dto.CategoryId = product.CategoryId;
-
-                var createResult = await CreateProduct(dto) as OkObjectResult;
 
                 await tx.CommitAsync();
 
@@ -269,22 +163,158 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> DeleteProduct(long id)
         {
             var product = await _db.Products
-                .Include(p => p.ProductVariants)
-                    .ThenInclude(v => v.Attributes)
-                .Include(p => p.ProductImages)
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(p => p.Id == id);
 
             if (product == null) return NotFound();
 
-            // delete children first
+            if (product.IsDeleted)
+                return NoContent();
+
+            product.IsDeleted = true;
+            await _db.SaveChangesAsync();
+
+            return NoContent();
+        }
+
+        // =========================
+        // GET VARIANTS
+        // =========================
+        [HttpGet("{id}/variants")]
+        public async Task<IActionResult> GetVariants(long id)
+        {
+            var productExists = await _db.Products.AnyAsync(x => x.Id == id && !x.IsDeleted);
+            if (!productExists) return NotFound();
+
+            var variantsData = await _db.ProductVariants
+                .Where(v => v.ProductId == id)
+                .Include(v => v.Attributes)
+                    .ThenInclude(va => va.AttributeValue)
+                    .ThenInclude(av => av.Attribute)
+                .OrderByDescending(v => v.Id)
+                .ToListAsync();
+
+            var variants = variantsData
+                .Select(v => new
+                {
+                    id = v.Id,
+                    sku = v.Sku,
+                    price = v.Price,
+                    stockQuantity = v.StockQuantity,
+                    attributes = (v.Attributes ?? new List<VariantAttribute>())
+                        .ToDictionary(
+                            va => va.AttributeValue.Attribute.Name,
+                            va => va.AttributeValue.Value
+                        )
+                })
+                .ToList();
+
+            return Ok(variants);
+        }
+
+        // =========================
+        // CREATE VARIANT
+        // =========================
+        [HttpPost("{id}/variants")]
+        public async Task<IActionResult> CreateVariant(long id, [FromBody] VariantCreateDto dto)
+        {
+            var product = await _db.Products.FirstOrDefaultAsync(x => x.Id == id && !x.IsDeleted);
+            if (product == null) return NotFound();
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                var variant = new ProductVariant
+                {
+                    ProductId = id,
+                    Price = dto.Price,
+                    StockQuantity = dto.StockQuantity,
+                    Sku = string.IsNullOrWhiteSpace(dto.Sku)
+                        ? $"{Slugify(product.Brand)}-{id}-{Guid.NewGuid().ToString()[..6]}"
+                        : dto.Sku.Trim(),
+                    Attributes = new List<VariantAttribute>()
+                };
+
+                _db.ProductVariants.Add(variant);
+                await _db.SaveChangesAsync();
+
+                await SaveVariantAttributes(variant.Id, dto.Attributes);
+
+                await tx.CommitAsync();
+
+                return Ok(new { id = variant.Id });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // =========================
+        // UPDATE VARIANT
+        // =========================
+        [HttpPut("{id}/variants/{variantId}")]
+        public async Task<IActionResult> UpdateVariant(long id, long variantId, [FromBody] VariantCreateDto dto)
+        {
+            var productExists = await _db.Products.AnyAsync(x => x.Id == id && !x.IsDeleted);
+            if (!productExists) return NotFound();
+
+            var variant = await _db.ProductVariants
+                .FirstOrDefaultAsync(x => x.Id == variantId && x.ProductId == id);
+
+            if (variant == null) return NotFound();
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+
+            try
+            {
+                variant.Price = dto.Price;
+                variant.StockQuantity = dto.StockQuantity;
+
+                if (!string.IsNullOrWhiteSpace(dto.Sku))
+                    variant.Sku = dto.Sku.Trim();
+
+                _db.VariantAttributes.RemoveRange(
+                    _db.VariantAttributes.Where(x => x.VariantId == variantId)
+                );
+
+                await _db.SaveChangesAsync();
+                await SaveVariantAttributes(variant.Id, dto.Attributes);
+
+                await tx.CommitAsync();
+
+                return Ok(new { id = variant.Id });
+            }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return StatusCode(500, ex.Message);
+            }
+        }
+
+        // =========================
+        // DELETE VARIANT
+        // =========================
+        [HttpDelete("{id}/variants/{variantId}")]
+        public async Task<IActionResult> DeleteVariant(long id, long variantId)
+        {
+            var productExists = await _db.Products.AnyAsync(x => x.Id == id && !x.IsDeleted);
+            if (!productExists) return NotFound();
+
+            var variant = await _db.ProductVariants
+                .FirstOrDefaultAsync(x => x.Id == variantId && x.ProductId == id);
+
+            if (variant == null) return NotFound();
+
             _db.VariantAttributes.RemoveRange(
-                product.ProductVariants.SelectMany(v => v.Attributes)
+                _db.VariantAttributes.Where(x => x.VariantId == variantId)
             );
-
-            _db.ProductVariants.RemoveRange(product.ProductVariants);
-            _db.ProductImages.RemoveRange(product.ProductImages);
-
-            _db.Products.Remove(product);
+            _db.ProductImages.RemoveRange(
+                _db.ProductImages.Where(x => x.VariantId == variantId)
+            );
+            _db.ProductVariants.Remove(variant);
 
             await _db.SaveChangesAsync();
 
@@ -297,6 +327,9 @@ namespace ShopBackend.Controllers
         [HttpPost("{id}/upload-image")]
         public async Task<IActionResult> UploadImage(long id, IFormFile file)
         {
+            var productExists = await _db.Products.AnyAsync(x => x.Id == id && !x.IsDeleted);
+            if (!productExists) return NotFound();
+
             if (file == null || file.Length == 0)
                 return BadRequest("File empty");
 
@@ -309,7 +342,7 @@ namespace ShopBackend.Controllers
             if (file.Length > 5 * 1024 * 1024)
                 return BadRequest("Max 5MB");
 
-            var folder = Path.Combine("wwwroot/uploads/products", id.ToString());
+            var folder = Path.Combine("wwwroot", "uploads", "images", "products", id.ToString());
             Directory.CreateDirectory(folder);
 
             var fileName = $"{Guid.NewGuid()}{ext}";
@@ -318,13 +351,14 @@ namespace ShopBackend.Controllers
             using var stream = new FileStream(path, FileMode.Create);
             await file.CopyToAsync(stream);
 
-            var url = $"uploads/products/{id}/{fileName}";
+            const string productUploadPath = "uploads/images/products/";
+            var url = $"{productUploadPath}{id}/{fileName}";
 
             var img = new ProductImage
             {
                 ProductId = id,
                 ImageUrl = url,
-                IsMain = !_db.ProductImages.Any(x => x.ProductId == id)
+                IsMain = !await _db.ProductImages.AnyAsync(x => x.ProductId == id)
             };
 
             _db.ProductImages.Add(img);
@@ -345,6 +379,63 @@ namespace ShopBackend.Controllers
                 .Replace(text, @"[^a-z0-9]", "");
 
             return text.Length >= 3 ? text[..3] : text.PadRight(3, 'x');
+        }
+
+        private async Task SaveVariantAttributes(
+            long variantId,
+            Dictionary<string, string>? attributes)
+        {
+            if (attributes == null || !attributes.Any()) return;
+
+            var attributeCache = await _db.Attributes
+                .ToDictionaryAsync(a => a.Name, a => a);
+
+            var attributeValueCache = await _db.AttributeValues
+                .ToDictionaryAsync(av => $"{av.AttributeId}_{av.Value}", av => av);
+
+            var variantAttributes = new List<VariantAttribute>();
+
+            foreach (var kv in attributes)
+            {
+                var name = kv.Key.Trim();
+                var value = kv.Value.Trim();
+
+                if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(value))
+                    continue;
+
+                if (!attributeCache.TryGetValue(name, out var attr))
+                {
+                    attr = new ProductAttribute { Name = name };
+                    _db.Attributes.Add(attr);
+                    await _db.SaveChangesAsync();
+                    attributeCache[name] = attr;
+                }
+
+                var key = $"{attr.Id}_{value}";
+                if (!attributeValueCache.TryGetValue(key, out var attrValue))
+                {
+                    attrValue = new AttributeValue
+                    {
+                        AttributeId = attr.Id,
+                        Value = value
+                    };
+                    _db.AttributeValues.Add(attrValue);
+                    await _db.SaveChangesAsync();
+                    attributeValueCache[key] = attrValue;
+                }
+
+                variantAttributes.Add(new VariantAttribute
+                {
+                    VariantId = variantId,
+                    AttributeValueId = attrValue.Id
+                });
+            }
+
+            if (variantAttributes.Any())
+            {
+                _db.VariantAttributes.AddRange(variantAttributes);
+                await _db.SaveChangesAsync();
+            }
         }
     }
 }

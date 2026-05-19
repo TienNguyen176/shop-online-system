@@ -26,6 +26,26 @@ namespace ShopBackend.Controllers
         [HttpPost("create-vnpay-url")]
         public IActionResult CreatePaymentUrl([FromBody] PaymentInformationModel model)
         {
+            if (model.Items == null || model.Items.Count == 0)
+                return BadRequest("Đơn hàng không có sản phẩm");
+
+            var variantIds = model.Items.Select(item => item.VariantId).Distinct().ToList();
+            var unavailableVariantIds = _db.ProductVariants
+                .Include(v => v.Product)
+                .Where(v =>
+                    variantIds.Contains(v.Id) &&
+                    (v.Product == null || v.Product.IsDeleted))
+                .Select(v => v.Id)
+                .ToList();
+
+            var existingVariantIds = _db.ProductVariants
+                .Where(v => variantIds.Contains(v.Id))
+                .Select(v => v.Id)
+                .ToList();
+
+            if (existingVariantIds.Count != variantIds.Count || unavailableVariantIds.Any())
+                return BadRequest("Một số sản phẩm trong giỏ hàng không còn khả dụng");
+
             var productAmount = model.Items?
                 .Sum(item => item.Price * item.Quantity) ?? 0;
             var totalAmount = (decimal)model.Amount;

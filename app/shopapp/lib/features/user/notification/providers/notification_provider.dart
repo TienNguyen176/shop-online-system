@@ -16,7 +16,14 @@ class NotificationProvider extends ChangeNotifier {
       notifications.where((notification) => !notification.read).length;
 
   /// Tải danh sách thông báo từ mock data, sau này có thể đổi sang API thật.
-  Future<void> loadNotifications() async {
+  Future<void> loadNotifications({bool forceRefresh = false}) async {
+    if (!forceRefresh && notifications.isNotEmpty) return;
+
+    final readIds = notifications
+        .where((notification) => notification.read)
+        .map((notification) => notification.id)
+        .toSet();
+
     /// Bật loading để UI hiển thị trạng thái chờ.
     loading = true;
     notifyListeners();
@@ -27,9 +34,15 @@ class NotificationProvider extends ChangeNotifier {
     );
 
     /// Copy dữ liệu mock để tránh sửa trực tiếp danh sách gốc.
-    notifications = List<UserNotification>.from(
-      mockNotifications,
-    );
+    notifications = mockNotifications.map((notification) {
+      return UserNotification(
+        id: notification.id,
+        title: notification.title,
+        message: notification.message,
+        createdAt: notification.createdAt,
+        read: notification.read || readIds.contains(notification.id),
+      );
+    }).toList();
 
     /// Tắt loading sau khi đã có dữ liệu.
     loading = false;

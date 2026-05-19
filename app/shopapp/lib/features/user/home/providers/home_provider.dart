@@ -40,14 +40,14 @@ class HomeProvider extends ChangeNotifier {
   Timer? debounce;
 
   /// Tải danh sách sản phẩm dùng cho banner trang chủ.
-  Future<void> loadBannerProducts() async {
-    if (loadingBanner || bannerProducts.isNotEmpty) return;
+  Future<void> loadBannerProducts({bool refresh = false}) async {
+    if (loadingBanner || (!refresh && bannerProducts.isNotEmpty)) return;
 
     loadingBanner = true;
     notifyListeners();
 
     try {
-      bannerProducts = await repo.getBannerProducts();
+      bannerProducts = await repo.getBannerProducts(forceRefresh: refresh);
     } catch (e) {
       bannerProducts = [];
     }
@@ -88,6 +88,7 @@ class HomeProvider extends ChangeNotifier {
         page: currentPage,
         pageSize: pageSize,
         categoryId: selectedCategoryId,
+        forceRefresh: refresh,
       );
 
       if (data.length < pageSize) {

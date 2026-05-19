@@ -45,6 +45,13 @@ namespace ShopBackend.Controllers
             }
 
             // ADD / UPDATE ITEM
+            var variant = await _db.ProductVariants
+                .Include(v => v.Product)
+                .FirstOrDefaultAsync(v => v.Id == dto.VariantId);
+
+            if (variant == null || variant.Product == null || variant.Product.IsDeleted)
+                return BadRequest("Sản phẩm không còn khả dụng");
+
             var item = await _db.CartItems.FirstOrDefaultAsync(x =>
                 x.CartId == cart.Id && x.VariantId == dto.VariantId);
 
@@ -74,8 +81,31 @@ namespace ShopBackend.Controllers
             var cart = await _db.Carts.FirstOrDefaultAsync(c => c.UserId == userId);
             if (cart == null) return Ok(new List<object>());
 
+            var hiddenItemIds = await _db.CartItems
+                .IgnoreQueryFilters()
+                .Where(x => x.CartId == cart.Id)
+                .Where(x =>
+                    x.Variant == null ||
+                    x.Variant.Product == null ||
+                    x.Variant.Product.IsDeleted)
+                .Select(x => x.Id)
+                .ToListAsync();
+
+            if (hiddenItemIds.Any())
+            {
+                var hiddenItems = await _db.CartItems
+                    .Where(x => hiddenItemIds.Contains(x.Id))
+                    .ToListAsync();
+                _db.CartItems.RemoveRange(hiddenItems);
+                await _db.SaveChangesAsync();
+            }
+
             var items = await _db.CartItems
                 .Where(x => x.CartId == cart.Id)
+                .Where(x =>
+                    x.Variant != null &&
+                    x.Variant.Product != null &&
+                    !x.Variant.Product.IsDeleted)
                 .Include(x => x.Variant)
                     .ThenInclude(v => v!.Product)
                         .ThenInclude(p => p!.ProductImages)

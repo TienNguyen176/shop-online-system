@@ -14,12 +14,13 @@ abstract class IProductRepository {
     double? minRating,
     double? minPrice,
     double? maxPrice,
+    bool forceRefresh = false,
   });
 
-  Future<List<String>> getBrands();
+  Future<List<String>> getBrands({bool forceRefresh = false});
 
-  Future<List<Product>> getBannerProducts();
+  Future<List<Product>> getBannerProducts({bool forceRefresh = false});
 
-  Future<ProductDetail> getProductDetail(int id);
+  Future<ProductDetail> getProductDetail(int id, {bool forceRefresh = false});
   
 }

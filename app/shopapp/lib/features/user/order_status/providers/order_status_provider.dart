@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 import '../../../../models/order_model.dart';
 import '../../../../repositories/interfaces/i_order_repository.dart';
 
+/// Provider quản lý danh sách đơn hàng theo từng tab trạng thái.
 class OrderStatusProvider extends ChangeNotifier {
   final IOrderRepository repo;
 
   OrderStatusProvider(this.repo);
 
+  /// Tên tab hiển thị cho người dùng.
   static const List<String> tabs = [
     "Chờ xác nhận",
     "Chờ giao hàng",
@@ -15,6 +17,7 @@ class OrderStatusProvider extends ChangeNotifier {
     "Đã hủy",
   ];
 
+  /// Trạng thái tương ứng với API backend.
   static const List<String> apiStatus = [
     "PENDING",
     "PAID",
@@ -22,9 +25,14 @@ class OrderStatusProvider extends ChangeNotifier {
     "CANCEL",
   ];
 
+  /// Danh sách đơn hàng của tab hiện tại.
   List<OrderModel> _orders = [];
+
+  /// Trạng thái tải dữ liệu và lỗi để màn hình order status xử lý UI.
   bool _loading = false;
   String? _error;
+
+  /// Tab đang được chọn và user hiện tại để reload khi đổi tab.
   int _selectedIndex = 0;
   int _userId = 0;
 
@@ -34,11 +42,14 @@ class OrderStatusProvider extends ChangeNotifier {
   int get selectedIndex => _selectedIndex;
   String get selectedStatus => apiStatus[_selectedIndex];
 
-  Future<void> loadOrders(int userId) async {
+  /// Tải danh sách đơn hàng theo userId và trạng thái tab hiện tại.
+  Future<void> loadOrders(int userId, {bool showLoading = true}) async {
     _userId = userId;
-    _loading = true;
-    _error = null;
-    notifyListeners();
+    if (showLoading) {
+      _error = null;
+      _loading = true;
+      notifyListeners();
+    }
 
     try {
       _orders = await repo.getOrdersByStatus(
@@ -46,14 +57,19 @@ class OrderStatusProvider extends ChangeNotifier {
         status: selectedStatus,
       );
     } catch (e) {
-      _orders = [];
-      _error = e.toString();
+      if (showLoading) {
+        _orders = [];
+        _error = e.toString();
+      }
     }
 
-    _loading = false;
+    if (showLoading) {
+      _loading = false;
+    }
     notifyListeners();
   }
 
+  /// Đổi tab trạng thái và tải lại đơn hàng tương ứng.
   Future<void> changeTab(int index) async {
     if (index == _selectedIndex) return;
 
@@ -65,6 +81,7 @@ class OrderStatusProvider extends ChangeNotifier {
     }
   }
 
+  /// Xóa lỗi hiện tại để UI không tiếp tục hiển thị lỗi cũ.
   void clearError() {
     _error = null;
     notifyListeners();

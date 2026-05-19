@@ -65,7 +65,7 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      _items = await repo.getCart(userId);
+      _items = await repo.getCart(userId, forceRefresh: force);
 
       /// Mặc định chọn tất cả item sau khi tải giỏ hàng.
       _selectedIds
@@ -119,7 +119,7 @@ class CartProvider extends ChangeNotifier {
         quantity: quantity,
       );
 
-      await loadCart(_userId);
+      await loadCart(_userId, force: true);
 
       /// Tự chọn các item hiện có để người dùng có thể thanh toán ngay.
       _selectedIds.addAll(_items.map((e) => e.id));

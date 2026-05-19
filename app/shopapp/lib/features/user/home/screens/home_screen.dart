@@ -9,6 +9,7 @@ import '../../../../widgets/product_filter_dialog.dart';
 import '../../../../widgets/search_bar.dart' as custom_widgets;
 import '../../auth/providers/auth_provider.dart';
 import '../../cart/providers/cart_provider.dart';
+import '../../notification/providers/notification_provider.dart';
 import '../../product/models/product_browse_args.dart';
 import '../../product/widgets/product_card.dart';
 import '../../../admin/category/providers/category_provider.dart';
@@ -24,12 +25,11 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final ScrollController scrollController = ScrollController();
   final TextEditingController searchController = TextEditingController();
 
   bool _initialized = false;
-
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -38,14 +38,7 @@ class _HomeScreenState extends State<HomeScreen> {
       _initialized = true;
 
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        final provider = context.read<HomeProvider>();
-        provider.loadBannerProducts();
-        provider.loadProducts();
-
-        final userId = _currentUserId(context);
-        if (userId != null) {
-          context.read<CartProvider>().loadCart(userId);
-        }
+        _refreshHome();
       });
     }
   }
@@ -59,6 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     scrollController.addListener(() {
       final provider = context.read<HomeProvider>();
@@ -78,9 +72,42 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     scrollController.dispose();
     searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshHome();
+    }
+  }
+
+  Future<void> _refreshProducts() async {
+    if (!mounted) return;
+
+    final provider = context.read<HomeProvider>();
+    await provider.loadBannerProducts(refresh: true);
+    await provider.loadProducts(refresh: true);
+  }
+
+  Future<void> _refreshHome() async {
+    if (!mounted) return;
+    final route = ModalRoute.of(context);
+    if (route != null && !route.isCurrent) return;
+
+    await _refreshProducts();
+
+    final userId = _currentUserId(context);
+    if (userId != null) {
+      await context.read<CartProvider>().loadCart(userId, force: true);
+    }
+
+    await context
+        .read<NotificationProvider>()
+        .loadNotifications(forceRefresh: true);
   }
 
   @override
@@ -95,7 +122,7 @@ class _HomeScreenState extends State<HomeScreen> {
           body: SafeArea(
             child: RefreshIndicator(
               color: const Color(0xff2563eb),
-              onRefresh: () => provider.loadProducts(refresh: true),
+              onRefresh: _refreshHome,
               child: LayoutBuilder(
                 builder: (context, constraints) {
                   final crossAxisCount =

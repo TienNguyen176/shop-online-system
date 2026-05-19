@@ -1,33 +1,74 @@
 import 'package:flutter/material.dart';
-import '../../../../models/category.dart';
-import '../../../../../repositories/interfaces/i_category_repository.dart';
 
-/// Provider quản lý danh mục sản phẩm cho các màn hình admin.
+import '../../../../models/category.dart';
+import '../../../../repositories/interfaces/i_category_repository.dart';
+
 class CategoryProvider extends ChangeNotifier {
   final ICategoryRepository repository;
 
   CategoryProvider(this.repository);
 
-  /// Danh sách danh mục đang được cache trong app.
   List<Category> categories = [];
-
-  /// Cờ loading khi gọi API danh mục.
+  List<Category> flatCategories = [];
   bool isLoading = false;
+  String? error;
 
-  /// Tải danh mục một lần, nếu đã có dữ liệu thì dùng cache để tránh gọi API lại.
-  Future<void> loadCategories() async {
-    if (categories.isNotEmpty) return;
+  Future<void> loadCategories({bool refresh = false}) async {
+    if (!refresh && categories.isNotEmpty && flatCategories.isNotEmpty) return;
+    if (refresh) {
+      repository.clearCache();
+      categories = [];
+      flatCategories = [];
+    }
 
     isLoading = true;
+    error = null;
     notifyListeners();
 
     try {
-      categories = await repository.getCategories();
+      flatCategories = await repository.getAllCategories();
+      notifyListeners();
+
+      try {
+        categories = await repository.getCategories();
+      } catch (treeError) {
+        categories = flatCategories;
+        debugPrint("Load category tree error: $treeError");
+      }
     } catch (e) {
+      error = e.toString();
       debugPrint("Load category error: $e");
     }
 
     isLoading = false;
     notifyListeners();
+  }
+
+  Future<void> saveCategory({
+    Category? category,
+    required String name,
+    required String slug,
+    int? parentId,
+    String? image,
+  }) async {
+    final data = {
+      "name": name,
+      "slug": slug,
+      "parentId": parentId,
+      "image": image,
+    };
+
+    if (category == null) {
+      await repository.createCategory(data);
+    } else {
+      await repository.updateCategory(category.id, data);
+    }
+
+    await loadCategories(refresh: true);
+  }
+
+  Future<void> deleteCategory(int id) async {
+    await repository.deleteCategory(id);
+    await loadCategories(refresh: true);
   }
 }

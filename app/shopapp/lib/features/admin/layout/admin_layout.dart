@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+
 import '../../../routes/app_routes.dart';
 import '../../user/auth/providers/auth_provider.dart';
 import '../../user/cart/providers/cart_provider.dart';
+import '../attribute/screens/attribute_management_screen.dart';
+import '../category/screens/category_management_screen.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../product/screens/product_list_screen.dart';
 
@@ -25,25 +28,16 @@ class _AdminLayoutState extends State<AdminLayout> {
 
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey();
 
-  final List<_AdminPage> pages = [];
+  final List<_AdminPage> pages = const [
+    _AdminPage("Tổng quan", Icons.dashboard, DashboardScreen()),
+    _AdminPage("Sản phẩm", Icons.shopping_bag, ProductListScreen()),
+    _AdminPage("Danh mục", Icons.category_outlined, CategoryManagementScreen()),
+    _AdminPage("Thuộc tính", Icons.tune_outlined, AttributeManagementScreen()),
+  ];
 
   @override
   void initState() {
     super.initState();
-
-    pages.addAll([
-      _AdminPage(
-        "Tổng quan",
-        Icons.dashboard,
-        DashboardScreen(),
-      ),
-
-      _AdminPage(
-        "Sản phẩm",
-        Icons.shopping_bag,
-        ProductListScreen(),
-      ),
-    ]);
 
     if (widget.initialRoute == '/admin/products') {
       index = 1;
@@ -70,7 +64,6 @@ class _AdminLayoutState extends State<AdminLayout> {
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-
       appBar: AppBar(
         title: Text(pages[index].title),
         centerTitle: false,
@@ -88,22 +81,18 @@ class _AdminLayoutState extends State<AdminLayout> {
           },
         ),
       ),
-
       drawer: Drawer(
         child: Container(
           color: const Color(0xFF0F172A),
           child: Column(
             children: [
               const SizedBox(height: 60),
-
               const CircleAvatar(
                 radius: 30,
                 backgroundColor: Colors.blue,
                 child: Icon(Icons.admin_panel_settings, color: Colors.white),
               ),
-
               const SizedBox(height: 10),
-
               const Text(
                 "Quản trị hệ thống",
                 style: TextStyle(
@@ -112,9 +101,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 30),
-
               Expanded(
                 child: ListView.builder(
                   itemCount: pages.length,
@@ -128,13 +115,11 @@ class _AdminLayoutState extends State<AdminLayout> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color:
-                            selected
-                                ? Colors.blue.withOpacity(0.2)
-                                : Colors.transparent,
+                        color: selected
+                            ? Colors.blue.withOpacity(0.2)
+                            : Colors.transparent,
                         borderRadius: BorderRadius.circular(12),
-                        border:
-                            selected ? Border.all(color: Colors.blue) : null,
+                        border: selected ? Border.all(color: Colors.blue) : null,
                       ),
                       child: ListTile(
                         leading: Icon(
@@ -180,7 +165,6 @@ class _AdminLayoutState extends State<AdminLayout> {
           ),
         ),
       ),
-
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
         child: pages[index].screen,
@@ -194,5 +178,5 @@ class _AdminPage {
   final IconData icon;
   final Widget screen;
 
-  _AdminPage(this.title, this.icon, this.screen);
+  const _AdminPage(this.title, this.icon, this.screen);
 }

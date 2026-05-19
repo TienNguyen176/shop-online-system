@@ -8,7 +8,7 @@ abstract class ICartRepository {
     int quantity,
   });
 
-  Future<List<CartItem>> getCart(int userId);
+  Future<List<CartItem>> getCart(int userId, {bool forceRefresh = false});
 
   Future<void> updateQuantity(int itemId, int quantity);
 

@@ -1,24 +1,14 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../core/config/app_config.dart';
-import '../../models/admin_product_model.dart';
 import '../../category/providers/category_provider.dart';
+import '../../models/admin_product_model.dart';
 import '../providers/product_admin_provider.dart';
-import '../../attribute/providers/attribute_provider.dart';
 
-/// Dữ liệu tạm cho một dòng thuộc tính/giá trị thuộc tính trong form sản phẩm.
-class AttributeRow {
-  int? attributeId;
-  String? attributeName;
-  String? value;
-
-  AttributeRow({this.attributeId, this.attributeName, this.value});
-}
-
-/// Màn admin tạo hoặc cập nhật sản phẩm.
 class ProductFormScreen extends StatefulWidget {
   final AdminProduct? product;
 
@@ -36,11 +26,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   int? selectedCategoryId;
 
   final ImagePicker picker = ImagePicker();
-  List<String> images = [];
-
-  List<AttributeRow> attributeRows = [];
+  final List<String> images = [];
 
   final Color primary = const Color(0xFF4F46E5);
+
+  bool get isEdit => widget.product != null;
 
   @override
   void initState() {
@@ -48,33 +38,26 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
     Future.microtask(() async {
       await context.read<CategoryProvider>().loadCategories();
-      await context.read<AttributeProvider>().loadAttributes();
 
       if (!mounted) return;
 
-      if (widget.product != null) {
+      if (isEdit) {
         _loadEditData();
       }
     });
   }
 
-  // ================= CHECK IMAGE TYPE =================
-  /// Kiểm tra đường dẫn ảnh là URL mạng hay file local.
   bool _isNetwork(String path) {
     return path.startsWith("http");
   }
 
-  /// Chuẩn hóa đường dẫn ảnh để hiển thị trong form.
   String _buildImageUrl(String path) {
     if (path.startsWith("http")) return path;
     return "${AppConfig.apiUrl}/$path";
   }
 
-  // ================= LOAD EDIT =================
-  /// Nạp dữ liệu sản phẩm cũ vào form khi ở chế độ chỉnh sửa.
   void _loadEditData() {
     final p = widget.product!;
-    final attrProvider = context.read<AttributeProvider>();
 
     nameCtrl.text = p.name;
     brandCtrl.text = p.brand ?? "";
@@ -86,76 +69,166 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
             ? _buildImageUrl(p.image!)
             : null;
 
-    images = imageUrl != null ? [imageUrl] : [];
-
-    final Map<int, AttributeRow> map = {};
-
-    for (var attr in attrProvider.attributes) {
-      map[attr.id] = AttributeRow(
-        attributeId: attr.id,
-        attributeName: attr.name,
-      );
+    if (imageUrl != null) {
+      images.add(imageUrl);
     }
-
-    attributeRows = map.values.toList();
 
     setState(() {});
   }
 
-  // ================= PICK IMAGE =================
-  /// Mở bộ chọn ảnh và thêm ảnh vào danh sách ảnh sản phẩm.
-  Future<void> pickImage() async {
-    final file = await picker.pickImage(source: ImageSource.gallery);
+  Future<void> _pickFromCamera() async {
+    final file = await picker.pickImage(source: ImageSource.camera);
+    if (file == null) return;
 
-    if (file != null) {
-      setState(() {
-        images.add(file.path);
-      });
-    }
+    setState(() {
+      images.add(file.path);
+    });
   }
 
-  // ================= IMAGE WIDGET =================
-  /// Render ảnh sản phẩm, tự xử lý ảnh mạng và ảnh local.
-  Widget _buildImage(String path) {
-    final isNetwork = _isNetwork(path);
+  Future<void> _pickFromGallery() async {
+    final files = await picker.pickMultiImage();
+    if (files.isEmpty) return;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(12),
-      child:
-          isNetwork
-              ? Image.network(path, width: 100, height: 100, fit: BoxFit.cover)
-              : Image.file(
-                File(path),
-                width: 100,
-                height: 100,
-                fit: BoxFit.cover,
-              ),
+    setState(() {
+      images.addAll(files.map((file) => file.path));
+    });
+  }
+
+  Future<void> _showImageSourceSheet() async {
+    await showModalBottomSheet(
+      context: context,
+      showDragHandle: true,
+      builder:
+          (context) => SafeArea(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                ListTile(
+                  leading: const Icon(Icons.photo_camera_outlined),
+                  title: const Text("Chụp ảnh"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickFromCamera();
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.upload_file_outlined),
+                  title: const Text("Chọn từ file/thư viện"),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickFromGallery();
+                  },
+                ),
+              ],
+            ),
+          ),
     );
   }
 
-  // ================= SUBMIT =================
-  /// Validate form và gọi provider để tạo/cập nhật sản phẩm.
-  Future<void> _submit() async {
-    final provider = context.read<ProductAdminProvider>();
+  Widget _buildImage(String path) {
+    final isNetwork = _isNetwork(path);
 
-    final dto = {
-      "name": nameCtrl.text,
-      "description": descCtrl.text,
-      "brand": brandCtrl.text,
-      "categoryId": selectedCategoryId,
-      "variants": [],
-    };
-
-    /// Chỉ gửi file local, không gửi URL.
-    final localImages = images.where((e) => !_isNetwork(e)).toList();
-
-    await provider.createProduct(dto: dto, imagePaths: localImages);
-
-    if (!mounted) return;
-    Navigator.pop(context, true);
+    return Stack(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child:
+              isNetwork
+                  ? Image.network(
+                    path,
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  )
+                  : Image.file(
+                    File(path),
+                    width: 100,
+                    height: 100,
+                    fit: BoxFit.cover,
+                  ),
+        ),
+        if (!isNetwork)
+          Positioned(
+            top: 4,
+            right: 4,
+            child: InkWell(
+              onTap: () {
+                setState(() {
+                  images.remove(path);
+                });
+              },
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: const BoxDecoration(
+                  color: Colors.black54,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 16),
+              ),
+            ),
+          ),
+      ],
+    );
   }
 
-  // ================= INPUT =================
+  Future<void> _submit() async {
+    final name = nameCtrl.text.trim();
+    if (name.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Vui lòng nhập tên sản phẩm")),
+      );
+      return;
+    }
+
+    final provider = context.read<ProductAdminProvider>();
+    final dto = {
+      "name": name,
+      "description": descCtrl.text.trim(),
+      "brand": brandCtrl.text.trim(),
+      "categoryId": selectedCategoryId,
+    };
+
+    final localImages = images.where((path) => !_isNetwork(path)).toList();
+
+    try {
+      if (isEdit) {
+        await provider.updateProduct(
+          id: widget.product!.id,
+          dto: dto,
+          imagePaths: localImages,
+        );
+      } else {
+        await provider.createProduct(dto: dto, imagePaths: localImages);
+      }
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEdit
+                ? "Cập nhật sản phẩm thành công"
+                : "Thêm sản phẩm thành công",
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.pop(context, true);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            isEdit
+                ? "Cập nhật sản phẩm thất bại: $e"
+                : "Thêm sản phẩm thất bại: $e",
+          ),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
   InputDecoration _input(String label) {
     return InputDecoration(
       labelText: label,
@@ -178,12 +251,13 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final attrProvider = context.watch<AttributeProvider>();
+    final categoryProvider = context.watch<CategoryProvider>();
+    final productProvider = context.watch<ProductAdminProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        title: Text(widget.product == null ? "Thêm sản phẩm" : "Sửa sản phẩm"),
+        title: Text(isEdit ? "Sửa sản phẩm" : "Thêm sản phẩm"),
         backgroundColor: primary,
       ),
       body: SingleChildScrollView(
@@ -192,11 +266,8 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           children: [
             _buildImageSection(),
             const SizedBox(height: 16),
-            _buildInfoSection(),
-            const SizedBox(height: 16),
-            _buildAttributeSection(attrProvider),
+            _buildInfoSection(categoryProvider),
             const SizedBox(height: 20),
-
             SizedBox(
               width: double.infinity,
               height: 50,
@@ -207,8 +278,15 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     borderRadius: BorderRadius.circular(14),
                   ),
                 ),
-                onPressed: _submit,
-                child: const Text("Lưu sản phẩm"),
+                onPressed: productProvider.loading ? null : _submit,
+                child:
+                    productProvider.loading
+                        ? const SizedBox(
+                          width: 22,
+                          height: 22,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                        : const Text("Lưu sản phẩm"),
               ),
             ),
           ],
@@ -217,8 +295,6 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
-  // ================= IMAGE SECTION =================
-  /// Section quản lý ảnh sản phẩm.
   Widget _buildImageSection() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -229,9 +305,11 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Hình ảnh"),
+          const Text(
+            "Hình ảnh sản phẩm",
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 10),
-
           SizedBox(
             height: 110,
             child: ListView(
@@ -243,17 +321,16 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                     child: _buildImage(path),
                   ),
                 ),
-
                 GestureDetector(
-                  onTap: pickImage,
+                  onTap: _showImageSourceSheet,
                   child: Container(
                     width: 100,
                     decoration: BoxDecoration(
                       color: Colors.grey[100],
                       borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: Colors.grey),
+                      border: Border.all(color: Colors.grey.shade400),
                     ),
-                    child: const Icon(Icons.add),
+                    child: const Icon(Icons.add_photo_alternate_outlined),
                   ),
                 ),
               ],
@@ -264,9 +341,10 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
-  // ================= INFO =================
-  /// Section nhập thông tin cơ bản của sản phẩm.
-  Widget _buildInfoSection() {
+  Widget _buildInfoSection(CategoryProvider categoryProvider) {
+    final categories = categoryProvider.flatCategories;
+    final selectedExists = categories.any((c) => c.id == selectedCategoryId);
+
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -279,118 +357,29 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
           const SizedBox(height: 10),
           TextField(controller: brandCtrl, decoration: _input("Thương hiệu")),
           const SizedBox(height: 10),
+          DropdownButtonFormField<int>(
+            value: selectedExists ? selectedCategoryId : null,
+            decoration: _input("Danh mục"),
+            items:
+                categories
+                    .map(
+                      (category) => DropdownMenuItem<int>(
+                        value: category.id,
+                        child: Text(category.name),
+                      ),
+                    )
+                    .toList(),
+            onChanged: (value) {
+              setState(() {
+                selectedCategoryId = value;
+              });
+            },
+          ),
+          const SizedBox(height: 10),
           TextField(
             controller: descCtrl,
             maxLines: 3,
             decoration: _input("Mô tả"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  // ================= ATTRIBUTE =================
-  /// Section chọn thuộc tính và giá trị thuộc tính cho biến thể sản phẩm.
-  Widget _buildAttributeSection(AttributeProvider attrProvider) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Thuộc tính",
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 10),
-
-          ...attributeRows.map((row) {
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: DropdownButtonFormField<int>(
-                      value: row.attributeId,
-                      decoration: _input("Thuộc tính"),
-                      items:
-                          attrProvider.attributes.map((attr) {
-                            return DropdownMenuItem<int>(
-                              value: attr.id,
-                              child: Text(
-                                attr.name,
-                                style: const TextStyle(fontSize: 13),
-                              ),
-                            );
-                          }).toList(),
-                      onChanged: (id) {
-                        final selected = attrProvider.attributes.firstWhere(
-                          (e) => e.id == id,
-                        );
-
-                        setState(() {
-                          row.attributeId = selected.id;
-                          row.attributeName = selected.name;
-                          row.value = null;
-                        });
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 10),
-
-                  Expanded(
-                    child: DropdownButtonFormField<String>(
-                      value: row.value,
-                      decoration: _input("Giá trị"),
-                      items:
-                          (attrProvider.attributes
-                                  .firstWhere(
-                                    (e) => e.id == row.attributeId,
-                                    orElse: () => attrProvider.attributes.first,
-                                  )
-                                  .values)
-                              .map((val) {
-                                return DropdownMenuItem<String>(
-                                  value: val,
-                                  child: Text(
-                                    val,
-                                    style: const TextStyle(fontSize: 13),
-                                  ),
-                                );
-                              })
-                              .toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          row.value = val;
-                        });
-                      },
-                    ),
-                  ),
-
-                  IconButton(
-                    icon: const Icon(Icons.remove_circle, color: Colors.red),
-                    onPressed: () {
-                      setState(() {
-                        attributeRows.remove(row);
-                      });
-                    },
-                  ),
-                ],
-              ),
-            );
-          }),
-
-          TextButton.icon(
-            onPressed: () {
-              setState(() {
-                attributeRows.add(AttributeRow());
-              });
-            },
-            icon: const Icon(Icons.add),
-            label: const Text("Thêm thuộc tính"),
           ),
         ],
       ),

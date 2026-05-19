@@ -1,4 +1,5 @@
 import '../../features/admin/models/admin_product_model.dart';
+import '../../features/admin/product/models/admin_product_variant.dart';
 import '../../services/product/product_admin_service.dart';
 import '../interfaces/i_product_admin_repository.dart';
 
@@ -28,5 +29,29 @@ class ProductAdminRepository implements IProductAdminRepository {
   @override
   Future<String> uploadImage(int productId, String filePath) {
     return service.uploadImage(productId, filePath);
+  }
+
+  @override
+  Future<List<AdminProductVariant>> getVariants(int productId) {
+    return service.getVariants(productId);
+  }
+
+  @override
+  Future<void> createVariant(int productId, Map<String, dynamic> data) {
+    return service.createVariant(productId, data);
+  }
+
+  @override
+  Future<void> updateVariant(
+    int productId,
+    int variantId,
+    Map<String, dynamic> data,
+  ) {
+    return service.updateVariant(productId, variantId, data);
+  }
+
+  @override
+  Future<void> deleteVariant(int productId, int variantId) {
+    return service.deleteVariant(productId, variantId);
   }
 }

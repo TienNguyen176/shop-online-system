@@ -11,7 +11,6 @@ class OrderItem {
 
   /// Tên biến thể, ví dụ màu sắc/kích thước.
   final String variantName;
-  final String image;
 
   /// Đường dẫn ảnh đại diện của sản phẩm.
   final String image;

@@ -40,6 +40,9 @@ namespace ShopBackend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            modelBuilder.Entity<Product>()
+                .HasQueryFilter(p => !p.IsDeleted);
+
             modelBuilder.Entity<VariantAttribute>()
                 .HasKey(x => new { x.VariantId, x.AttributeValueId });
 

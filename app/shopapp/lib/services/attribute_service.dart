@@ -10,4 +10,21 @@ class AttributeService {
 
     return data.map((e) => AttributeModel.fromJson(e)).toList();
   }
+
+  Future<AttributeModel> createAttribute(Map<String, dynamic> data) async {
+    final res = await ApiClient.dio.post("/api/attributes", data: data);
+    return AttributeModel.fromJson(Map<String, dynamic>.from(res.data));
+  }
+
+  Future<AttributeModel> updateAttribute(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    final res = await ApiClient.dio.put("/api/attributes/$id", data: data);
+    return AttributeModel.fromJson(Map<String, dynamic>.from(res.data));
+  }
+
+  Future<void> deleteAttribute(int id) async {
+    await ApiClient.dio.delete("/api/attributes/$id");
+  }
 }

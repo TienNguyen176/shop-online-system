@@ -24,7 +24,8 @@ class ProductBrowseScreen extends StatefulWidget {
   State<ProductBrowseScreen> createState() => _ProductBrowseScreenState();
 }
 
-class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
+class _ProductBrowseScreenState extends State<ProductBrowseScreen>
+    with WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
@@ -44,6 +45,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _args = widget.args;
     _searchController.text = _args.searchKeyword ?? "";
     _loadProducts(refresh: true);
@@ -61,9 +63,17 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _scrollController.dispose();
     _searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _loadProducts(refresh: true);
+    }
   }
 
   /// Tải danh sách sản phẩm theo filter hiện tại, có thể refresh về trang đầu.
@@ -103,6 +113,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
         minRating: _args.minRating,
         minPrice: _args.minPrice,
         maxPrice: _args.maxPrice,
+        forceRefresh: refresh,
       );
 
       final filtered = data.where((p) => _loadedIds.add(p.id)).toList();

@@ -20,21 +20,44 @@ class ProductDetailScreen extends StatefulWidget {
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
 
-class _ProductDetailScreenState extends State<ProductDetailScreen> {
+class _ProductDetailScreenState extends State<ProductDetailScreen>
+    with WidgetsBindingObserver {
   bool _loading = false;
   int _imageIndex = 0;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductDetailProvider>().load(widget.productId);
+      _refreshProduct(showLoading: true);
       final notificationProvider = context.read<NotificationProvider>();
       if (notificationProvider.notifications.isEmpty) {
         notificationProvider.loadNotifications();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _refreshProduct();
+    }
+  }
+
+  Future<void> _refreshProduct({bool showLoading = false}) async {
+    if (!mounted) return;
+    await context.read<ProductDetailProvider>().load(
+      widget.productId,
+      silent: !showLoading,
+    );
   }
 
   @override

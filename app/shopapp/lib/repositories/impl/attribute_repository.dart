@@ -5,10 +5,8 @@ import '../interfaces/i_attribute_repository.dart';
 class AttributeRepository implements IAttributeRepository {
   final AttributeService service = AttributeService();
 
-  /// CACHE
   List<AttributeModel>? _attributesCache;
 
-  /// GET ALL ATTRIBUTES
   @override
   Future<List<AttributeModel>> getAttributes() async {
     if (_attributesCache != null) {
@@ -16,20 +14,40 @@ class AttributeRepository implements IAttributeRepository {
     }
 
     final data = await service.getAttributes();
-
     _attributesCache = data;
-
     return _attributesCache!;
   }
 
-  /// REFRESH CACHE (optional but recommended)
   Future<List<AttributeModel>> refreshAttributes() async {
     final data = await service.getAttributes();
     _attributesCache = data;
     return _attributesCache!;
   }
 
-  /// CLEAR CACHE (use when admin updates attributes)
+  @override
+  Future<AttributeModel> createAttribute(Map<String, dynamic> data) async {
+    final created = await service.createAttribute(data);
+    clearCache();
+    return created;
+  }
+
+  @override
+  Future<AttributeModel> updateAttribute(
+    int id,
+    Map<String, dynamic> data,
+  ) async {
+    final updated = await service.updateAttribute(id, data);
+    clearCache();
+    return updated;
+  }
+
+  @override
+  Future<void> deleteAttribute(int id) async {
+    await service.deleteAttribute(id);
+    clearCache();
+  }
+
+  @override
   void clearCache() {
     _attributesCache = null;
   }

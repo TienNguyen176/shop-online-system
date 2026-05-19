@@ -3,6 +3,7 @@ import 'package:dio/dio.dart';
 
 import '../../core/api/api_client.dart';
 import '../../features/admin/models/admin_product_model.dart';
+import '../../features/admin/product/models/admin_product_variant.dart';
 
 class ProductAdminService {
   final dio = ApiClient.dio;
@@ -56,7 +57,7 @@ class ProductAdminService {
     final formData = FormData.fromMap({
       "file": await MultipartFile.fromFile(
         file.path,
-        filename: file.path.split('/').last,
+        filename: file.uri.pathSegments.last,
       ),
     });
 
@@ -67,5 +68,31 @@ class ProductAdminService {
     );
 
     return res.data['url'];
+  }
+
+  Future<List<AdminProductVariant>> getVariants(int productId) async {
+    final res = await dio.get("/api/admin/products/$productId/variants");
+    final List data = res.data;
+
+    return data.map((e) => AdminProductVariant.fromJson(e)).toList();
+  }
+
+  Future<void> createVariant(int productId, Map<String, dynamic> data) async {
+    await dio.post("/api/admin/products/$productId/variants", data: data);
+  }
+
+  Future<void> updateVariant(
+    int productId,
+    int variantId,
+    Map<String, dynamic> data,
+  ) async {
+    await dio.put(
+      "/api/admin/products/$productId/variants/$variantId",
+      data: data,
+    );
+  }
+
+  Future<void> deleteVariant(int productId, int variantId) async {
+    await dio.delete("/api/admin/products/$productId/variants/$variantId");
   }
 }

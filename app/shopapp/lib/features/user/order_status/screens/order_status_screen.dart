@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -17,7 +15,8 @@ class OrderStatusScreen extends StatefulWidget {
   State<OrderStatusScreen> createState() => _OrderStatusScreenState();
 }
 
-class _OrderStatusScreenState extends State<OrderStatusScreen> {
+class _OrderStatusScreenState extends State<OrderStatusScreen>
+    with WidgetsBindingObserver {
   static const primary = Color(0xff2563eb);
   static const primaryDark = Color(0xff1d4ed8);
   static const bg = Color(0xffeef2fb);
@@ -25,34 +24,36 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   static const textMuted = Color(0xff64748b);
   static const border = Color(0xffdbeafe);
 
-  Timer? _refreshTimer;
-
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<OrderStatusProvider>().loadOrders(widget.userId);
-      _startRealtimeRefresh();
+      _reloadOrders();
     });
   }
 
   @override
   void dispose() {
-    _refreshTimer?.cancel();
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
   /// Tự động làm mới danh sách đơn hàng định kỳ khi màn hình còn mở.
-  void _startRealtimeRefresh() {
-    _refreshTimer?.cancel();
-    _refreshTimer = Timer.periodic(const Duration(seconds: 8), (_) {
-      if (!mounted) return;
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _reloadOrders(showLoading: false);
+    }
+  }
 
-      final orderStatus = context.read<OrderStatusProvider>();
-      if (orderStatus.loading) return;
+  Future<void> _reloadOrders({bool showLoading = true}) async {
+    if (!mounted) return;
 
-      orderStatus.loadOrders(widget.userId, showLoading: false);
-    });
+    final orderStatus = context.read<OrderStatusProvider>();
+    if (orderStatus.loading) return;
+
+    await orderStatus.loadOrders(widget.userId, showLoading: showLoading);
   }
 
   /// Định dạng tiền đơn hàng theo kiểu Việt Nam.

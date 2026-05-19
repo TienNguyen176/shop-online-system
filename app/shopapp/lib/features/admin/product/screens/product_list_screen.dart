@@ -5,6 +5,7 @@ import '../../models/admin_product_model.dart';
 import '../providers/product_admin_provider.dart';
 import '../widgets/admin_product_card.dart';
 import 'product_form_screen.dart';
+import 'product_variant_management_screen.dart';
 
 /// Màn admin danh sách sản phẩm: tìm kiếm, phân trang, sửa/xóa sản phẩm.
 class ProductListScreen extends StatefulWidget {
@@ -14,7 +15,8 @@ class ProductListScreen extends StatefulWidget {
   State<ProductListScreen> createState() => _ProductListScreenState();
 }
 
-class _ProductListScreenState extends State<ProductListScreen> {
+class _ProductListScreenState extends State<ProductListScreen>
+    with WidgetsBindingObserver {
   final TextEditingController searchController = TextEditingController();
   final ScrollController scrollController = ScrollController();
 
@@ -24,9 +26,10 @@ class _ProductListScreenState extends State<ProductListScreen> {
   /// Khởi tạo scroll listener và tải danh sách sản phẩm ban đầu.
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ProductAdminProvider>().loadProducts();
+      context.read<ProductAdminProvider>().loadProducts(refresh: true);
     });
 
     scrollController.addListener(_onScroll);
@@ -47,10 +50,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     scrollController.removeListener(_onScroll);
     scrollController.dispose();
     searchController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed && mounted) {
+      context.read<ProductAdminProvider>().loadProducts(refresh: true);
+    }
   }
 
   @override
@@ -146,6 +157,18 @@ class _ProductListScreenState extends State<ProductListScreen> {
                             return AdminProductCard(
                               product: product,
 
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (_) => ProductVariantManagementScreen(
+                                          product: product,
+                                        ),
+                                  ),
+                                );
+                              },
+
                               /// EDIT
                               onEdit: () async {
                                 final provider =
@@ -204,11 +227,29 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                 if (!mounted) return;
 
                                 if (confirm == true) {
-                                  await provider.deleteProduct(product.id);
+                                  try {
+                                    await provider.deleteProduct(product.id);
 
-                                  if (!mounted) return;
-
-                                  provider.loadProducts(refresh: true);
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text(
+                                          "Xóa sản phẩm thành công",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  } catch (e) {
+                                    if (!mounted) return;
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text(
+                                          "Xóa sản phẩm thất bại: $e",
+                                        ),
+                                        behavior: SnackBarBehavior.floating,
+                                      ),
+                                    );
+                                  }
                                 }
                               },
                             );

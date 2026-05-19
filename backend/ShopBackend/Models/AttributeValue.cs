@@ -14,9 +14,9 @@ namespace ShopBackend.Models
 
         [Required]
         [StringLength(100)]
-        public string Value { get; set; }
+        public string Value { get; set; } = string.Empty;
         
-        public ProductAttribute Attribute { get; set; }
+        public ProductAttribute Attribute { get; set; } = null!;
 
     }
 }
