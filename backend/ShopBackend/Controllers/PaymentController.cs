@@ -26,6 +26,11 @@ namespace ShopBackend.Controllers
         [HttpPost("create-vnpay-url")]
         public IActionResult CreatePaymentUrl([FromBody] PaymentInformationModel model)
         {
+            var productAmount = model.Items?
+                .Sum(item => item.Price * item.Quantity) ?? 0;
+            var totalAmount = (decimal)model.Amount;
+            var shippingFee = Math.Max(0m, totalAmount - productAmount);
+
             // =====================
             // 1. CREATE ORDER
             // =====================
@@ -33,7 +38,9 @@ namespace ShopBackend.Controllers
             {
                 OrderCode = $"ORD_{Guid.NewGuid().ToString("N")[..8].ToUpper()}",
                 UserId = model.UserId,
-                TotalPrice = (decimal)model.Amount,
+                SubtotalPrice = productAmount,
+                ShippingFee = shippingFee,
+                TotalPrice = totalAmount,
                 Status = "PENDING",
                 ShippingName = model.Name,
                 ShippingPhone = model.Phone,
@@ -72,7 +79,10 @@ namespace ShopBackend.Controllers
             {
                 OrderId = order.Id,
                 PaymentMethodId = 2, // VNPAY
-                Amount = (decimal)model.Amount,
+                Amount = totalAmount,
+                ProductAmount = productAmount,
+                ShippingFee = shippingFee,
+                TotalAmount = totalAmount,
                 Status = "PENDING"
             };
 

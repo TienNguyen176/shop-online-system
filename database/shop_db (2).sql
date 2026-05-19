@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 19, 2026 lúc 11:29 AM
+-- Thời gian đã tạo: Th5 19, 2026 lúc 06:22 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -150,7 +150,8 @@ CREATE TABLE `cart_items` (
 --
 
 INSERT INTO `cart_items` (`id`, `cart_id`, `variant_id`, `quantity`) VALUES
-(2, 2, 51, 1);
+(2, 2, 51, 1),
+(3, 2, 55, 1);
 
 -- --------------------------------------------------------
 
@@ -217,6 +218,8 @@ CREATE TABLE `orders` (
   `order_code` varchar(50) NOT NULL,
   `user_id` bigint(20) DEFAULT NULL,
   `status` varchar(50) DEFAULT 'PENDING',
+  `subtotal_price` decimal(12,2) DEFAULT 0.00,
+  `shipping_fee` decimal(12,2) DEFAULT 0.00,
   `total_price` decimal(12,2) DEFAULT NULL,
   `shipping_name` varchar(255) DEFAULT NULL,
   `shipping_phone` varchar(20) DEFAULT NULL,
@@ -229,12 +232,12 @@ CREATE TABLE `orders` (
 -- Đang đổ dữ liệu cho bảng `orders`
 --
 
-INSERT INTO `orders` (`id`, `order_code`, `user_id`, `status`, `total_price`, `shipping_name`, `shipping_phone`, `shipping_address`, `created_at`, `updated_at`) VALUES
-(21, 'ORD_1E53AB3C', NULL, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:28:42', NULL),
-(22, 'ORD_B0FF8F94', NULL, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:35:36', NULL),
-(23, 'ORD_4873DE91', NULL, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:38:53', NULL),
-(25, 'ORD_5C771A6B', 2, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:32:51', NULL),
-(26, 'ORD_A986356B', 2, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:33:12', NULL);
+INSERT INTO `orders` (`id`, `order_code`, `user_id`, `status`, `subtotal_price`, `shipping_fee`, `total_price`, `shipping_name`, `shipping_phone`, `shipping_address`, `created_at`, `updated_at`) VALUES
+(21, 'ORD_1E53AB3C', NULL, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:28:42', NULL),
+(22, 'ORD_B0FF8F94', NULL, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:35:36', NULL),
+(23, 'ORD_4873DE91', NULL, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:38:53', NULL),
+(25, 'ORD_5C771A6B', 2, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:32:51', NULL),
+(26, 'ORD_A986356B', 2, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:33:12', NULL);
 
 -- --------------------------------------------------------
 
@@ -276,6 +279,9 @@ CREATE TABLE `payments` (
   `payment_method_id` bigint(20) DEFAULT NULL,
   `transaction_id` varchar(255) DEFAULT NULL,
   `amount` decimal(12,2) DEFAULT 0.00,
+  `product_amount` decimal(12,2) DEFAULT 0.00,
+  `shipping_fee` decimal(12,2) DEFAULT 0.00,
+  `total_amount` decimal(12,2) DEFAULT 0.00,
   `status` varchar(50) DEFAULT 'PENDING',
   `vnp_response_code` varchar(20) DEFAULT NULL,
   `bank_code` varchar(50) DEFAULT NULL,
@@ -287,12 +293,12 @@ CREATE TABLE `payments` (
 -- Đang đổ dữ liệu cho bảng `payments`
 --
 
-INSERT INTO `payments` (`id`, `order_id`, `payment_method_id`, `transaction_id`, `amount`, `status`, `vnp_response_code`, `bank_code`, `paid_at`, `created_at`) VALUES
-(20, 21, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:28:42'),
-(21, 22, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:35:36'),
-(22, 23, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:38:53'),
-(23, 25, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:32:51'),
-(24, 26, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:33:12');
+INSERT INTO `payments` (`id`, `order_id`, `payment_method_id`, `transaction_id`, `amount`, `product_amount`, `shipping_fee`, `total_amount`, `status`, `vnp_response_code`, `bank_code`, `paid_at`, `created_at`) VALUES
+(20, 21, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:28:42'),
+(21, 22, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:35:36'),
+(22, 23, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:38:53'),
+(23, 25, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:32:51'),
+(24, 26, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:33:12');
 
 -- --------------------------------------------------------
 
@@ -651,12 +657,22 @@ CREATE TABLE `user_addresses` (
   `receiver_name` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address_line` text DEFAULT NULL,
-  `city` varchar(100) DEFAULT NULL,
-  `district` varchar(100) DEFAULT NULL,
-  `ward` varchar(100) DEFAULT NULL,
+  `province_id` int(11) DEFAULT NULL,
+  `province_name` varchar(100) DEFAULT NULL,
+  `district_id` int(11) DEFAULT NULL,
+  `district_name` varchar(100) DEFAULT NULL,
+  `ward_code` varchar(20) DEFAULT NULL,
+  `ward_name` varchar(100) DEFAULT NULL,
   `is_default` tinyint(1) DEFAULT 0,
   `created_at` datetime DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `user_addresses`
+--
+
+INSERT INTO `user_addresses` (`id`, `user_id`, `receiver_name`, `phone`, `address_line`, `province_id`, `province_name`, `district_id`, `district_name`, `ward_code`, `ward_name`, `is_default`, `created_at`) VALUES
+(1, 2, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', 205, 'Bình Dương', 1540, 'Thành phố Dĩ An', '440505', 'Phường Đông Hòa', 1, '2026-05-19 23:07:43');
 
 -- --------------------------------------------------------
 
@@ -975,7 +991,7 @@ ALTER TABLE `carts`
 -- AUTO_INCREMENT cho bảng `cart_items`
 --
 ALTER TABLE `cart_items`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT cho bảng `categories`
@@ -1053,7 +1069,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT cho bảng `user_addresses`
 --
 ALTER TABLE `user_addresses`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
+  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- Các ràng buộc cho các bảng đã đổ

@@ -4,6 +4,7 @@ class OrderItem {
 
   final String productName;
   final String variantName;
+  final String image;
 
   final int quantity;
   final double price;
@@ -13,6 +14,7 @@ class OrderItem {
     required this.variantId,
     required this.productName,
     required this.variantName,
+    required this.image,
     required this.quantity,
     required this.price,
   });
@@ -22,6 +24,7 @@ class OrderItem {
     "variantId": variantId,
     "productName": productName,
     "variantName": variantName,
+    "image": image,
     "quantity": quantity,
     "price": price,
   };

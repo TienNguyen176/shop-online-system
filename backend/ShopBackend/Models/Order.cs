@@ -17,6 +17,12 @@ namespace ShopBackend.Models
         [Column("total_price")]
         public decimal TotalPrice { get; set; }
 
+        [Column("subtotal_price")]
+        public decimal SubtotalPrice { get; set; }
+
+        [Column("shipping_fee")]
+        public decimal ShippingFee { get; set; }
+
         [Column("shipping_name")]
         public string ShippingName { get; set; }
 

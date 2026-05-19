@@ -84,12 +84,8 @@ class AuthProvider extends ChangeNotifier {
 
       final token = await _storage.read(key: _tokenKey);
       final refresh = await _storage.read(key: _refreshTokenKey);
-      final userJson = await _storage.read(key: _userKey);
 
-      if (token == null ||
-          token.isEmpty ||
-          userJson == null ||
-          userJson.isEmpty) {
+      if (token == null || token.isEmpty) {
         accessToken = null;
         refreshToken = null;
         user = null;
@@ -98,8 +94,10 @@ class AuthProvider extends ChangeNotifier {
 
       accessToken = token;
       refreshToken = refresh;
-      user = Map<String, dynamic>.from(jsonDecode(userJson));
       ApiClient.setToken(token);
+
+      user = await repo.getCurrentUserFromServer();
+      await _saveSession();
     } catch (e) {
       debugPrint("Restore session error: $e");
       await logout();

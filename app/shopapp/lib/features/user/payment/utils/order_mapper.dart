@@ -7,6 +7,7 @@ OrderItem mapCartItem(CartItem item) {
     variantId: item.variantId,
     productName: item.name,
     variantName: item.variantName,
+    image: item.image,
     quantity: item.quantity,
     price: item.price,
   );

@@ -59,6 +59,16 @@ namespace ShopBackend.Services
             return await GenerateAuth(user);
         }
 
+        public async Task<User?> GetCurrentUser(string? userIdClaim)
+        {
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return null;
+            }
+
+            return await _db.Users.FindAsync(userId);
+        }
+
         // ================= GOOGLE =================
         private async Task<SocialUserInfo> VerifyGoogle(string token)
         {

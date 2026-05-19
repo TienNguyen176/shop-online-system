@@ -41,6 +41,15 @@ class AuthRepository implements IAuthRepository {
   }
 
   @override
+  Future<Map<String, dynamic>> getCurrentUserFromServer() async {
+    final data = await service.getCurrentUser();
+
+    _cache = data;
+
+    return data;
+  }
+
+  @override
   String? getToken() {
     return _token;
   }

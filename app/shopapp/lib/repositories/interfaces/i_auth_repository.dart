@@ -9,6 +9,8 @@ abstract class IAuthRepository {
     String? avatarPath,
   });
 
+  Future<Map<String, dynamic>> getCurrentUserFromServer();
+
   Map<String, dynamic>? getCurrentUser();
 
   String? getToken();

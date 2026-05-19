@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopBackend.Data;
@@ -25,6 +26,18 @@ namespace ShopBackend.Controllers
             if (res == null) return BadRequest();
 
             return Ok(res);
+        }
+
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<IActionResult> Me()
+        {
+            var userIdClaim = User.FindFirst("id")?.Value;
+            var user = await _auth.GetCurrentUser(userIdClaim);
+
+            if (user == null) return Unauthorized();
+
+            return Ok(user);
         }
     }
 }
