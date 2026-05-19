@@ -2,12 +2,13 @@ import 'package:flutter/widgets.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
+import '../../core/config/app_config.dart';
+
 class SocialAuthService {
   /// ===== GOOGLE LOGIN =====
   final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email'],
-    serverClientId:
-        "666877172796-cba34lb94j9c7rivvhgu9or68e4nkb1u.apps.googleusercontent.com",
+    serverClientId: AppConfig.googleServerClientId,
   );
 
   Future<String?> loginGoogle() async {
