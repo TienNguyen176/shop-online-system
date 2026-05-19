@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../../cart/providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
 
@@ -100,10 +101,7 @@ class LoginScreen extends StatelessWidget {
                                 color: Color(0xff2563eb),
                               ),
                             )
-                            : const SizedBox(
-                              key: ValueKey("idle"),
-                              height: 26,
-                            ),
+                            : const SizedBox(key: ValueKey("idle"), height: 26),
                   ),
                 ],
               ),
@@ -120,12 +118,23 @@ class LoginScreen extends StatelessWidget {
   ) async {
     if (auth.accessToken != null && context.mounted) {
       final userId = _userIdFrom(auth.user);
+      final role = _roleFrom(auth.user);
+
+      if (role == "admin") {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.admin,
+          arguments: userId ?? 0,
+        );
+        return;
+      }
+
       if (userId != null) {
         await context.read<CartProvider>().loadCart(userId);
       }
 
       if (!context.mounted) return;
-      Navigator.pushReplacementNamed(context, "/home");
+      Navigator.pushReplacementNamed(context, AppRoutes.userHome);
     }
 
     if (auth.error != null && context.mounted) {
@@ -139,9 +148,14 @@ class LoginScreen extends StatelessWidget {
   }
 
   static int? _userIdFrom(Map<String, dynamic>? user) {
-    final id = user?["id"];
+    final id = user?["id"] ?? user?["Id"];
     if (id is int) return id;
     return int.tryParse(id?.toString() ?? "");
+  }
+
+  static String _roleFrom(Map<String, dynamic>? user) {
+    final role = user?["role"] ?? user?["Role"];
+    return role?.toString().trim().toLowerCase() ?? "user";
   }
 }
 

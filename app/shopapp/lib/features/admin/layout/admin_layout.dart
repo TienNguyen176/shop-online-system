@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../../routes/app_routes.dart';
+import '../../user/auth/providers/auth_provider.dart';
+import '../../user/cart/providers/cart_provider.dart';
 import '../dashboard/screens/dashboard_screen.dart';
 import '../product/screens/product_list_screen.dart';
 
@@ -51,6 +55,17 @@ class _AdminLayoutState extends State<AdminLayout> {
     Navigator.pop(context);
   }
 
+  Future<void> logout() async {
+    await context.read<AuthProvider>().logout();
+    if (!mounted) return;
+    context.read<CartProvider>().clearCart();
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.login,
+      (route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -59,6 +74,13 @@ class _AdminLayoutState extends State<AdminLayout> {
       appBar: AppBar(
         title: Text(pages[index].title),
         centerTitle: false,
+        actions: [
+          IconButton(
+            tooltip: "Dang xuat",
+            onPressed: logout,
+            icon: const Icon(Icons.logout_rounded),
+          ),
+        ],
         leading: IconButton(
           icon: const Icon(Icons.menu),
           onPressed: () {
@@ -131,6 +153,27 @@ class _AdminLayoutState extends State<AdminLayout> {
                       ),
                     );
                   },
+                ),
+              ),
+              const Divider(color: Colors.white24, height: 1),
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 18),
+                child: ListTile(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  leading: const Icon(
+                    Icons.logout_rounded,
+                    color: Color(0xfffca5a5),
+                  ),
+                  title: const Text(
+                    "Dang xuat",
+                    style: TextStyle(
+                      color: Color(0xfffca5a5),
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  onTap: logout,
                 ),
               ),
             ],

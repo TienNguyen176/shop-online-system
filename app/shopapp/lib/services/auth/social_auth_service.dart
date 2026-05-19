@@ -50,7 +50,16 @@ class SocialAuthService {
 
   /// ===== LOGOUT =====
   Future<void> logout() async {
-    await _googleSignIn.signOut();
-    await FacebookAuth.instance.logOut();
+    try {
+      await _googleSignIn.signOut();
+    } catch (e) {
+      debugPrint("Google logout error: $e");
+    }
+
+    try {
+      await FacebookAuth.instance.logOut();
+    } catch (e) {
+      debugPrint("Facebook logout error: $e");
+    }
   }
 }

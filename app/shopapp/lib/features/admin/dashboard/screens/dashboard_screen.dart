@@ -50,8 +50,6 @@ class _DashboardScreenState extends State<DashboardScreen>
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-
     return Consumer<DashboardProvider>(
       builder: (_, dashboard, __) {
         if (dashboard.loading) {
@@ -68,7 +66,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             backgroundColor: Color(0xFF0D1117),
             body: Center(
               child: Text(
-                "Chưa có dữ liệu",
+                "Chua co du lieu",
                 style: TextStyle(color: Color(0xFF7D8590)),
               ),
             ),
@@ -87,169 +85,191 @@ class _DashboardScreenState extends State<DashboardScreen>
         return Scaffold(
           backgroundColor: const Color(0xFF0D1117),
           body: SafeArea(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      _StatCard(
-                        label: dashboard.topItem!.title,
-                        value: "${dashboard.topItem!.percent}%",
-                        badge: "Cao nhất",
-                        isUp: true,
-                      ),
-                      const SizedBox(width: 10),
-                      _StatCard(
-                        label: dashboard.bottomItem!.title,
-                        value: "${dashboard.bottomItem!.percent}%",
-                        badge: "Thấp nhất",
-                        isUp: false,
-                      ),
-                    ],
+            child: LayoutBuilder(
+              builder: (context, viewport) {
+                final horizontalPadding = viewport.maxWidth < 360 ? 12.0 : 16.0;
+
+                return SingleChildScrollView(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: 8,
                   ),
-                  const SizedBox(height: 14),
-                  _SectionCard(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            const Text(
-                              "Phân bổ danh mục",
+                  child: LayoutBuilder(
+                    builder: (context, constraints) {
+                      final width = constraints.maxWidth;
+                      final isCompact = width < 360;
+                      final cardPadding = EdgeInsets.all(isCompact ? 14 : 18);
+                      final chartSize =
+                          (width * 0.68).clamp(160.0, 260.0).toDouble();
+                      final legendColumns = width >= 720 ? 3 : 2;
+                      final legendAspect =
+                          width < 360
+                              ? 1.9
+                              : width >= 720
+                              ? 3.0
+                              : 2.25;
+
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 8),
+                          _StatSummary(
+                            compact: isCompact,
+                            topTitle: dashboard.topItem!.title,
+                            topValue: "${dashboard.topItem!.percent}%",
+                            bottomTitle: dashboard.bottomItem!.title,
+                            bottomValue: "${dashboard.bottomItem!.percent}%",
+                          ),
+                          const SizedBox(height: 14),
+                          _SectionCard(
+                            padding: cardPadding,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Expanded(
+                                      child: Text(
+                                        "Phan bo danh muc",
+                                        style: TextStyle(
+                                          color: Color(0xFFF0F6FC),
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 10,
+                                        vertical: 3,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        color: const Color(0xFF21262D),
+                                        borderRadius: BorderRadius.circular(20),
+                                      ),
+                                      child: Text(
+                                        "${DateTime.now().year}",
+                                        style: const TextStyle(
+                                          color: Color(0xFF7D8590),
+                                          fontSize: 11,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+                                Center(
+                                  child: SizedBox.square(
+                                    dimension: chartSize,
+                                    child: AnimatedBuilder(
+                                      animation: _anim,
+                                      builder:
+                                          (_, __) => Stack(
+                                            alignment: Alignment.center,
+                                            children: [
+                                              CustomPaint(
+                                                size: Size.square(chartSize),
+                                                painter: _DonutPainter(
+                                                  data,
+                                                  _anim.value,
+                                                ),
+                                              ),
+                                              Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    "${dashboard.totalPercent}%",
+                                                    style: const TextStyle(
+                                                      color: Color(0xFFF0F6FC),
+                                                      fontSize: 20,
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                    ),
+                                                  ),
+                                                  const Text(
+                                                    "Tong",
+                                                    style: TextStyle(
+                                                      color: Color(0xFF7D8590),
+                                                      fontSize: 11,
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ],
+                                          ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 18),
+                                GridView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  gridDelegate:
+                                      SliverGridDelegateWithFixedCrossAxisCount(
+                                        crossAxisCount: legendColumns,
+                                        crossAxisSpacing: 8,
+                                        mainAxisSpacing: 8,
+                                        childAspectRatio: legendAspect,
+                                      ),
+                                  itemCount: data.length,
+                                  itemBuilder:
+                                      (_, i) => _LegendItem(
+                                        color: data[i].color,
+                                        title: data[i].title,
+                                        percent: data[i].percent,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 14),
+                          const Padding(
+                            padding: EdgeInsets.only(bottom: 10),
+                            child: Text(
+                              "Chi tiet",
                               style: TextStyle(
                                 color: Color(0xFFF0F6FC),
                                 fontSize: 14,
-                                fontWeight: FontWeight.w500,
+                                fontWeight: FontWeight.w600,
                               ),
-                            ),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 3,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFF21262D),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                "${DateTime.now().year}",
-                                style: const TextStyle(
-                                  color: Color(0xFF7D8590),
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 20),
-                        Center(
-                          child: SizedBox(
-                            width: size.width * 0.5,
-                            height: size.width * 0.5,
-                            child: AnimatedBuilder(
-                              animation: _anim,
-                              builder:
-                                  (_, __) => Stack(
-                                    alignment: Alignment.center,
-                                    children: [
-                                      CustomPaint(
-                                        size: Size(
-                                          size.width * 0.5,
-                                          size.width * 0.5,
-                                        ),
-                                        painter: _DonutPainter(
-                                          data,
-                                          _anim.value,
-                                        ),
-                                      ),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        children: [
-                                          Text(
-                                            "${dashboard.totalPercent}%",
-                                            style: const TextStyle(
-                                              color: Color(0xFFF0F6FC),
-                                              fontSize: 20,
-                                              fontWeight: FontWeight.w500,
-                                            ),
-                                          ),
-                                          const Text(
-                                            "Tổng",
-                                            style: TextStyle(
-                                              color: Color(0xFF7D8590),
-                                              fontSize: 11,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
                             ),
                           ),
-                        ),
-                        const SizedBox(height: 18),
-                        GridView.builder(
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                                childAspectRatio: 2.8,
-                              ),
-                          itemCount: data.length,
-                          itemBuilder:
-                              (_, i) => _LegendItem(
-                                color: data[i].color,
-                                title: data[i].title,
-                                percent: data[i].percent,
-                              ),
-                        ),
-                      ],
-                    ),
+                          _SectionCard(
+                            padding: cardPadding,
+                            child: Column(
+                              children:
+                                  data.asMap().entries.map((entry) {
+                                    return Padding(
+                                      padding: EdgeInsets.only(
+                                        bottom:
+                                            entry.key < data.length - 1
+                                                ? 12
+                                                : 0,
+                                      ),
+                                      child: AnimatedBuilder(
+                                        animation: _anim,
+                                        builder:
+                                            (_, __) => _BarRow(
+                                              label: entry.value.title,
+                                              percent: entry.value.percent,
+                                              color: entry.value.color,
+                                              animValue: _anim.value,
+                                            ),
+                                      ),
+                                    );
+                                  }).toList(),
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      );
+                    },
                   ),
-                  const SizedBox(height: 14),
-                  const Padding(
-                    padding: EdgeInsets.only(bottom: 10),
-                    child: Text(
-                      "Chi tiết",
-                      style: TextStyle(
-                        color: Color(0xFFF0F6FC),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ),
-                  _SectionCard(
-                    child: Column(
-                      children:
-                          data.asMap().entries.map((entry) {
-                            return Padding(
-                              padding: EdgeInsets.only(
-                                bottom: entry.key < data.length - 1 ? 12 : 0,
-                              ),
-                              child: AnimatedBuilder(
-                                animation: _anim,
-                                builder:
-                                    (_, __) => _BarRow(
-                                      label: entry.value.title,
-                                      percent: entry.value.percent,
-                                      color: entry.value.color,
-                                      animValue: _anim.value,
-                                    ),
-                              ),
-                            );
-                          }).toList(),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                ],
-              ),
+                );
+              },
             ),
           ),
         );
@@ -270,6 +290,56 @@ class _ChartData {
   });
 }
 
+class _StatSummary extends StatelessWidget {
+  final bool compact;
+  final String topTitle;
+  final String topValue;
+  final String bottomTitle;
+  final String bottomValue;
+
+  const _StatSummary({
+    required this.compact,
+    required this.topTitle,
+    required this.topValue,
+    required this.bottomTitle,
+    required this.bottomValue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final topCard = _StatCard(
+      label: topTitle,
+      value: topValue,
+      badge: "Cao nhat",
+      isUp: true,
+    );
+    final bottomCard = _StatCard(
+      label: bottomTitle,
+      value: bottomValue,
+      badge: "Thap nhat",
+      isUp: false,
+    );
+
+    if (compact) {
+      return Column(
+        children: [
+          topCard,
+          const SizedBox(height: 10),
+          bottomCard,
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        Expanded(child: topCard),
+        const SizedBox(width: 10),
+        Expanded(child: bottomCard),
+      ],
+    );
+  }
+}
+
 class _StatCard extends StatelessWidget {
   final String label, value, badge;
   final bool isUp;
@@ -283,56 +353,58 @@ class _StatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(14),
-        decoration: BoxDecoration(
-          color: const Color(0xFF161B22),
-          borderRadius: BorderRadius.circular(14),
-          border: Border.all(color: const Color(0xFF21262D), width: 0.5),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              label.toUpperCase(),
-              style: const TextStyle(
-                color: Color(0xFF7D8590),
-                fontSize: 11,
-                letterSpacing: 0.5,
-              ),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: const Color(0xFF161B22),
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: const Color(0xFF21262D), width: 0.5),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            label.toUpperCase(),
+            style: const TextStyle(
+              color: Color(0xFF7D8590),
+              fontSize: 11,
+              letterSpacing: 0.5,
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: const TextStyle(
-                color: Color(0xFFF0F6FC),
-                fontSize: 22,
-                fontWeight: FontWeight.w500,
-              ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              color: Color(0xFFF0F6FC),
+              fontSize: 22,
+              fontWeight: FontWeight.w600,
             ),
-            const SizedBox(height: 6),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-              decoration: BoxDecoration(
-                color: isUp ? const Color(0xFF0D3226) : const Color(0xFF2D1117),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(
-                    isUp ? Icons.trending_up : Icons.trending_down,
-                    size: 11,
-                    color:
-                        isUp
-                            ? const Color(0xFF3FB950)
-                            : const Color(0xFFF85149),
-                  ),
-                  const SizedBox(width: 3),
-                  Text(
+          ),
+          const SizedBox(height: 6),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+            decoration: BoxDecoration(
+              color: isUp ? const Color(0xFF0D3226) : const Color(0xFF2D1117),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  isUp ? Icons.trending_up : Icons.trending_down,
+                  size: 11,
+                  color:
+                      isUp
+                          ? const Color(0xFF3FB950)
+                          : const Color(0xFFF85149),
+                ),
+                const SizedBox(width: 3),
+                Flexible(
+                  child: Text(
                     badge,
                     style: TextStyle(
                       color:
@@ -341,12 +413,14 @@ class _StatCard extends StatelessWidget {
                               : const Color(0xFFF85149),
                       fontSize: 11,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -354,14 +428,18 @@ class _StatCard extends StatelessWidget {
 
 class _SectionCard extends StatelessWidget {
   final Widget child;
+  final EdgeInsetsGeometry padding;
 
-  const _SectionCard({required this.child});
+  const _SectionCard({
+    required this.child,
+    this.padding = const EdgeInsets.all(18),
+  });
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(18),
+      padding: padding,
       decoration: BoxDecoration(
         color: const Color(0xFF161B22),
         borderRadius: BorderRadius.circular(18),
@@ -386,7 +464,7 @@ class _LegendItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 7),
       decoration: BoxDecoration(
         color: const Color(0xFF0D1117),
         borderRadius: BorderRadius.circular(10),
@@ -402,13 +480,15 @@ class _LegendItem extends StatelessWidget {
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Text(
                   title,
                   style: const TextStyle(
                     color: Color(0xFF7D8590),
-                    fontSize: 11,
+                    fontSize: 10.5,
+                    height: 1.05,
                   ),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
@@ -417,8 +497,9 @@ class _LegendItem extends StatelessWidget {
                   "$percent%",
                   style: const TextStyle(
                     color: Color(0xFFF0F6FC),
-                    fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 13,
+                    height: 1.1,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -445,50 +526,55 @@ class _BarRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      children: [
-        SizedBox(
-          width: 60,
-          child: Text(
-            label,
-            style: const TextStyle(color: Color(0xFF7D8590), fontSize: 12),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ),
-        Expanded(
-          child: Container(
-            height: 8,
-            decoration: BoxDecoration(
-              color: const Color(0xFF21262D),
-              borderRadius: BorderRadius.circular(20),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final labelWidth = constraints.maxWidth < 320 ? 48.0 : 60.0;
+        return Row(
+          children: [
+            SizedBox(
+              width: labelWidth,
+              child: Text(
+                label,
+                style: const TextStyle(color: Color(0xFF7D8590), fontSize: 12),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: (percent.clamp(0, 100) / 100) * animValue,
+            Expanded(
               child: Container(
+                height: 8,
                 decoration: BoxDecoration(
-                  color: color,
+                  color: const Color(0xFF21262D),
                   borderRadius: BorderRadius.circular(20),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: (percent.clamp(0, 100) / 100) * animValue,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: color,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-        const SizedBox(width: 10),
-        SizedBox(
-          width: 32,
-          child: Text(
-            "$percent%",
-            textAlign: TextAlign.right,
-            style: const TextStyle(
-              color: Color(0xFFF0F6FC),
-              fontSize: 12,
-              fontWeight: FontWeight.w500,
+            const SizedBox(width: 10),
+            SizedBox(
+              width: 32,
+              child: Text(
+                "$percent%",
+                textAlign: TextAlign.right,
+                style: const TextStyle(
+                  color: Color(0xFFF0F6FC),
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          ),
-        ),
-      ],
+          ],
+        );
+      },
     );
   }
 }
@@ -506,7 +592,7 @@ class _DonutPainter extends CustomPainter {
     final paint =
         Paint()
           ..style = PaintingStyle.stroke
-          ..strokeWidth = 28
+          ..strokeWidth = max(18, size.width * 0.12).toDouble()
           ..strokeCap = StrokeCap.butt;
 
     double startAngle = -pi / 2;

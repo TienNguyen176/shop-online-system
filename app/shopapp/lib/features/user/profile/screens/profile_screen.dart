@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../routes/app_routes.dart';
 import '../../auth/providers/auth_provider.dart';
+import '../../cart/providers/cart_provider.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -23,11 +25,12 @@ class ProfileScreen extends StatelessWidget {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Hồ sơ")),
+        appBar: AppBar(title: const Text("Ho so")),
         body: Center(
           child: ElevatedButton(
-            onPressed: () => Navigator.pushReplacementNamed(context, '/login'),
-            child: const Text("Đăng nhập"),
+            onPressed:
+                () => Navigator.pushReplacementNamed(context, AppRoutes.login),
+            child: const Text("Dang nhap"),
           ),
         ),
       );
@@ -39,7 +42,7 @@ class ProfileScreen extends StatelessWidget {
     final role = _text(user, ["role"]);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Hồ sơ")),
+      appBar: AppBar(title: const Text("Ho so")),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -81,7 +84,7 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileTile(
             icon: Icons.person_outline,
-            label: "Tên",
+            label: "Ten",
             value: name,
           ),
           _ProfileTile(
@@ -91,11 +94,41 @@ class ProfileScreen extends StatelessWidget {
           ),
           _ProfileTile(
             icon: Icons.verified_user_outlined,
-            label: "Vai trò",
+            label: "Vai tro",
             value: role,
+          ),
+          const SizedBox(height: 18),
+          SizedBox(
+            height: 48,
+            child: OutlinedButton.icon(
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xffdc2626),
+                side: const BorderSide(color: Color(0xfffecaca)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(14),
+                ),
+              ),
+              onPressed: () => _logout(context),
+              icon: const Icon(Icons.logout_rounded),
+              label: const Text(
+                "Dang xuat",
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+            ),
           ),
         ],
       ),
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    await context.read<AuthProvider>().logout();
+    if (!context.mounted) return;
+    context.read<CartProvider>().clearCart();
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      AppRoutes.login,
+      (route) => false,
     );
   }
 }
@@ -116,7 +149,7 @@ class _ProfileTile extends StatelessWidget {
     return ListTile(
       leading: Icon(icon),
       title: Text(label),
-      subtitle: Text(value.isNotEmpty ? value : "Chưa có thông tin"),
+      subtitle: Text(value.isNotEmpty ? value : "Chua co thong tin"),
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
     );
   }

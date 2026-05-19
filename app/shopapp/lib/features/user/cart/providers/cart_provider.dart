@@ -192,6 +192,16 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearCart() {
+    _items = [];
+    _selectedIds.clear();
+    _userId = 0;
+    _hasLoaded = false;
+    _loading = false;
+    _error = null;
+    notifyListeners();
+  }
+
   /// Lấy danh sách sản phẩm đã chọn để thanh toán
   List<CartItem> getCheckoutItems() {
     return _items.where((e) => _selectedIds.contains(e.id)).toList();

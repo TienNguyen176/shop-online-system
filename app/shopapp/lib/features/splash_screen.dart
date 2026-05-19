@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import 'user/auth/providers/auth_provider.dart';
+import 'user/cart/providers/cart_provider.dart';
 import '../repositories/interfaces/i_category_repository.dart';
 
 import '../routes/app_routes.dart';
@@ -29,15 +31,39 @@ class _SplashScreenState extends State<SplashScreen> {
       setState(() => loadingText = "Đang tải dữ liệu...");
 
       final categoryRepo = context.read<ICategoryRepository>();
+      final auth = context.read<AuthProvider>();
 
       /// LOAD DATA
       await Future.wait([
         categoryRepo.getCategories(),
+        auth.restoreSession(),
       ]).timeout(const Duration(seconds: 10));
 
       await Future.delayed(const Duration(milliseconds: 300));
 
       if (!mounted) return;
+
+      final userId = _userIdFrom(auth.user);
+      final role = _roleFrom(auth.user);
+
+      if (auth.isLoggedIn && role == "admin") {
+        Navigator.pushReplacementNamed(
+          context,
+          AppRoutes.admin,
+          arguments: userId ?? 0,
+        );
+        return;
+      }
+
+      if (auth.isLoggedIn) {
+        if (userId != null) {
+          await context.read<CartProvider>().loadCart(userId);
+        }
+
+        if (!mounted) return;
+        Navigator.pushReplacementNamed(context, AppRoutes.userHome);
+        return;
+      }
 
       Navigator.pushReplacementNamed(context, AppRoutes.login);
     } catch (e) {
@@ -61,6 +87,17 @@ class _SplashScreenState extends State<SplashScreen> {
             ),
       );
     }
+  }
+
+  int? _userIdFrom(Map<String, dynamic>? user) {
+    final id = user?["id"] ?? user?["Id"];
+    if (id is int) return id;
+    return int.tryParse(id?.toString() ?? "");
+  }
+
+  String _roleFrom(Map<String, dynamic>? user) {
+    final role = user?["role"] ?? user?["Role"];
+    return role?.toString().trim().toLowerCase() ?? "user";
   }
 
   @override
