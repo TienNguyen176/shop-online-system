@@ -3,6 +3,7 @@ import 'package:webview_flutter/webview_flutter.dart';
 
 import 'payment_result_screen.dart';
 
+/// Màn WebView mở cổng thanh toán VNPay và theo dõi kết quả redirect.
 class PaymentWebViewScreen extends StatefulWidget {
   final String url;
 
@@ -16,6 +17,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
   late final WebViewController controller;
 
   @override
+  /// Khởi tạo WebViewController và cấu hình xử lý URL callback thanh toán.
   void initState() {
     super.initState();
 

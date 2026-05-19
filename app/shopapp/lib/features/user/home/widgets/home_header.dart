@@ -44,7 +44,7 @@ class HomeHeader extends StatelessWidget {
           ),
           const Spacer(),
           IconButton(
-            tooltip: "Thong bao",
+            tooltip: "Thông báo",
             visualDensity: VisualDensity.compact,
             onPressed: () {
               Navigator.pushNamed(context, AppRoutes.notifications);

@@ -10,6 +10,7 @@ import '../../../../widgets/cart_item_badge.dart';
 import '../../notification/providers/notification_provider.dart';
 import '../providers/product_detail_provider.dart';
 
+/// Màn chi tiết sản phẩm: xem ảnh, chọn biến thể và thêm vào giỏ hàng.
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
 
@@ -53,7 +54,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
         if (product == null) {
           return const Scaffold(
             backgroundColor: Color(0xffeef2fb),
-            body: Center(child: Text("Khong tim thay san pham")),
+            body: Center(child: Text("Không tìm thấy sản phẩm")),
           );
         }
 
@@ -116,12 +117,13 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return images;
   }
 
+  /// Kiểm tra biến thể đã chọn và thêm sản phẩm vào giỏ hàng.
   Future<void> _handleAddToCart(ProductDetailProvider provider) async {
     if (_loading) return;
 
     final variant = provider.selectedVariant;
     if (variant == null || variant.stockQuantity <= 0) {
-      _showSnack("San pham da het hang");
+      _showSnack("Sản phẩm đã hết hàng");
       return;
     }
 
@@ -138,6 +140,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  /// Hiển thị thông báo ngắn cho thao tác ở màn chi tiết.
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
@@ -184,7 +187,7 @@ class _NotificationButton extends StatelessWidget {
         return Stack(
           children: [
             IconButton(
-              tooltip: "Thong bao",
+              tooltip: "Thông báo",
               onPressed:
                   () => Navigator.pushNamed(context, AppRoutes.notifications),
               icon: const Icon(
@@ -396,7 +399,7 @@ class _InfoPanel extends StatelessWidget {
             children: [
               Expanded(
                 child: Text(
-                  "${_formatPrice(variant?.price ?? product.minPrice)} d",
+                  "${_formatPrice(variant?.price ?? product.minPrice)}đ",
                   style: const TextStyle(
                     color: Color(0xffdc2626),
                     fontSize: 24,
@@ -437,7 +440,7 @@ class _InfoPanel extends StatelessWidget {
               ),
               const SizedBox(width: 4),
               Text(
-                "Da ban ${product.soldCount}",
+                "Đã bán ${product.soldCount}",
                 style: const TextStyle(
                   color: Color(0xff64748b),
                   fontWeight: FontWeight.w700,
@@ -516,7 +519,7 @@ class _InfoPanel extends StatelessWidget {
           const Divider(color: Color(0xffe5e7eb)),
           const SizedBox(height: 12),
           const Text(
-            "Mo ta san pham",
+            "Mô tả sản phẩm",
             style: TextStyle(
               color: Color(0xff1f2937),
               fontSize: 15,
@@ -525,7 +528,7 @@ class _InfoPanel extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            product.description.isEmpty ? "Chua co mo ta" : product.description,
+            product.description.isEmpty ? "Chưa có mô tả" : product.description,
             style: const TextStyle(
               color: Color(0xff475569),
               fontSize: 14,
@@ -572,7 +575,7 @@ class _StockPill extends StatelessWidget {
         borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
-        inStock ? "Con hang: $stock" : "Het hang",
+        inStock ? "Còn hàng: $stock" : "Hết hàng",
         style: TextStyle(
           color: inStock ? const Color(0xff15803d) : const Color(0xffbe123c),
           fontSize: 12,
@@ -632,7 +635,7 @@ class _BottomActions extends StatelessWidget {
                         )
                         : const Icon(Icons.add_shopping_cart_rounded),
                 label: const Text(
-                  "Them gio",
+                  "Thêm vào giỏ",
                   style: TextStyle(fontWeight: FontWeight.w900),
                 ),
               ),

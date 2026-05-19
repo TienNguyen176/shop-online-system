@@ -1,10 +1,11 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../providers/dashboard_provider.dart';
 
+/// Màn dashboard admin: hiển thị thống kê doanh thu/sản phẩm bằng biểu đồ.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -26,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   ];
 
   @override
+  /// Khởi tạo animation và tải dữ liệu thống kê sau frame đầu tiên.
   void initState() {
     super.initState();
     _animController = AnimationController(
@@ -66,7 +68,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             backgroundColor: Color(0xFF0D1117),
             body: Center(
               child: Text(
-                "Chua co du lieu",
+                "Chưa có dữ liệu",
                 style: TextStyle(color: Color(0xFF7D8590)),
               ),
             ),
@@ -130,7 +132,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   children: [
                                     const Expanded(
                                       child: Text(
-                                        "Phan bo danh muc",
+                                        "Phân bố danh mục",
                                         style: TextStyle(
                                           color: Color(0xFFF0F6FC),
                                           fontSize: 14,
@@ -190,7 +192,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                     ),
                                                   ),
                                                   const Text(
-                                                    "Tong",
+                                                    "Tổng",
                                                     style: TextStyle(
                                                       color: Color(0xFF7D8590),
                                                       fontSize: 11,
@@ -229,7 +231,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           const Padding(
                             padding: EdgeInsets.only(bottom: 10),
                             child: Text(
-                              "Chi tiet",
+                              "Chi tiết",
                               style: TextStyle(
                                 color: Color(0xFFF0F6FC),
                                 fontSize: 14,
@@ -278,6 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
+/// Model nội bộ dùng để vẽ biểu đồ với tiêu đề, phần trăm và màu.
 class _ChartData {
   final String title;
   final int percent;
@@ -290,6 +293,7 @@ class _ChartData {
   });
 }
 
+/// Cụm thẻ tổng quan hiển thị mục cao nhất/thấp nhất.
 class _StatSummary extends StatelessWidget {
   final bool compact;
   final String topTitle;
@@ -579,6 +583,7 @@ class _BarRow extends StatelessWidget {
   }
 }
 
+/// Painter tự vẽ biểu đồ donut theo dữ liệu thống kê.
 class _DonutPainter extends CustomPainter {
   final List<_ChartData> data;
   final double progress;
@@ -586,6 +591,7 @@ class _DonutPainter extends CustomPainter {
   _DonutPainter(this.data, this.progress);
 
   @override
+  /// Vẽ từng cung tròn của biểu đồ theo phần trăm và tiến độ animation.
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
 

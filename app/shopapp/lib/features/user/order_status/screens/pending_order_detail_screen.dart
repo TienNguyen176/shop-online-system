@@ -1,0 +1,755 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+
+import '../../../../core/config/app_config.dart';
+import '../../../../models/order_detail.dart';
+import '../../../../models/order_item.dart';
+import '../../../../services/order_service.dart';
+import '../../profile/models/user_address.dart';
+import '../../profile/services/address_service.dart';
+
+/// Màn chi tiết đơn hàng đang chờ xác nhận, cho phép đổi địa chỉ và hủy đơn.
+class PendingOrderDetailScreen extends StatefulWidget {
+  final int orderId;
+
+  const PendingOrderDetailScreen({super.key, required this.orderId});
+
+  @override
+  State<PendingOrderDetailScreen> createState() =>
+      _PendingOrderDetailScreenState();
+}
+
+class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
+  static const shopee = Color(0xff2563eb);
+  static const bg = Color(0xffeef2fb);
+  static const textDark = Color(0xff1f2937);
+  static const textMuted = Color(0xff6b7280);
+  static const border = Color(0xffdbeafe);
+
+  final OrderService _orderService = OrderService();
+  final AddressService _addressService = AddressService();
+
+  OrderDetail? _order;
+  List<UserAddress> _addresses = [];
+  bool _loading = true;
+  bool _updatingAddress = false;
+  bool _cancelling = false;
+  bool _changed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _load();
+  }
+
+  /// Tải song song chi tiết đơn hàng và danh sách địa chỉ của người dùng.
+  Future<void> _load() async {
+    try {
+      setState(() => _loading = true);
+      final results = await Future.wait([
+        _orderService.getOrderDetail(widget.orderId),
+        _addressService.getAddresses(),
+      ]);
+      if (!mounted) return;
+      setState(() {
+        _order = results[0] as OrderDetail;
+        _addresses = results[1] as List<UserAddress>;
+      });
+    } catch (e) {
+      _showMessage("Không thể tải chi tiết đơn hàng");
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final order = _order;
+
+    return WillPopScope(
+      onWillPop: () async {
+        Navigator.pop(context, _changed);
+        return false;
+      },
+      child: Scaffold(
+        backgroundColor: bg,
+        appBar: AppBar(
+          backgroundColor: Colors.white,
+          foregroundColor: textDark,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            onPressed: () => Navigator.pop(context, _changed),
+            icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          ),
+          title: const Text(
+            "Chi tiết đơn hàng",
+            style: TextStyle(fontWeight: FontWeight.w800),
+          ),
+        ),
+        body:
+            _loading
+                ? const Center(child: CircularProgressIndicator(color: shopee))
+                : order == null
+                ? _emptyState()
+                : Stack(
+                  children: [
+                    RefreshIndicator(
+                      color: shopee,
+                      onRefresh: _load,
+                      child: ListView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 104),
+                        children: [
+                          _AddressCard(
+                            order: order,
+                            loading: _updatingAddress,
+                            onTap: _openAddressPicker,
+                          ),
+                          const SizedBox(height: 10),
+                          _ProductSection(items: order.items),
+                          const SizedBox(height: 10),
+                          _SummaryCard(order: order),
+                        ],
+                      ),
+                    ),
+                    _BottomCancelBar(
+                      loading: _cancelling,
+                      onCancel: _cancelOrderSafe,
+                    ),
+                  ],
+                ),
+      ),
+    );
+  }
+
+  /// Hiển thị trạng thái rỗng khi không tìm thấy đơn hàng.
+  Widget _emptyState() {
+    return const Center(
+      child: Text(
+        "Không tìm thấy đơn hàng",
+        style: TextStyle(color: textMuted, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+
+  /// Mở danh sách địa chỉ để chọn địa chỉ giao hàng mới cho đơn.
+  Future<void> _openAddressPicker() async {
+    if (_updatingAddress || _addresses.isEmpty) {
+      if (_addresses.isEmpty) _showMessage("Bạn chưa có địa chỉ đã lưu");
+      return;
+    }
+
+    final selected = await showModalBottomSheet<UserAddress>(
+      context: context,
+      backgroundColor: Colors.white,
+      useSafeArea: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+      ),
+      builder: (_) => _AddressPickerSheet(addresses: _addresses),
+    );
+
+    if (selected == null) return;
+
+    try {
+      setState(() => _updatingAddress = true);
+      final updated = await _orderService.updateShippingAddress(
+        orderId: widget.orderId,
+        address: selected,
+      );
+      if (!mounted) return;
+      setState(() {
+        _order = updated;
+        _changed = true;
+      });
+      _showMessage("Đã đổi địa chỉ giao hàng");
+    } catch (e) {
+      _showMessage("Không thể đổi địa chỉ giao hàng");
+    } finally {
+      if (mounted) setState(() => _updatingAddress = false);
+    }
+  }
+
+  // ignore: unused_element
+  Future<void> _cancelOrder() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Hủy đơn hàng"),
+            content: const Text("Đơn hàng sẽ bị xóa khỏi hệ thống."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Đóng"),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: shopee),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Hủy đơn"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      setState(() => _cancelling = true);
+      await _orderService.deleteOrder(widget.orderId);
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      debugPrint("Cancel order error: $e");
+      _showMessage(e.toString().replaceFirst("Exception: ", ""));
+      _showMessage("Không thể hủy đơn hàng");
+    } finally {
+      if (mounted) setState(() => _cancelling = false);
+    }
+  }
+
+  /// Xác nhận và gọi API hủy đơn bằng cách đổi trạng thái sang CANCEL.
+  Future<void> _cancelOrderSafe() async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Huy don hang"),
+            content: const Text("Don hang se bi xoa khoi he thong."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: const Text("Dong"),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: shopee),
+                onPressed: () => Navigator.pop(context, true),
+                child: const Text("Huy don"),
+              ),
+            ],
+          ),
+    );
+
+    if (confirmed != true) return;
+
+    try {
+      setState(() => _cancelling = true);
+      await _orderService.deleteOrder(widget.orderId);
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } catch (e) {
+      debugPrint("Cancel order error: $e");
+      _showMessage(e.toString().replaceFirst("Exception: ", ""));
+    } finally {
+      if (mounted) setState(() => _cancelling = false);
+    }
+  }
+
+  /// Hiển thị thông báo ngắn ở cuối màn hình.
+  void _showMessage(String message) {
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(behavior: SnackBarBehavior.floating, content: Text(message)),
+    );
+  }
+}
+
+/// Card địa chỉ giao hàng trong chi tiết đơn.
+class _AddressCard extends StatelessWidget {
+  final OrderDetail order;
+  final bool loading;
+  final VoidCallback onTap;
+
+  const _AddressCard({
+    required this.order,
+    required this.loading,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: loading ? null : onTap,
+        child: Column(
+          children: [
+            Container(
+              height: 3,
+              decoration: const BoxDecoration(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
+                gradient: LinearGradient(
+                  colors: [
+                    Color(0xffbfdbfe),
+                    Color(0xffbfdbfe),
+                    Color(0xff2563eb),
+                    Color(0xff2563eb),
+                  ],
+                  stops: [0, 0.45, 0.45, 1],
+                ),
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Icon(
+                    Icons.location_on,
+                    color: _PendingOrderDetailScreenState.shopee,
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Địa chỉ nhận hàng",
+                          style: TextStyle(
+                            color: _PendingOrderDetailScreenState.shopee,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 6),
+                        Text(
+                          "${order.shippingName}  ${order.shippingPhone}",
+                          style: const TextStyle(
+                            color: _PendingOrderDetailScreenState.textDark,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          order.shippingAddress,
+                          style: const TextStyle(
+                            color: _PendingOrderDetailScreenState.textDark,
+                            height: 1.3,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  loading
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: _PendingOrderDetailScreenState.shopee,
+                        ),
+                      )
+                      : const Icon(Icons.chevron_right, color: Colors.grey),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Section danh sách sản phẩm thuộc đơn hàng.
+class _ProductSection extends StatelessWidget {
+  final List<OrderItem> items;
+
+  const _ProductSection({required this.items});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          const ListTile(
+            dense: true,
+            leading: Icon(Icons.storefront_outlined, color: Colors.black87),
+            title: Text(
+              "Next4Shop",
+              style: TextStyle(fontWeight: FontWeight.w800),
+            ),
+          ),
+          const Divider(
+            height: 1,
+            color: _PendingOrderDetailScreenState.border,
+          ),
+          ...items.map((item) => _ProductTile(item: item)),
+        ],
+      ),
+    );
+  }
+}
+
+/// Một dòng sản phẩm trong đơn hàng.
+class _ProductTile extends StatelessWidget {
+  final OrderItem item;
+
+  const _ProductTile({required this.item});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 64,
+            height: 64,
+            decoration: BoxDecoration(
+              color: const Color(0xfff1f5f9),
+              borderRadius: BorderRadius.circular(6),
+              border: Border.all(color: _PendingOrderDetailScreenState.border),
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: _ProductImage(imageUrl: _imageUrl(item.image)),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.productName,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: _PendingOrderDetailScreenState.textDark,
+                    fontWeight: FontWeight.w700,
+                    height: 1.25,
+                  ),
+                ),
+                if (item.variantName.isNotEmpty) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    item.variantName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: _PendingOrderDetailScreenState.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Text(
+                      "${_formatPrice(item.price)}đ",
+                      style: const TextStyle(
+                        color: _PendingOrderDetailScreenState.shopee,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const Spacer(),
+                    Text(
+                      "x${item.quantity}",
+                      style: const TextStyle(
+                        color: _PendingOrderDetailScreenState.textMuted,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Chuẩn hóa đường dẫn ảnh sản phẩm thành URL đầy đủ.
+  String _imageUrl(String path) {
+    final trimmed = path.trim();
+    if (trimmed.isEmpty) return "";
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+      return trimmed;
+    }
+
+    final cleanApi = AppConfig.apiUrl.replaceAll(RegExp(r"/+$"), "");
+    final cleanPath = trimmed.replaceAll(RegExp(r"^/+"), "");
+    return "$cleanApi/$cleanPath";
+  }
+}
+
+class _ProductImage extends StatelessWidget {
+  final String imageUrl;
+
+  const _ProductImage({required this.imageUrl});
+
+  @override
+  Widget build(BuildContext context) {
+    if (imageUrl.isEmpty) return _fallback();
+
+    return CachedNetworkImage(
+      imageUrl: imageUrl,
+      fit: BoxFit.cover,
+      placeholder: (_, __) => _loading(),
+      errorWidget: (_, __, ___) => _fallback(),
+    );
+  }
+
+  Widget _loading() {
+    return const Center(
+      child: SizedBox(
+        width: 18,
+        height: 18,
+        child: CircularProgressIndicator(
+          strokeWidth: 2,
+          color: _PendingOrderDetailScreenState.shopee,
+        ),
+      ),
+    );
+  }
+
+  Widget _fallback() {
+    return const Center(child: Icon(Icons.image_outlined, color: Colors.grey));
+  }
+}
+
+/// Card tổng kết tiền hàng, phí ship và tổng thanh toán.
+class _SummaryCard extends StatelessWidget {
+  final OrderDetail order;
+
+  const _SummaryCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final quantity = order.items.fold<int>(
+      0,
+      (sum, item) => sum + item.quantity,
+    );
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        children: [
+          _SummaryRow(
+            label: "Tổng tiền hàng ($quantity sản phẩm)",
+            value: "${_formatPrice(order.subtotalPrice)}đ",
+          ),
+          const SizedBox(height: 8),
+          _SummaryRow(
+            label: "Phí vận chuyển",
+            value: "${_formatPrice(order.shippingFee)}đ",
+          ),
+          const Divider(
+            height: 24,
+            color: _PendingOrderDetailScreenState.border,
+          ),
+          _SummaryRow(
+            label: "Tổng thanh toán",
+            value: "${_formatPrice(order.totalPrice)}đ",
+            strong: true,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SummaryRow extends StatelessWidget {
+  final String label;
+  final String value;
+  final bool strong;
+
+  const _SummaryRow({
+    required this.label,
+    required this.value,
+    this.strong = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Text(
+            label,
+            style: TextStyle(
+              color:
+                  strong
+                      ? _PendingOrderDetailScreenState.textDark
+                      : _PendingOrderDetailScreenState.textMuted,
+              fontWeight: strong ? FontWeight.w800 : FontWeight.w500,
+            ),
+          ),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            color:
+                strong
+                    ? _PendingOrderDetailScreenState.shopee
+                    : _PendingOrderDetailScreenState.textDark,
+            fontSize: strong ? 18 : 14,
+            fontWeight: strong ? FontWeight.w900 : FontWeight.w700,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Thanh dưới cùng chứa nút hủy đơn.
+class _BottomCancelBar extends StatelessWidget {
+  final bool loading;
+  final VoidCallback onCancel;
+
+  const _BottomCancelBar({required this.loading, required this.onCancel});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 14,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: loading ? null : onCancel,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _PendingOrderDetailScreenState.shopee,
+                disabledBackgroundColor: const Color(0xffd1d5db),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              icon:
+                  loading
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : const Icon(Icons.cancel_outlined),
+              label: const Text(
+                "Hủy đơn",
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Bottom sheet cho phép chọn địa chỉ đã lưu để cập nhật đơn hàng.
+class _AddressPickerSheet extends StatelessWidget {
+  final List<UserAddress> addresses;
+
+  const _AddressPickerSheet({required this.addresses});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 10, 16, 16),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Row(
+            children: [
+              const Expanded(
+                child: Text(
+                  "Chọn địa chỉ giao hàng",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
+                ),
+              ),
+              IconButton(
+                onPressed: () => Navigator.pop(context),
+                icon: const Icon(Icons.close),
+              ),
+            ],
+          ),
+          Flexible(
+            child: ListView.separated(
+              shrinkWrap: true,
+              itemCount: addresses.length,
+              separatorBuilder:
+                  (_, __) => const Divider(
+                    height: 1,
+                    color: _PendingOrderDetailScreenState.border,
+                  ),
+              itemBuilder: (_, index) {
+                final address = addresses[index];
+
+                return ListTile(
+                  contentPadding: EdgeInsets.zero,
+                  leading: const Icon(
+                    Icons.location_on_outlined,
+                    color: _PendingOrderDetailScreenState.shopee,
+                  ),
+                  title: Text(
+                    "${address.receiverName}  ${address.phone}",
+                    style: const TextStyle(fontWeight: FontWeight.w800),
+                  ),
+                  subtitle: Text(address.fullAddress),
+                  trailing:
+                      address.isDefault
+                          ? Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                color: _PendingOrderDetailScreenState.shopee,
+                              ),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: const Text(
+                              "Mặc định",
+                              style: TextStyle(
+                                color: _PendingOrderDetailScreenState.shopee,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                              ),
+                            ),
+                          )
+                          : null,
+                  onTap: () => Navigator.pop(context, address),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+String _formatPrice(num price) {
+  return price
+      .toStringAsFixed(0)
+      .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
+}

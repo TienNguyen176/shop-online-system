@@ -17,6 +17,7 @@ import '../widgets/banner_slider.dart';
 import '../widgets/category_list.dart';
 import '../widgets/home_header.dart';
 
+/// Màn hình trang chủ: tải banner, danh mục, danh sách sản phẩm và điều hướng tìm kiếm/lọc.
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
@@ -50,6 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  /// Lấy userId hiện tại từ AuthProvider để tải số lượng giỏ hàng.
   int? _currentUserId(BuildContext context) {
     final id = context.read<AuthProvider>().user?["id"];
     if (id is int) return id;
@@ -128,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onFilterTap: _showFilterDialog,
                             ),
                             const SizedBox(height: 22),
-                            const _SectionHeader(title: "Categories"),
+                            const _SectionHeader(title: "Danh mục"),
                             const SizedBox(height: 8),
                             CategoryList(
                               onSelected: (categoryId) {
@@ -141,10 +143,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             BannerSlider(products: provider.bannerProducts),
                             const SizedBox(height: 18),
                             _SectionHeader(
-                              title: "Trending Now",
-                              onSeeAll: () => _openProducts(
-                                const ProductBrowseArgs(title: "Products"),
-                              ),
+                              title: "Đang thịnh hành",
+                              onSeeAll:
+                                  () => _openProducts(
+                                    const ProductBrowseArgs(title: "Sản phẩm"),
+                                  ),
                             ),
                             const SizedBox(height: 8),
                           ],
@@ -155,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           hasScrollBody: false,
                           child: Center(
                             child: Text(
-                              "Khong co san pham",
+                              "Không có sản phẩm",
                               style: TextStyle(color: Color(0xff6b7280)),
                             ),
                           ),
@@ -207,20 +210,23 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
+  /// Mở màn danh sách sản phẩm với bộ lọc hoặc tiêu đề được truyền vào.
   void _openProducts(ProductBrowseArgs args) {
     Navigator.pushNamed(context, AppRoutes.userProducts, arguments: args);
   }
 
+  /// Mở danh sách sản phẩm theo từ khóa người dùng nhập ở ô tìm kiếm.
   void _openProductsBySearch(String keyword) {
     final trimmed = keyword.trim();
     _openProducts(
       ProductBrowseArgs(
         searchKeyword: trimmed.isEmpty ? null : trimmed,
-        title: trimmed.isEmpty ? "Products" : "Search: $trimmed",
+        title: trimmed.isEmpty ? "Sản phẩm" : "Tìm kiếm: $trimmed",
       ),
     );
   }
 
+  /// Hiển thị dialog lọc sản phẩm và mở danh sách theo kết quả lọc.
   Future<void> _showFilterDialog() async {
     final result = await showDialog<ProductBrowseArgs>(
       context: context,
@@ -270,7 +276,7 @@ class _SectionHeader extends StatelessWidget {
               ),
               onPressed: onSeeAll,
               child: const Text(
-                "See All",
+                "Xem tất cả",
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ),

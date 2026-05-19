@@ -136,7 +136,7 @@ class _ProductCardState extends State<ProductCard> {
     return Row(
       children: [
         Text(
-          "${product.minPrice.toStringAsFixed(0)} d",
+          "${product.minPrice.toStringAsFixed(0)}đ",
           style: const TextStyle(
             color: Color(0xff2563eb),
             fontWeight: FontWeight.w800,
@@ -214,7 +214,7 @@ class _ProductCardState extends State<ProductCard> {
           borderRadius: BorderRadius.circular(16),
         ),
         child: const Text(
-          "Buy now",
+          "Mua ngay",
           style: TextStyle(
             color: Colors.white,
             fontSize: 12,

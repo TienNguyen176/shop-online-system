@@ -5,6 +5,7 @@ import '../../../../routes/app_routes.dart';
 import '../../cart/providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
 
+/// Màn hình đăng nhập bằng tài khoản xã hội.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -53,7 +54,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    "Dang nhap de tiep tuc mua sam",
+                    "Đăng nhập để tiếp tục mua sắm",
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Color(0xff64748b),
@@ -63,7 +64,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 36),
                   _SocialLoginButton(
-                    label: "Continue with Google",
+                    label: "Tiếp tục với Google",
                     assetPath: "assets/google_icon.jpg",
                     foregroundColor: const Color(0xff1f2937),
                     backgroundColor: Colors.white,
@@ -76,7 +77,7 @@ class LoginScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 14),
                   _SocialLoginButton(
-                    label: "Continue with Facebook",
+                    label: "Tiếp tục với Facebook",
                     assetPath: "assets/facebook_icon.jpg",
                     foregroundColor: Colors.white,
                     backgroundColor: const Color(0xff1877f2),
@@ -159,6 +160,7 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
+/// Nút đăng nhập mạng xã hội, dùng chung cho Google/Facebook.
 class _SocialLoginButton extends StatelessWidget {
   final String label;
   final String assetPath;

@@ -6,6 +6,7 @@ import '../providers/product_admin_provider.dart';
 import '../widgets/admin_product_card.dart';
 import 'product_form_screen.dart';
 
+/// Màn admin danh sách sản phẩm: tìm kiếm, phân trang, sửa/xóa sản phẩm.
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
 
@@ -20,6 +21,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   String keyword = "";
 
   @override
+  /// Khởi tạo scroll listener và tải danh sách sản phẩm ban đầu.
   void initState() {
     super.initState();
 
@@ -30,6 +32,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     scrollController.addListener(_onScroll);
   }
 
+  /// Khi cuộn gần cuối danh sách thì yêu cầu provider tải thêm sản phẩm.
   void _onScroll() {
     final provider = context.read<ProductAdminProvider>();
 
@@ -78,7 +81,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         setState(() => keyword = value);
                       },
                       decoration: InputDecoration(
-                        hintText: "Search product...",
+                        hintText: "Tìm kiếm sản phẩm...",
                         prefixIcon: const Icon(Icons.search),
                         filled: true,
                         fillColor: Colors.grey.shade100,
@@ -110,7 +113,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       }
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text("Add"),
+                    label: const Text("Thêm"),
                   ),
                 ],
               ),
@@ -123,7 +126,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     provider.loading && provider.products.isEmpty
                         ? const Center(child: CircularProgressIndicator())
                         : data.isEmpty
-                        ? const Center(child: Text("No products found"))
+                        ? const Center(child: Text("Không tìm thấy sản phẩm"))
                         : ListView.builder(
                           controller: scrollController,
                           itemCount: data.length + (provider.hasMore ? 1 : 0),
@@ -173,9 +176,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                   context: context,
                                   builder:
                                       (_) => AlertDialog(
-                                        title: const Text("Confirm"),
+                                        title: const Text("Xác nhận"),
                                         content: const Text(
-                                          "Delete this product?",
+                                          "Xóa sản phẩm này?",
                                         ),
                                         actions: [
                                           TextButton(
@@ -184,7 +187,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                   context,
                                                   false,
                                                 ),
-                                            child: const Text("Cancel"),
+                                            child: const Text("Hủy"),
                                           ),
                                           TextButton(
                                             onPressed:
@@ -192,7 +195,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                   context,
                                                   true,
                                                 ),
-                                            child: const Text("Delete"),
+                                            child: const Text("Xóa"),
                                           ),
                                         ],
                                       ),

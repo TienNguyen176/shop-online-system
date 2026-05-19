@@ -10,6 +10,7 @@ import '../../payment/screens/payment_screen.dart';
 import '../../payment/utils/order_mapper.dart';
 import '../providers/cart_provider.dart';
 
+/// Màn hình giỏ hàng: hiển thị sản phẩm, chọn item, đổi số lượng và chuyển sang thanh toán.
 class ShoppingCartScreen extends StatefulWidget {
   const ShoppingCartScreen({super.key});
 
@@ -31,6 +32,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) => _reloadCart());
   }
 
+  /// Định dạng tiền theo kiểu Việt Nam, dùng dấu chấm tách hàng nghìn.
   String formatPrice(num price) {
     return price
         .toStringAsFixed(0)
@@ -86,6 +88,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     );
   }
 
+  /// Xây dựng danh sách giỏ hàng theo trạng thái loading/rỗng/có dữ liệu.
   Widget _buildList(CartProvider cart) {
     if (cart.loading) {
       return const Center(child: CircularProgressIndicator(color: primary));
@@ -178,6 +181,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     );
   }
 
+  /// Hiển thị một sản phẩm trong giỏ hàng, hỗ trợ chọn và vuốt để xóa.
   Widget _cartItem(CartProvider cart, CartItem item) {
     final checked = cart.selectedIds.contains(item.id);
 
@@ -274,6 +278,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     );
   }
 
+  /// Cụm nút tăng/giảm số lượng sản phẩm.
   Widget _qty(CartProvider cart, CartItem item) {
     return Container(
       decoration: BoxDecoration(
@@ -318,6 +323,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     );
   }
 
+  /// Thanh dưới cùng hiển thị tổng tiền và nút mua hàng.
   Widget _bottomBar(CartProvider cart) {
     final selected = cart.selectedIds.length;
 
@@ -404,6 +410,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     );
   }
 
+  /// Tạo CheckoutRequest từ các item đã chọn và mở màn thanh toán.
   void _openPayment() {
     final user = context.read<AuthProvider>().user;
     if (user == null) return;
@@ -422,7 +429,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
       amount: total,
       name: user['name'] ?? "User",
       orderType: "billpayment",
-      orderDescription: "Thanh toan don hang",
+      orderDescription: "Thanh toán đơn hàng",
       items: selectedItems.map((e) => mapCartItem(e)).toList(),
       shippingName: user['name'] ?? "",
       shippingPhone: "",
@@ -435,6 +442,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     );
   }
 
+  /// Hỏi xác nhận trước khi xóa sản phẩm khỏi giỏ hàng.
   Future<bool> _confirmDeleteDialog() async {
     return await showDialog<bool>(
           context: context,
@@ -497,6 +505,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     return "$cleanApi/$cleanPath";
   }
 
+  /// Tải lại giỏ hàng của user hiện tại.
   void _reloadCart() {
     final user = context.read<AuthProvider>().user;
     if (user == null) return;

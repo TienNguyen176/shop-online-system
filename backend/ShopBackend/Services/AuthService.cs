@@ -59,6 +59,40 @@ namespace ShopBackend.Services
             return await GenerateAuth(user);
         }
 
+        public async Task<User?> GetCurrentUser(string? userIdClaim)
+        {
+            if (!int.TryParse(userIdClaim, out var userId))
+            {
+                return null;
+            }
+
+            return await _db.Users.FindAsync(userId);
+        }
+
+        public async Task<AuthResponse?> RefreshToken(string refreshToken)
+        {
+            if (string.IsNullOrWhiteSpace(refreshToken))
+            {
+                return null;
+            }
+
+            var token = await _db.RefreshTokens
+                .Include(x => x.User)
+                .FirstOrDefaultAsync(x =>
+                    x.Token == refreshToken &&
+                    !x.IsRevoked &&
+                    x.ExpiresAt > DateTime.UtcNow);
+
+            if (token == null)
+            {
+                return null;
+            }
+
+            token.IsRevoked = true;
+
+            return await GenerateAuth(token.User);
+        }
+
         // ================= GOOGLE =================
         private async Task<SocialUserInfo> VerifyGoogle(string token)
         {

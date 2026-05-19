@@ -111,11 +111,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Shop App',
+      title: 'Next4Shop',
       debugShowCheckedModeBanner: false,
 
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamilyFallback: const ["Roboto", "Arial", "Noto Sans"],
         scaffoldBackgroundColor: const Color(0xffeef2fb),
       ),
 

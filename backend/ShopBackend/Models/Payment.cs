@@ -18,6 +18,15 @@ namespace ShopBackend.Models
         [Column("amount")]
         public decimal Amount { get; set; }
 
+        [Column("product_amount")]
+        public decimal ProductAmount { get; set; }
+
+        [Column("shipping_fee")]
+        public decimal ShippingFee { get; set; }
+
+        [Column("total_amount")]
+        public decimal TotalAmount { get; set; }
+
         public string Status { get; set; } = "PENDING";
 
         // ADD IMPORTANT FIELDS

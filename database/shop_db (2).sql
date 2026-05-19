@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Máy chủ: 127.0.0.1
--- Thời gian đã tạo: Th5 19, 2026 lúc 11:29 AM
+-- Thời gian đã tạo: Th5 19, 2026 lúc 06:33 PM
 -- Phiên bản máy phục vụ: 10.4.32-MariaDB
 -- Phiên bản PHP: 8.2.12
 
@@ -20,6 +20,8 @@ SET time_zone = "+00:00";
 --
 -- Cơ sở dữ liệu: `shop_db`
 --
+CREATE DATABASE IF NOT EXISTS `shop_db` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `shop_db`;
 
 -- --------------------------------------------------------
 
@@ -27,10 +29,12 @@ SET time_zone = "+00:00";
 -- Cấu trúc bảng cho bảng `attributes`
 --
 
-CREATE TABLE `attributes` (
-  `id` bigint(20) NOT NULL,
-  `name` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+DROP TABLE IF EXISTS `attributes`;
+CREATE TABLE IF NOT EXISTS `attributes` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `attributes`
@@ -53,11 +57,14 @@ INSERT INTO `attributes` (`id`, `name`) VALUES
 -- Cấu trúc bảng cho bảng `attribute_values`
 --
 
-CREATE TABLE `attribute_values` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `attribute_values`;
+CREATE TABLE IF NOT EXISTS `attribute_values` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `attribute_id` bigint(20) DEFAULT NULL,
-  `value` varchar(100) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `value` varchar(100) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `attribute_id` (`attribute_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `attribute_values`
@@ -120,10 +127,13 @@ INSERT INTO `attribute_values` (`id`, `attribute_id`, `value`) VALUES
 -- Cấu trúc bảng cho bảng `carts`
 --
 
-CREATE TABLE `carts` (
-  `id` bigint(20) NOT NULL,
-  `user_id` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+DROP TABLE IF EXISTS `carts`;
+CREATE TABLE IF NOT EXISTS `carts` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `carts`
@@ -138,19 +148,24 @@ INSERT INTO `carts` (`id`, `user_id`) VALUES
 -- Cấu trúc bảng cho bảng `cart_items`
 --
 
-CREATE TABLE `cart_items` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `cart_items`;
+CREATE TABLE IF NOT EXISTS `cart_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `cart_id` bigint(20) DEFAULT NULL,
   `variant_id` bigint(20) DEFAULT NULL,
-  `quantity` int(11) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `quantity` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `cart_id` (`cart_id`),
+  KEY `variant_id` (`variant_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `cart_items`
 --
 
 INSERT INTO `cart_items` (`id`, `cart_id`, `variant_id`, `quantity`) VALUES
-(2, 2, 51, 1);
+(2, 2, 51, 1),
+(3, 2, 55, 1);
 
 -- --------------------------------------------------------
 
@@ -158,14 +173,18 @@ INSERT INTO `cart_items` (`id`, `cart_id`, `variant_id`, `quantity`) VALUES
 -- Cấu trúc bảng cho bảng `categories`
 --
 
-CREATE TABLE `categories` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `categories`;
+CREATE TABLE IF NOT EXISTS `categories` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `slug` varchar(255) NOT NULL,
   `parent_id` bigint(20) DEFAULT NULL,
   `level` int(11) NOT NULL,
-  `image` text DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `image` text DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `slug` (`slug`),
+  KEY `parent_id` (`parent_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `categories`
@@ -196,14 +215,17 @@ INSERT INTO `categories` (`id`, `name`, `slug`, `parent_id`, `level`, `image`) V
 -- Cấu trúc bảng cho bảng `notifications`
 --
 
-CREATE TABLE `notifications` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `notifications`;
+CREATE TABLE IF NOT EXISTS `notifications` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) DEFAULT NULL,
   `title` varchar(255) DEFAULT NULL,
   `message` text DEFAULT NULL,
   `type` varchar(50) DEFAULT NULL,
   `is_read` tinyint(1) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_notifications_user` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -212,29 +234,35 @@ CREATE TABLE `notifications` (
 -- Cấu trúc bảng cho bảng `orders`
 --
 
-CREATE TABLE `orders` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `orders`;
+CREATE TABLE IF NOT EXISTS `orders` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_code` varchar(50) NOT NULL,
   `user_id` bigint(20) DEFAULT NULL,
   `status` varchar(50) DEFAULT 'PENDING',
+  `subtotal_price` decimal(12,2) DEFAULT 0.00,
+  `shipping_fee` decimal(12,2) DEFAULT 0.00,
   `total_price` decimal(12,2) DEFAULT NULL,
   `shipping_name` varchar(255) DEFAULT NULL,
   `shipping_phone` varchar(20) DEFAULT NULL,
   `shipping_address` text DEFAULT NULL,
   `created_at` datetime DEFAULT current_timestamp(),
-  `updated_at` datetime DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `updated_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `order_code` (`order_code`),
+  KEY `idx_orders_user` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `orders`
 --
 
-INSERT INTO `orders` (`id`, `order_code`, `user_id`, `status`, `total_price`, `shipping_name`, `shipping_phone`, `shipping_address`, `created_at`, `updated_at`) VALUES
-(21, 'ORD_1E53AB3C', NULL, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:28:42', NULL),
-(22, 'ORD_B0FF8F94', NULL, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:35:36', NULL),
-(23, 'ORD_4873DE91', NULL, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:38:53', NULL),
-(25, 'ORD_5C771A6B', 2, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:32:51', NULL),
-(26, 'ORD_A986356B', 2, 'PENDING', 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:33:12', NULL);
+INSERT INTO `orders` (`id`, `order_code`, `user_id`, `status`, `subtotal_price`, `shipping_fee`, `total_price`, `shipping_name`, `shipping_phone`, `shipping_address`, `created_at`, `updated_at`) VALUES
+(21, 'ORD_1E53AB3C', NULL, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:28:42', NULL),
+(22, 'ORD_B0FF8F94', NULL, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:35:36', NULL),
+(23, 'ORD_4873DE91', NULL, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', NULL, NULL, '2026-04-15 16:38:53', NULL),
+(25, 'ORD_5C771A6B', 2, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:32:51', NULL),
+(26, 'ORD_A986356B', 2, 'PENDING', 500000.00, 0.00, 500000.00, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', '2026-05-13 10:33:12', NULL);
 
 -- --------------------------------------------------------
 
@@ -242,16 +270,20 @@ INSERT INTO `orders` (`id`, `order_code`, `user_id`, `status`, `total_price`, `s
 -- Cấu trúc bảng cho bảng `order_items`
 --
 
-CREATE TABLE `order_items` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `order_items`;
+CREATE TABLE IF NOT EXISTS `order_items` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) DEFAULT NULL,
   `product_id` bigint(20) DEFAULT NULL,
   `variant_id` bigint(20) DEFAULT NULL,
   `product_name` varchar(255) DEFAULT NULL,
   `variant_name` varchar(255) DEFAULT NULL,
   `quantity` int(11) DEFAULT NULL,
-  `price` decimal(12,2) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `price` decimal(12,2) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `variant_id` (`variant_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `order_items`
@@ -270,29 +302,36 @@ INSERT INTO `order_items` (`id`, `order_id`, `product_id`, `variant_id`, `produc
 -- Cấu trúc bảng cho bảng `payments`
 --
 
-CREATE TABLE `payments` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `payments`;
+CREATE TABLE IF NOT EXISTS `payments` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) DEFAULT NULL,
   `payment_method_id` bigint(20) DEFAULT NULL,
   `transaction_id` varchar(255) DEFAULT NULL,
   `amount` decimal(12,2) DEFAULT 0.00,
+  `product_amount` decimal(12,2) DEFAULT 0.00,
+  `shipping_fee` decimal(12,2) DEFAULT 0.00,
+  `total_amount` decimal(12,2) DEFAULT 0.00,
   `status` varchar(50) DEFAULT 'PENDING',
   `vnp_response_code` varchar(20) DEFAULT NULL,
   `bank_code` varchar(50) DEFAULT NULL,
   `paid_at` datetime DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `payment_method_id` (`payment_method_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `payments`
 --
 
-INSERT INTO `payments` (`id`, `order_id`, `payment_method_id`, `transaction_id`, `amount`, `status`, `vnp_response_code`, `bank_code`, `paid_at`, `created_at`) VALUES
-(20, 21, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:28:42'),
-(21, 22, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:35:36'),
-(22, 23, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:38:53'),
-(23, 25, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:32:51'),
-(24, 26, 2, NULL, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:33:12');
+INSERT INTO `payments` (`id`, `order_id`, `payment_method_id`, `transaction_id`, `amount`, `product_amount`, `shipping_fee`, `total_amount`, `status`, `vnp_response_code`, `bank_code`, `paid_at`, `created_at`) VALUES
+(20, 21, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:28:42'),
+(21, 22, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:35:36'),
+(22, 23, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-04-15 16:38:53'),
+(23, 25, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:32:51'),
+(24, 26, 2, NULL, 500000.00, 500000.00, 0.00, 500000.00, 'PENDING', NULL, NULL, NULL, '2026-05-13 10:33:12');
 
 -- --------------------------------------------------------
 
@@ -300,10 +339,12 @@ INSERT INTO `payments` (`id`, `order_id`, `payment_method_id`, `transaction_id`,
 -- Cấu trúc bảng cho bảng `payment_methods`
 --
 
-CREATE TABLE `payment_methods` (
-  `id` bigint(20) NOT NULL,
-  `name` varchar(50) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+DROP TABLE IF EXISTS `payment_methods`;
+CREATE TABLE IF NOT EXISTS `payment_methods` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(50) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `payment_methods`
@@ -321,8 +362,9 @@ INSERT INTO `payment_methods` (`id`, `name`) VALUES
 -- Cấu trúc bảng cho bảng `products`
 --
 
-CREATE TABLE `products` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `products`;
+CREATE TABLE IF NOT EXISTS `products` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) DEFAULT NULL,
   `description` text DEFAULT NULL,
   `category_id` bigint(20) DEFAULT NULL,
@@ -330,8 +372,10 @@ CREATE TABLE `products` (
   `rating_avg` decimal(3,2) DEFAULT 0.00,
   `rating_count` int(11) DEFAULT 0,
   `sold_count` int(11) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_products_category_created` (`category_id`,`created_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `products`
@@ -375,13 +419,16 @@ INSERT INTO `products` (`id`, `name`, `description`, `category_id`, `brand`, `ra
 -- Cấu trúc bảng cho bảng `product_images`
 --
 
-CREATE TABLE `product_images` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `product_images`;
+CREATE TABLE IF NOT EXISTS `product_images` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `product_id` bigint(20) DEFAULT NULL,
   `image_url` text DEFAULT NULL,
   `is_main` tinyint(1) DEFAULT 0,
-  `variant_id` bigint(20) DEFAULT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `variant_id` bigint(20) DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_main_image` (`product_id`,`is_main`)
+) ENGINE=InnoDB AUTO_INCREMENT=240 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `product_images`
@@ -515,14 +562,19 @@ INSERT INTO `product_images` (`id`, `product_id`, `image_url`, `is_main`, `varia
 -- Cấu trúc bảng cho bảng `product_variants`
 --
 
-CREATE TABLE `product_variants` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `product_variants`;
+CREATE TABLE IF NOT EXISTS `product_variants` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `product_id` bigint(20) NOT NULL,
   `sku` varchar(120) DEFAULT NULL,
   `price` decimal(12,2) DEFAULT NULL,
   `stock_quantity` int(11) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `sku` (`sku`),
+  UNIQUE KEY `uk_sku` (`sku`),
+  KEY `idx_variants_product` (`product_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=349 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `product_variants`
@@ -588,16 +640,64 @@ INSERT INTO `product_variants` (`id`, `product_id`, `sku`, `price`, `stock_quant
 -- --------------------------------------------------------
 
 --
+-- Cấu trúc bảng cho bảng `refresh_tokens`
+--
+
+DROP TABLE IF EXISTS `refresh_tokens`;
+CREATE TABLE IF NOT EXISTS `refresh_tokens` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) DEFAULT NULL,
+  `token` text DEFAULT NULL,
+  `expires_at` datetime DEFAULT NULL,
+  `is_revoked` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=31 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `refresh_tokens`
+--
+
+INSERT INTO `refresh_tokens` (`id`, `user_id`, `token`, `expires_at`, `is_revoked`) VALUES
+(9, 2, 'TylZ2GIRjMhg7SVafT1kjRTM4n9ENx3zGeiTJqCHl4YSv9HYQzLiBssiRRiac0k1FAgeZ2PeSaKGe0CRIVC4Ig==', '2026-04-22 09:28:00', 0),
+(10, 2, 'Bsz05B2b4VhFxamyHRPOkkTt3H1rH2ZcdtcTw0ZukqFIgesZJZUuFJAGTBDFyOk9zcU4baq+/UdQkFbTit/QRA==', '2026-05-20 03:10:38', 0),
+(11, 2, 'HPKJbSC8CKv5kQshTlvcxaWNYxuzr3FgIYgqYUktWrtBqIlstgOmdbiLSDYa9wjijkimyXt2GAr8v4Jc46OGJg==', '2026-05-20 03:32:31', 0),
+(12, 2, 'DNto1nXm+GXis9c6Hn8DW1giNEJxoqUP9fh7I4kjXV/88V2y6YGisSLmWys7GSrr8oSRpggsDKPOSAjfNfxNYw==', '2026-05-26 09:35:26', 0),
+(13, 2, 'aWwfgesbEglmLHIJH9rorsbI9kQncWrvcD/ENlfnrhMZ21aIE25xRE+ITketnwR3SWDwO3CmBl9/MWD03REZkg==', '2026-05-26 09:38:46', 0),
+(14, 2, 'Qch89Xkxa+OEBjxHvsgPHgIzc4l3NExtMouX1eIkgw4TaNhh/FHprSzZ1/Ns1LFfjEFzefSgYuCipi47HFP7fg==', '2026-05-26 09:41:20', 0),
+(15, 2, 'VyRPFTabXLcxvTVMcLjICvlm2gMb0vXXeiT0s+JJc+VT+Ii2wK5rDBadGcJYHPBDRfXimJmdN10bnaZGdzqjQg==', '2026-05-26 09:45:41', 0),
+(16, 2, '3cfy3v1ZZWipBVtjS3piwTBwTDB66L+3hUmNvTXYUkn0rscWtYT9CePpoVBYW3BdYv00LsdtixOf+P4XrBahZg==', '2026-05-26 09:50:48', 0),
+(17, 2, 'J6QPZvFFEDXFxaqlJInxQDSpJhf8C65vAiIXhCpEHl+eliO8ycPyr61BIa70nyDOXDCszqXrOUpYyF5L1YAPoQ==', '2026-05-26 10:06:19', 0),
+(18, 2, 'M0ZyxmwrAH7sqdSMZCSIYqpNbGFybR2Q4iDvIJXsq3X8sjNzZsw9mJRRBpnlGsnFNnvFw/vEn9brNjV+TUeVTQ==', '2026-05-26 10:21:30', 0),
+(19, 2, 'zcKy33yTXPgBrkB4x3tpfUVq2CaYAwrTdaWCyFcQcGSquInvogyzpkqOfr6HOK0tLSjhPCEc8hZWFnsw3GJmXQ==', '2026-05-26 10:31:58', 0),
+(20, 2, 'OKihRUL1wWiJPq7f14BlD+V8yHYVoWGYjBOayzdSe9tL6nQ130vcwLrB3QjKhapmhVPA6cdApyv6y77A0v5k/g==', '2026-05-26 10:44:08', 0),
+(21, 2, 'q5qhZiafKsi3871PWwwL5hz+iri+AU8MPBdKrWkIiyl5boYTodezC6e2azbuApeYvqLjsryBVQrX1SP/5B4Upg==', '2026-05-26 11:03:41', 0),
+(22, 2, 'B39na8h4z+lxca8XcuSJHXm8GNM/EbA90HBT91x6VAXeNy5HgEsTVMNY5kwQn2LFY8tfAsfm29RNDdsFh8qVuw==', '2026-05-26 11:15:04', 0),
+(23, 2, 'Dn6MyChjqfThtEReHqj1f37jkqkVbUJMfUFCh8VgNLa51JR4uMhQS428PGFl+Yc5mIHSOcQJuM2IN+PJzkvPsg==', '2026-05-26 11:22:47', 0),
+(24, 2, 'nHLsFZxmCSXXmZa5jqmFbEecUAW7tE4XaLwZ5CvLrHE7pjyRMSbfy/vnwd54RmmDt5RpyKtngHG3/Y1Jwd/B6Q==', '2026-05-26 11:41:05', 0),
+(25, 2, 'si3gRVsCUSitmN4rpD/w6itNMoSRCddGJmWIEK8dJDbduUSlTCaD3IoyjdPN+/cYrqnaiT293QYPKpCwVjDYXw==', '2026-05-26 11:41:40', 0),
+(26, 2, 'kbg7c6Gvct8u0cjxtKsfAAeoIR3S/R/JqtTGW0Fhbt35XVggknI8Y6Fe/GO5P/o/6kCPXoXfvQatIDwnnid/CA==', '2026-05-26 11:50:59', 0),
+(27, 2, 'hGhqwCz+5z4H4WGKS6r5yPH3JKkoiBnDiPVuhinq5ojxMinTs8Y+xvmGmihDPEJdq0uFPphvZov48v7kVDe1tg==', '2026-05-26 11:53:43', 0),
+(28, 2, 'waQqtu6TIV9ErnFkmuLlqANeaUUyfUHCSrePNiD2URCqrFDsK8k4vKIk+n66Nqlkdq2oWEbL+SAsMfX2xr2pKw==', '2026-05-26 11:59:21', 0),
+(29, 2, 'eIYByKC6OGWAqYHBz8lXBSV095Uz6HPX0zLM0t//MhMZfPvIicwrathzQYkHXL9IdFMktqdmK+skLd1kpQAPpw==', '2026-05-26 12:06:57', 0),
+(30, 2, 'aF4l9j7Yxk3jmcF8uK0m5Fi1Udgep4qpRJrliIRuEO1iSZFagxWb0HAzzQ3Ys9GkQE/TILFgmbF7HfBpi8rCSA==', '2026-05-26 16:07:02', 0);
+
+-- --------------------------------------------------------
+
+--
 -- Cấu trúc bảng cho bảng `return_requests`
 --
 
-CREATE TABLE `return_requests` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `return_requests`;
+CREATE TABLE IF NOT EXISTS `return_requests` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `order_id` bigint(20) DEFAULT NULL,
   `user_id` bigint(20) DEFAULT NULL,
   `reason` text DEFAULT NULL,
   `status` varchar(50) DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  KEY `user_id` (`user_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -606,13 +706,17 @@ CREATE TABLE `return_requests` (
 -- Cấu trúc bảng cho bảng `reviews`
 --
 
-CREATE TABLE `reviews` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `reviews`;
+CREATE TABLE IF NOT EXISTS `reviews` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) DEFAULT NULL,
   `product_id` bigint(20) DEFAULT NULL,
   `rating` int(11) DEFAULT NULL,
   `comment` text DEFAULT NULL,
-  `created_at` datetime DEFAULT current_timestamp()
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `user_id` (`user_id`,`product_id`),
+  KEY `idx_reviews_product` (`product_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
@@ -621,16 +725,19 @@ CREATE TABLE `reviews` (
 -- Cấu trúc bảng cho bảng `users`
 --
 
-CREATE TABLE `users` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE IF NOT EXISTS `users` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `provider` varchar(20) NOT NULL,
   `provider_user_id` varchar(255) DEFAULT NULL,
   `email` varchar(255) DEFAULT NULL,
   `full_name` varchar(255) DEFAULT NULL,
   `avatar` text DEFAULT NULL,
   `role` varchar(20) DEFAULT 'USER',
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `provider_user_id` (`provider_user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Đang đổ dữ liệu cho bảng `users`
@@ -645,18 +752,31 @@ INSERT INTO `users` (`id`, `provider`, `provider_user_id`, `email`, `full_name`,
 -- Cấu trúc bảng cho bảng `user_addresses`
 --
 
-CREATE TABLE `user_addresses` (
-  `id` bigint(20) NOT NULL,
+DROP TABLE IF EXISTS `user_addresses`;
+CREATE TABLE IF NOT EXISTS `user_addresses` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) DEFAULT NULL,
   `receiver_name` varchar(255) DEFAULT NULL,
   `phone` varchar(20) DEFAULT NULL,
   `address_line` text DEFAULT NULL,
-  `city` varchar(100) DEFAULT NULL,
-  `district` varchar(100) DEFAULT NULL,
-  `ward` varchar(100) DEFAULT NULL,
+  `province_id` int(11) DEFAULT NULL,
+  `province_name` varchar(100) DEFAULT NULL,
+  `district_id` int(11) DEFAULT NULL,
+  `district_name` varchar(100) DEFAULT NULL,
+  `ward_code` varchar(20) DEFAULT NULL,
+  `ward_name` varchar(100) DEFAULT NULL,
   `is_default` tinyint(1) DEFAULT 0,
-  `created_at` datetime DEFAULT current_timestamp()
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+  `created_at` datetime DEFAULT current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Đang đổ dữ liệu cho bảng `user_addresses`
+--
+
+INSERT INTO `user_addresses` (`id`, `user_id`, `receiver_name`, `phone`, `address_line`, `province_id`, `province_name`, `district_id`, `district_name`, `ward_code`, `ward_name`, `is_default`, `created_at`) VALUES
+(1, 2, 'Nguyễn Văn Tiền', '0588405161', '181 Tô Vĩnh Diện', 205, 'Bình Dương', 1540, 'Thành phố Dĩ An', '440505', 'Phường Đông Hòa', 1, '2026-05-19 23:07:43');
 
 -- --------------------------------------------------------
 
@@ -664,9 +784,12 @@ CREATE TABLE `user_addresses` (
 -- Cấu trúc bảng cho bảng `variant_attributes`
 --
 
-CREATE TABLE `variant_attributes` (
+DROP TABLE IF EXISTS `variant_attributes`;
+CREATE TABLE IF NOT EXISTS `variant_attributes` (
   `variant_id` bigint(20) NOT NULL,
-  `attribute_value_id` bigint(20) NOT NULL
+  `attribute_value_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`variant_id`,`attribute_value_id`),
+  KEY `idx_variant_attr_value` (`attribute_value_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -811,249 +934,6 @@ INSERT INTO `variant_attributes` (`variant_id`, `attribute_value_id`) VALUES
 (54, 200),
 (55, 9),
 (55, 204);
-
---
--- Chỉ mục cho các bảng đã đổ
---
-
---
--- Chỉ mục cho bảng `attributes`
---
-ALTER TABLE `attributes`
-  ADD PRIMARY KEY (`id`);
-
---
--- Chỉ mục cho bảng `attribute_values`
---
-ALTER TABLE `attribute_values`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `attribute_id` (`attribute_id`);
-
---
--- Chỉ mục cho bảng `carts`
---
-ALTER TABLE `carts`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `user_id` (`user_id`);
-
---
--- Chỉ mục cho bảng `cart_items`
---
-ALTER TABLE `cart_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `cart_id` (`cart_id`),
-  ADD KEY `variant_id` (`variant_id`);
-
---
--- Chỉ mục cho bảng `categories`
---
-ALTER TABLE `categories`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `slug` (`slug`),
-  ADD KEY `parent_id` (`parent_id`);
-
---
--- Chỉ mục cho bảng `notifications`
---
-ALTER TABLE `notifications`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_notifications_user` (`user_id`);
-
---
--- Chỉ mục cho bảng `orders`
---
-ALTER TABLE `orders`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `order_code` (`order_code`),
-  ADD KEY `idx_orders_user` (`user_id`);
-
---
--- Chỉ mục cho bảng `order_items`
---
-ALTER TABLE `order_items`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `order_id` (`order_id`),
-  ADD KEY `variant_id` (`variant_id`);
-
---
--- Chỉ mục cho bảng `payments`
---
-ALTER TABLE `payments`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `order_id` (`order_id`),
-  ADD KEY `payment_method_id` (`payment_method_id`);
-
---
--- Chỉ mục cho bảng `payment_methods`
---
-ALTER TABLE `payment_methods`
-  ADD PRIMARY KEY (`id`);
-
---
--- Chỉ mục cho bảng `products`
---
-ALTER TABLE `products`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_products_category_created` (`category_id`,`created_at`);
-
---
--- Chỉ mục cho bảng `product_images`
---
-ALTER TABLE `product_images`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `idx_main_image` (`product_id`,`is_main`);
-
---
--- Chỉ mục cho bảng `product_variants`
---
-ALTER TABLE `product_variants`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `sku` (`sku`),
-  ADD UNIQUE KEY `uk_sku` (`sku`),
-  ADD KEY `idx_variants_product` (`product_id`);
-
---
--- Chỉ mục cho bảng `return_requests`
---
-ALTER TABLE `return_requests`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `order_id` (`order_id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Chỉ mục cho bảng `reviews`
---
-ALTER TABLE `reviews`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `user_id` (`user_id`,`product_id`),
-  ADD KEY `idx_reviews_product` (`product_id`);
-
---
--- Chỉ mục cho bảng `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`id`),
-  ADD UNIQUE KEY `provider_user_id` (`provider_user_id`);
-
---
--- Chỉ mục cho bảng `user_addresses`
---
-ALTER TABLE `user_addresses`
-  ADD PRIMARY KEY (`id`),
-  ADD KEY `user_id` (`user_id`);
-
---
--- Chỉ mục cho bảng `variant_attributes`
---
-ALTER TABLE `variant_attributes`
-  ADD PRIMARY KEY (`variant_id`,`attribute_value_id`),
-  ADD KEY `idx_variant_attr_value` (`attribute_value_id`);
-
---
--- AUTO_INCREMENT cho các bảng đã đổ
---
-
---
--- AUTO_INCREMENT cho bảng `attributes`
---
-ALTER TABLE `attributes`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
-
---
--- AUTO_INCREMENT cho bảng `attribute_values`
---
-ALTER TABLE `attribute_values`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3000;
-
---
--- AUTO_INCREMENT cho bảng `carts`
---
-ALTER TABLE `carts`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT cho bảng `cart_items`
---
-ALTER TABLE `cart_items`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT cho bảng `categories`
---
-ALTER TABLE `categories`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=100;
-
---
--- AUTO_INCREMENT cho bảng `notifications`
---
-ALTER TABLE `notifications`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `orders`
---
-ALTER TABLE `orders`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
-
---
--- AUTO_INCREMENT cho bảng `order_items`
---
-ALTER TABLE `order_items`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
-
---
--- AUTO_INCREMENT cho bảng `payments`
---
-ALTER TABLE `payments`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
-
---
--- AUTO_INCREMENT cho bảng `payment_methods`
---
-ALTER TABLE `payment_methods`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- AUTO_INCREMENT cho bảng `products`
---
-ALTER TABLE `products`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=51;
-
---
--- AUTO_INCREMENT cho bảng `product_images`
---
-ALTER TABLE `product_images`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=240;
-
---
--- AUTO_INCREMENT cho bảng `product_variants`
---
-ALTER TABLE `product_variants`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=349;
-
---
--- AUTO_INCREMENT cho bảng `return_requests`
---
-ALTER TABLE `return_requests`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `reviews`
---
-ALTER TABLE `reviews`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
-
---
--- AUTO_INCREMENT cho bảng `users`
---
-ALTER TABLE `users`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
-
---
--- AUTO_INCREMENT cho bảng `user_addresses`
---
-ALTER TABLE `user_addresses`
-  MODIFY `id` bigint(20) NOT NULL AUTO_INCREMENT;
 
 --
 -- Các ràng buộc cho các bảng đã đổ

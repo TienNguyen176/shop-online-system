@@ -15,6 +15,13 @@ class AuthService {
     return res.data;
   }
 
+  /// ===== CURRENT USER =====
+  Future<Map<String, dynamic>> getCurrentUser() async {
+    final res = await ApiClient.dio.get("/api/auth/me");
+
+    return Map<String, dynamic>.from(res.data);
+  }
+
   /// ===== UPDATE PROFILE =====
   /// UPDATE PROFILE (UPLOAD FILE)
   Future<Map<String, dynamic>> updateProfile({

@@ -34,25 +34,25 @@ class AppBottomNav extends StatelessWidget {
           children: [
             _NavButton(
               icon: Icons.home_rounded,
-              label: "HOME",
+              label: "Trang chủ",
               active: activeItem == AppBottomNavItem.home,
               onTap: () => _goHome(context),
             ),
             _NavButton(
               icon: Icons.shopping_bag_outlined,
-              label: "PRODUCT",
+              label: "Sản phẩm",
               active: activeItem == AppBottomNavItem.product,
               onTap: () => _goProduct(context),
             ),
             _NavButton(
               icon: Icons.receipt_long_outlined,
-              label: "ORDER",
+              label: "Đơn hàng",
               active: activeItem == AppBottomNavItem.order,
               onTap: () => _goOrder(context),
             ),
             _NavButton(
               icon: Icons.person_outline_rounded,
-              label: "PROFILE",
+              label: "Hồ sơ",
               active: activeItem == AppBottomNavItem.profile,
               onTap: () => _goProfile(context),
             ),
@@ -84,7 +84,7 @@ class AppBottomNav extends StatelessWidget {
 
     if (userId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Vui long dang nhap de xem don hang")),
+        const SnackBar(content: Text("Vui lòng đăng nhập để xem đơn hàng")),
       );
       return;
     }

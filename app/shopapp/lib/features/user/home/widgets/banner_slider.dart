@@ -85,7 +85,7 @@ class _BannerSliderState extends State<BannerSlider> {
                       left: 20,
                       top: 18,
                       child: Text(
-                        "NEW BEST SELLER",
+                        "SẢN PHẨM NỔI BẬT",
                         style: TextStyle(
                           color: const Color(0xffbfdbfe).withOpacity(0.95),
                           fontSize: 11,

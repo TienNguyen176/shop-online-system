@@ -9,6 +9,7 @@ import '../../category/providers/category_provider.dart';
 import '../providers/product_admin_provider.dart';
 import '../../attribute/providers/attribute_provider.dart';
 
+/// Dữ liệu tạm cho một dòng thuộc tính/giá trị thuộc tính trong form sản phẩm.
 class AttributeRow {
   int? attributeId;
   String? attributeName;
@@ -17,6 +18,7 @@ class AttributeRow {
   AttributeRow({this.attributeId, this.attributeName, this.value});
 }
 
+/// Màn admin tạo hoặc cập nhật sản phẩm.
 class ProductFormScreen extends StatefulWidget {
   final AdminProduct? product;
 
@@ -57,16 +59,19 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= CHECK IMAGE TYPE =================
+  /// Kiểm tra đường dẫn ảnh là URL mạng hay file local.
   bool _isNetwork(String path) {
     return path.startsWith("http");
   }
 
+  /// Chuẩn hóa đường dẫn ảnh để hiển thị trong form.
   String _buildImageUrl(String path) {
     if (path.startsWith("http")) return path;
     return "${AppConfig.apiUrl}/$path";
   }
 
   // ================= LOAD EDIT =================
+  /// Nạp dữ liệu sản phẩm cũ vào form khi ở chế độ chỉnh sửa.
   void _loadEditData() {
     final p = widget.product!;
     final attrProvider = context.read<AttributeProvider>();
@@ -98,6 +103,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= PICK IMAGE =================
+  /// Mở bộ chọn ảnh và thêm ảnh vào danh sách ảnh sản phẩm.
   Future<void> pickImage() async {
     final file = await picker.pickImage(source: ImageSource.gallery);
 
@@ -109,6 +115,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= IMAGE WIDGET =================
+  /// Render ảnh sản phẩm, tự xử lý ảnh mạng và ảnh local.
   Widget _buildImage(String path) {
     final isNetwork = _isNetwork(path);
 
@@ -127,6 +134,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= SUBMIT =================
+  /// Validate form và gọi provider để tạo/cập nhật sản phẩm.
   Future<void> _submit() async {
     final provider = context.read<ProductAdminProvider>();
 
@@ -138,7 +146,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       "variants": [],
     };
 
-    /// chỉ gửi file local (không gửi URL)
+    /// Chỉ gửi file local, không gửi URL.
     final localImages = images.where((e) => !_isNetwork(e)).toList();
 
     await provider.createProduct(dto: dto, imagePaths: localImages);
@@ -175,7 +183,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        title: Text(widget.product == null ? "Add Product" : "Edit Product"),
+        title: Text(widget.product == null ? "Thêm sản phẩm" : "Sửa sản phẩm"),
         backgroundColor: primary,
       ),
       body: SingleChildScrollView(
@@ -200,7 +208,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   ),
                 ),
                 onPressed: _submit,
-                child: const Text("Save Product"),
+                child: const Text("Lưu sản phẩm"),
               ),
             ),
           ],
@@ -210,6 +218,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= IMAGE SECTION =================
+  /// Section quản lý ảnh sản phẩm.
   Widget _buildImageSection() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -220,7 +229,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Images"),
+          const Text("Hình ảnh"),
           const SizedBox(height: 10),
 
           SizedBox(
@@ -256,6 +265,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= INFO =================
+  /// Section nhập thông tin cơ bản của sản phẩm.
   Widget _buildInfoSection() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -265,14 +275,14 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       ),
       child: Column(
         children: [
-          TextField(controller: nameCtrl, decoration: _input("Product Name")),
+          TextField(controller: nameCtrl, decoration: _input("Tên sản phẩm")),
           const SizedBox(height: 10),
-          TextField(controller: brandCtrl, decoration: _input("Brand")),
+          TextField(controller: brandCtrl, decoration: _input("Thương hiệu")),
           const SizedBox(height: 10),
           TextField(
             controller: descCtrl,
             maxLines: 3,
-            decoration: _input("Description"),
+            decoration: _input("Mô tả"),
           ),
         ],
       ),
@@ -280,6 +290,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
   }
 
   // ================= ATTRIBUTE =================
+  /// Section chọn thuộc tính và giá trị thuộc tính cho biến thể sản phẩm.
   Widget _buildAttributeSection(AttributeProvider attrProvider) {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -291,7 +302,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Attributes",
+            "Thuộc tính",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
@@ -304,7 +315,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   Expanded(
                     child: DropdownButtonFormField<int>(
                       value: row.attributeId,
-                      decoration: _input("Attribute"),
+                      decoration: _input("Thuộc tính"),
                       items:
                           attrProvider.attributes.map((attr) {
                             return DropdownMenuItem<int>(
@@ -333,7 +344,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: row.value,
-                      decoration: _input("Value"),
+                      decoration: _input("Giá trị"),
                       items:
                           (attrProvider.attributes
                                   .firstWhere(
@@ -379,7 +390,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               });
             },
             icon: const Icon(Icons.add),
-            label: const Text("Add Attribute"),
+            label: const Text("Thêm thuộc tính"),
           ),
         ],
       ),
