@@ -9,7 +9,7 @@ namespace ShopBackend.Models
         public int Id { get; set; }
 
         [Column("user_id")]
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
         public required string Token { get; set; }
 

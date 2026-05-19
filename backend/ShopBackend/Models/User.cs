@@ -7,7 +7,7 @@ namespace ShopBackend.Models
 {
     public class User
     {
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         [Column("provider")]
         public required string Provider { get; set; } // google | facebook

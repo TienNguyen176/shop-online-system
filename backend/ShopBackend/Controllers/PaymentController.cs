@@ -214,6 +214,7 @@ namespace ShopBackend.Controllers
                 if (order != null)
                 {
                     order.Status = "PAID";
+                    order.UpdatedAt = DateTime.Now;
 
                     var items = _db.OrderItems
                         .Where(x => x.OrderId == order.Id)

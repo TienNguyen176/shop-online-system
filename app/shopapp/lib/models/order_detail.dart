@@ -1,4 +1,5 @@
 import 'order_item.dart';
+import 'return_request.dart';
 
 /// Model chứa chi tiết đầy đủ của một đơn hàng.
 class OrderDetail {
@@ -28,6 +29,10 @@ class OrderDetail {
 
   /// Địa chỉ giao hàng đầy đủ.
   final String shippingAddress;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? deliveredAt;
+  final ReturnRequestModel? returnRequest;
 
   /// Danh sách sản phẩm trong đơn hàng.
   final List<OrderItem> items;
@@ -43,6 +48,10 @@ class OrderDetail {
     required this.shippingName,
     required this.shippingPhone,
     required this.shippingAddress,
+    required this.createdAt,
+    required this.updatedAt,
+    required this.deliveredAt,
+    required this.returnRequest,
     required this.items,
   });
 
@@ -70,6 +79,15 @@ class OrderDetail {
       shippingName: json["shippingName"]?.toString() ?? "",
       shippingPhone: json["shippingPhone"]?.toString() ?? "",
       shippingAddress: json["shippingAddress"]?.toString() ?? "",
+      createdAt: _dateOf(json["createdAt"] ?? json["created_at"]),
+      updatedAt: _dateOf(json["updatedAt"] ?? json["updated_at"]),
+      deliveredAt: _dateOf(json["deliveredAt"] ?? json["delivered_at"]),
+      returnRequest:
+          json["returnRequest"] == null
+              ? null
+              : ReturnRequestModel.fromJson(
+                Map<String, dynamic>.from(json["returnRequest"]),
+              ),
       items: items,
     );
   }
@@ -90,7 +108,16 @@ class OrderDetail {
       shippingName: shippingName ?? this.shippingName,
       shippingPhone: shippingPhone ?? this.shippingPhone,
       shippingAddress: shippingAddress ?? this.shippingAddress,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      deliveredAt: deliveredAt,
+      returnRequest: returnRequest,
       items: items,
     );
   }
+}
+
+DateTime? _dateOf(dynamic value) {
+  if (value == null) return null;
+  return DateTime.tryParse(value.toString());
 }

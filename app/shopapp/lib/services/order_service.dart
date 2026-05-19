@@ -44,6 +44,20 @@ class OrderService {
     }
   }
 
+  Future<void> createReturnRequest({
+    required int orderId,
+    required String reason,
+  }) async {
+    try {
+      await ApiClient.dio.post(
+        "/api/order/$orderId/return-request",
+        data: {"reason": reason},
+      );
+    } catch (e) {
+      throw Exception(_errorMessage(e));
+    }
+  }
+
   String _errorMessage(Object error) {
     if (error is! DioException) return error.toString();
 

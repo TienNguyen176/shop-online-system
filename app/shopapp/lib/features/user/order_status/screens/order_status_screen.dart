@@ -124,12 +124,14 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
   Widget _tabs(OrderStatusProvider orderStatus) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 8, 22, 14),
-      child: Row(
-        children: List.generate(OrderStatusProvider.tabs.length, (index) {
-          final selected = orderStatus.selectedIndex == index;
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        child: Row(
+          children: List.generate(OrderStatusProvider.tabs.length, (index) {
+            final selected = orderStatus.selectedIndex == index;
 
-          return Expanded(
-            child: Padding(
+            return Padding(
               padding: EdgeInsets.only(
                 right: index == OrderStatusProvider.tabs.length - 1 ? 0 : 8,
               ),
@@ -138,7 +140,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
                 onTap: () => orderStatus.changeTab(index),
                 child: AnimatedContainer(
                   duration: const Duration(milliseconds: 180),
+                  constraints: const BoxConstraints(minWidth: 104),
                   height: 42,
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     color: selected ? primary : Colors.white,
@@ -160,7 +164,8 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
                     OrderStatusProvider.tabs[index],
                     textAlign: TextAlign.center,
                     maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    softWrap: false,
+                    overflow: TextOverflow.visible,
                     style: TextStyle(
                       color: selected ? Colors.white : textMuted,
                       fontWeight: FontWeight.w700,
@@ -170,9 +175,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
                   ),
                 ),
               ),
-            ),
-          );
-        }),
+            );
+          }),
+        ),
       ),
     );
   }
@@ -298,14 +303,12 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
 
   /// Card hiển thị thông tin tóm tắt của một đơn hàng.
   Widget _orderItem(OrderModel order) {
-    final canOpen = order.status.toUpperCase() == "PENDING";
-
     return Material(
       color: Colors.white,
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: canOpen ? () => _openPendingOrder(order.id) : null,
+        onTap: () => _openOrderDetail(order.id),
         child: Container(
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
@@ -420,7 +423,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
   }
 
   /// Mở màn chi tiết đơn chờ xác nhận và reload danh sách nếu đơn có thay đổi.
-  Future<void> _openPendingOrder(int orderId) async {
+  Future<void> _openOrderDetail(int orderId) async {
     final changed = await Navigator.push<bool>(
       context,
       MaterialPageRoute(

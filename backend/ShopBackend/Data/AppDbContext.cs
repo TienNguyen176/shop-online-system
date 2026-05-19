@@ -28,6 +28,8 @@ namespace ShopBackend.Data
 
         public DbSet<Payment> Payments { get; set; }
 
+        public DbSet<ReturnRequest> ReturnRequests { get; set; }
+
         public DbSet<ProductImage> ProductImages { get; set; }
 
         public DbSet<ProductVariant> ProductVariants { get; set; }
@@ -55,6 +57,16 @@ namespace ShopBackend.Data
                 .HasOne(x => x.AttributeValue)
                 .WithMany()
                 .HasForeignKey(x => x.AttributeValueId);
+
+            modelBuilder.Entity<ReturnRequest>()
+                .HasOne(x => x.Order)
+                .WithMany()
+                .HasForeignKey(x => x.OrderId);
+
+            modelBuilder.Entity<ReturnRequest>()
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId);
         }
 
         public DbSet<Category> Categories { get; set; }

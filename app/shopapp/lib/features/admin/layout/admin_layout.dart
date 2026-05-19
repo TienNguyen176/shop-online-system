@@ -7,6 +7,7 @@ import '../../user/cart/providers/cart_provider.dart';
 import '../attribute/screens/attribute_management_screen.dart';
 import '../category/screens/category_management_screen.dart';
 import '../dashboard/screens/dashboard_screen.dart';
+import '../order/screens/admin_order_screen.dart';
 import '../product/screens/product_list_screen.dart';
 
 class AdminLayout extends StatefulWidget {
@@ -31,6 +32,7 @@ class _AdminLayoutState extends State<AdminLayout> {
   final List<_AdminPage> pages = const [
     _AdminPage("Tổng quan", Icons.dashboard, DashboardScreen()),
     _AdminPage("Sản phẩm", Icons.shopping_bag, ProductListScreen()),
+    _AdminPage("Đơn hàng", Icons.receipt_long_outlined, AdminOrderScreen()),
     _AdminPage("Danh mục", Icons.category_outlined, CategoryManagementScreen()),
     _AdminPage("Thuộc tính", Icons.tune_outlined, AttributeManagementScreen()),
   ];

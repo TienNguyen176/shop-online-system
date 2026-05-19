@@ -152,6 +152,7 @@ class AuthProvider extends ChangeNotifier {
     await _storage.delete(key: _refreshTokenKey);
     await _storage.delete(key: _userKey);
     repo.logout();
+    ApiClient.clearToken();
 
     accessToken = null;
     refreshToken = null;

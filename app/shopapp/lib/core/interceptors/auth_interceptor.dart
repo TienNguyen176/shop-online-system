@@ -2,8 +2,11 @@ import 'package:dio/dio.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class AuthInterceptor extends Interceptor {
+  final Future<void> Function()? onSessionExpired;
   final storage = const FlutterSecureStorage();
   Future<String?>? _refreshingToken;
+
+  AuthInterceptor({this.onSessionExpired});
 
   @override
   void onRequest(
@@ -25,8 +28,10 @@ class AuthInterceptor extends Interceptor {
   void onError(DioException err, ErrorInterceptorHandler handler) async {
     final statusCode = err.response?.statusCode;
     final path = err.requestOptions.path;
+    final isAuthEndpoint =
+        path.contains("/api/auth/") && !path.contains("/api/auth/me");
 
-    if (statusCode != 401 || path.contains("/api/auth/refresh")) {
+    if (statusCode != 401 || isAuthEndpoint) {
       return handler.next(err);
     }
 
@@ -87,6 +92,7 @@ class AuthInterceptor extends Interceptor {
     await storage.delete(key: "token");
     await storage.delete(key: "refresh_token");
     await storage.delete(key: "user");
+    await onSessionExpired?.call();
   }
 
   DioException _sessionExpiredError(DioException err) {

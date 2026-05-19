@@ -24,11 +24,14 @@ import 'repositories/interfaces/i_category_repository.dart';
 import 'features/user/home/providers/home_provider.dart';
 import 'features/admin/category/providers/category_provider.dart';
 import 'features/admin/dashboard/providers/dashboard_provider.dart';
+import 'features/admin/order/providers/admin_order_provider.dart';
 import 'features/admin/product/providers/product_admin_provider.dart';
 import 'features/user/cart/providers/cart_provider.dart';
 import 'features/user/order_status/providers/order_status_provider.dart';
 
+import 'services/admin_order_service.dart';
 import 'services/auth/social_auth_service.dart';
+import 'core/api/api_client.dart';
 
 import 'routes/app_routes.dart';
 
@@ -79,6 +82,11 @@ Future<void> main() async {
         /// ADMIN DASHBOARD
         ChangeNotifierProvider(create: (_) => DashboardProvider(statisticRepo)),
 
+        /// ADMIN ORDER
+        ChangeNotifierProvider(
+          create: (_) => AdminOrderProvider(AdminOrderService()),
+        ),
+
         /// ADMIN CATEGORY
         ChangeNotifierProvider(
           create:
@@ -113,6 +121,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Next4Shop',
       debugShowCheckedModeBanner: false,
+      navigatorKey: ApiClient.navigatorKey,
 
       theme: ThemeData(
         primarySwatch: Colors.blue,

@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:provider/provider.dart';
 
 import '../../../../core/config/app_config.dart';
 import '../../../../helpers/cart_helper.dart';
+import '../../../../models/checkout_request.dart';
+import '../../../../models/order_item.dart';
 import '../../../../models/product.dart';
 import '../../../../models/product_variant.dart';
 import '../../../../services/product/product_service.dart';
+import '../../auth/providers/auth_provider.dart';
+import '../../payment/screens/payment_screen.dart';
 import '../screens/product_detail_screen.dart';
 
 class ProductCard extends StatefulWidget {
@@ -34,6 +39,68 @@ class _ProductCardState extends State<ProductCard> {
         productId: product.id,
         fetchVariant: _fetchFirstVariant,
       );
+    } finally {
+      if (mounted) setState(() => _loading = false);
+    }
+  }
+
+  Future<void> _handleBuyNow() async {
+    if (_loading) return;
+
+    final user = context.read<AuthProvider>().user;
+    if (user == null) {
+      _showMessage("Vui lòng đăng nhập để mua hàng");
+      return;
+    }
+
+    setState(() => _loading = true);
+
+    try {
+      final variant = await _fetchFirstVariant();
+      if (!mounted) return;
+
+      if (variant == null) {
+        _showMessage("Sản phẩm chưa có phiên bản để mua");
+        return;
+      }
+
+      if (variant.stockQuantity <= 0) {
+        _showMessage("Sản phẩm đã hết hàng");
+        return;
+      }
+
+      final userId =
+          user['id'] is int
+              ? user['id'] as int
+              : int.parse(user['id'].toString());
+      final request = CheckoutRequest(
+        userId: userId,
+        amount: variant.price,
+        name: user['name']?.toString() ?? "User",
+        orderType: "billpayment",
+        orderDescription: "Thanh toán đơn hàng",
+        items: [
+          OrderItem(
+            productId: product.id,
+            variantId: variant.id,
+            productName: product.name,
+            variantName: _variantName(variant),
+            image: product.mainImage ?? "",
+            quantity: 1,
+            price: variant.price,
+          ),
+        ],
+        shippingName: user['name']?.toString() ?? "",
+        shippingPhone: "",
+        shippingAddress: "",
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => PaymentScreen(request: request)),
+      );
+    } catch (_) {
+      if (mounted) _showMessage("Không thể mở thanh toán");
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -205,7 +272,7 @@ class _ProductCardState extends State<ProductCard> {
 
   Widget _buildBuyNowButton() {
     return GestureDetector(
-      onTap: () {},
+      onTap: _handleBuyNow,
       child: Container(
         height: 32,
         alignment: Alignment.center,
@@ -240,5 +307,26 @@ class _ProductCardState extends State<ProductCard> {
     } catch (_) {
       return null;
     }
+  }
+
+  String _variantName(ProductVariant variant) {
+    if (variant.attributes.isEmpty) {
+      return variant.sku ?? "";
+    }
+
+    return variant.attributes.values
+        .where((value) => value.isNotEmpty)
+        .join(" / ");
+  }
+
+  void _showMessage(String message) {
+    if (!mounted) return;
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        behavior: SnackBarBehavior.floating,
+        content: Text(message),
+      ),
+    );
   }
 }

@@ -10,7 +10,7 @@ namespace ShopBackend.Models
         public required string OrderCode { get; set; }
 
         [Column("user_id")]
-        public long UserId { get; set; }
+        public long? UserId { get; set; }
 
         public string Status { get; set; } = "PENDING";
 
@@ -34,6 +34,12 @@ namespace ShopBackend.Models
 
         [Column("created_at")]
         public DateTime CreatedAt { get; set; } = DateTime.Now;
+
+        [Column("updated_at")]
+        public DateTime? UpdatedAt { get; set; }
+
+        [Column("delivered_at")]
+        public DateTime? DeliveredAt { get; set; }
 
         // NAVIGATION
         public List<Payment> Payments { get; set; }

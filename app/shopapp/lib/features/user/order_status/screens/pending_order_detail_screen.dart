@@ -34,6 +34,7 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
   bool _loading = true;
   bool _updatingAddress = false;
   bool _cancelling = false;
+  bool _requestingReturn = false;
   bool _changed = false;
 
   @override
@@ -65,6 +66,9 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final order = _order;
+    final canEditOrder = order?.status.toUpperCase() == "PENDING";
+    final canRequestReturn = _canRequestReturn(order);
+    final hasBottomAction = canEditOrder || canRequestReturn;
 
     return WillPopScope(
       onWillPop: () async {
@@ -99,24 +103,42 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
                       onRefresh: _load,
                       child: ListView(
                         physics: const AlwaysScrollableScrollPhysics(),
-                        padding: const EdgeInsets.fromLTRB(12, 10, 12, 104),
+                        padding: EdgeInsets.fromLTRB(
+                          12,
+                          10,
+                          12,
+                          hasBottomAction ? 104 : 24,
+                        ),
                         children: [
                           _AddressCard(
                             order: order,
                             loading: _updatingAddress,
+                            canEdit: canEditOrder,
                             onTap: _openAddressPicker,
                           ),
                           const SizedBox(height: 10),
+                          _OrderTimelineCard(order: order),
+                          const SizedBox(height: 10),
+                          if (order.returnRequest != null) ...[
+                            _ReturnRequestCard(order: order),
+                            const SizedBox(height: 10),
+                          ],
                           _ProductSection(items: order.items),
                           const SizedBox(height: 10),
                           _SummaryCard(order: order),
                         ],
                       ),
                     ),
-                    _BottomCancelBar(
-                      loading: _cancelling,
-                      onCancel: _cancelOrderSafe,
-                    ),
+                    if (canEditOrder)
+                      _BottomCancelBar(
+                        loading: _cancelling,
+                        onCancel: _cancelOrderSafe,
+                      ),
+                    if (canRequestReturn)
+                      _BottomReturnBar(
+                        loading: _requestingReturn,
+                        onReturn: _createReturnRequest,
+                      ),
                   ],
                 ),
       ),
@@ -124,6 +146,17 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
   }
 
   /// Hiển thị trạng thái rỗng khi không tìm thấy đơn hàng.
+  bool _canRequestReturn(OrderDetail? order) {
+    if (order == null) return false;
+    if (order.status.toUpperCase() != "DELIVERED") return false;
+    if (order.returnRequest != null) return false;
+
+    final deliveredAt = order.deliveredAt;
+    if (deliveredAt == null) return false;
+
+    return !DateTime.now().isAfter(deliveredAt.add(const Duration(days: 7)));
+  }
+
   Widget _emptyState() {
     return const Center(
       child: Text(
@@ -247,6 +280,63 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
   }
 
   /// Hiển thị thông báo ngắn ở cuối màn hình.
+  Future<void> _createReturnRequest() async {
+    var reasonText = "";
+
+    final reason = await showDialog<String>(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: const Text("Trả hàng / hoàn tiền"),
+            content: TextField(
+              onChanged: (value) => reasonText = value,
+              autofocus: true,
+              minLines: 3,
+              maxLines: 5,
+              decoration: const InputDecoration(
+                hintText: "Nhập lý do trả hàng",
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Đóng"),
+              ),
+              FilledButton(
+                style: FilledButton.styleFrom(backgroundColor: shopee),
+                onPressed: () => Navigator.pop(context, reasonText.trim()),
+                child: const Text("Gửi yêu cầu"),
+              ),
+            ],
+          ),
+    );
+
+    if (!mounted) return;
+    if (reason == null) return;
+    if (reason.isEmpty) {
+      _showMessage("Vui lòng nhập lý do trả hàng");
+      return;
+    }
+
+    try {
+      setState(() => _requestingReturn = true);
+      await _orderService.createReturnRequest(
+        orderId: widget.orderId,
+        reason: reason,
+      );
+      await _load();
+      if (!mounted) return;
+      setState(() => _changed = true);
+      _showMessage("Đã gửi yêu cầu trả hàng/hoàn tiền");
+    } catch (e) {
+      if (!mounted) return;
+      _showMessage(e.toString().replaceFirst("Exception: ", ""));
+    } finally {
+      if (mounted) setState(() => _requestingReturn = false);
+    }
+  }
+
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -259,11 +349,13 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
 class _AddressCard extends StatelessWidget {
   final OrderDetail order;
   final bool loading;
+  final bool canEdit;
   final VoidCallback onTap;
 
   const _AddressCard({
     required this.order,
     required this.loading,
+    required this.canEdit,
     required this.onTap,
   });
 
@@ -274,7 +366,7 @@ class _AddressCard extends StatelessWidget {
       borderRadius: BorderRadius.circular(8),
       child: InkWell(
         borderRadius: BorderRadius.circular(8),
-        onTap: loading ? null : onTap,
+        onTap: loading || !canEdit ? null : onTap,
         child: Column(
           children: [
             Container(
@@ -341,12 +433,330 @@ class _AddressCard extends StatelessWidget {
                           color: _PendingOrderDetailScreenState.shopee,
                         ),
                       )
-                      : const Icon(Icons.chevron_right, color: Colors.grey),
+                      : canEdit
+                          ? const Icon(Icons.chevron_right, color: Colors.grey)
+                          : const SizedBox.shrink(),
                 ],
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _OrderTimelineCard extends StatelessWidget {
+  final OrderDetail order;
+
+  const _OrderTimelineCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final status = order.status.toUpperCase();
+    final cancelled = status == "CANCEL" || status == "FAILED";
+
+    final steps =
+        cancelled
+            ? [
+              _TimelineStep(
+                title: "Đã đặt hàng",
+                subtitle: "Đơn hàng đã được tạo",
+                time: order.createdAt,
+                active: order.createdAt != null,
+                icon: Icons.receipt_long_outlined,
+              ),
+              _TimelineStep(
+                title: "Đã hủy",
+                subtitle: "Đơn hàng đã bị hủy",
+                time: order.updatedAt,
+                active: true,
+                icon: Icons.cancel_outlined,
+              ),
+            ]
+            : [
+              _TimelineStep(
+                title: "Đã đặt hàng",
+                subtitle: "Đơn hàng đã được tạo",
+                time: order.createdAt,
+                active: order.createdAt != null,
+                icon: Icons.receipt_long_outlined,
+              ),
+              _TimelineStep(
+                title: "Đã thanh toán",
+                subtitle: "Shop đang chuẩn bị giao hàng",
+                time: order.updatedAt,
+                active: status == "PAID" || status == "DELIVERED",
+                icon: Icons.payments_outlined,
+              ),
+              _TimelineStep(
+                title: "Đã giao hàng",
+                subtitle: "Đơn hàng đã giao thành công",
+                time: order.deliveredAt,
+                active: status == "DELIVERED",
+                icon: Icons.local_shipping_outlined,
+              ),
+            ];
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 12, 12, 4),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(
+                Icons.timeline_rounded,
+                color: _PendingOrderDetailScreenState.shopee,
+                size: 20,
+              ),
+              const SizedBox(width: 8),
+              const Expanded(
+                child: Text(
+                  "Mốc thời gian đơn hàng",
+                  style: TextStyle(
+                    color: _PendingOrderDetailScreenState.textDark,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+              ),
+              _TimelineStatusBadge(status: status),
+            ],
+          ),
+          const SizedBox(height: 12),
+          ...List.generate(
+            steps.length,
+            (index) => _TimelineRow(
+              step: steps[index],
+              isLast: index == steps.length - 1,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+}
+
+class _TimelineStep {
+  final String title;
+  final String subtitle;
+  final DateTime? time;
+  final bool active;
+  final IconData icon;
+
+  const _TimelineStep({
+    required this.title,
+    required this.subtitle,
+    required this.time,
+    required this.active,
+    required this.icon,
+  });
+}
+
+class _TimelineRow extends StatelessWidget {
+  final _TimelineStep step;
+  final bool isLast;
+
+  const _TimelineRow({required this.step, required this.isLast});
+
+  @override
+  Widget build(BuildContext context) {
+    final color =
+        step.active
+            ? _PendingOrderDetailScreenState.shopee
+            : const Color(0xffcbd5e1);
+
+    return IntrinsicHeight(
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          SizedBox(
+            width: 30,
+            child: Column(
+              children: [
+                Container(
+                  width: 28,
+                  height: 28,
+                  decoration: BoxDecoration(
+                    color:
+                        step.active
+                            ? color.withOpacity(0.12)
+                            : const Color(0xfff1f5f9),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: color),
+                  ),
+                  child: Icon(step.icon, size: 16, color: color),
+                ),
+                if (!isLast)
+                  Expanded(
+                    child: Container(
+                      width: 2,
+                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      color:
+                          step.active
+                              ? color.withOpacity(0.35)
+                              : const Color(0xffe2e8f0),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Padding(
+              padding: EdgeInsets.only(bottom: isLast ? 8 : 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    step.title,
+                    style: TextStyle(
+                      color:
+                          step.active
+                              ? _PendingOrderDetailScreenState.textDark
+                              : _PendingOrderDetailScreenState.textMuted,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                  const SizedBox(height: 3),
+                  Text(
+                    step.subtitle,
+                    style: const TextStyle(
+                      color: _PendingOrderDetailScreenState.textMuted,
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            _formatDate(step.time),
+            style: TextStyle(
+              color:
+                  step.time == null
+                      ? _PendingOrderDetailScreenState.textMuted
+                      : _PendingOrderDetailScreenState.textDark,
+              fontSize: 12,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _TimelineStatusBadge extends StatelessWidget {
+  final String status;
+
+  const _TimelineStatusBadge({required this.status});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = switch (status) {
+      "DELIVERED" => const Color(0xff16a34a),
+      "PAID" => _PendingOrderDetailScreenState.shopee,
+      "CANCEL" || "FAILED" => const Color(0xffef4444),
+      _ => const Color(0xffffb020),
+    };
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.12),
+        borderRadius: BorderRadius.circular(999),
+      ),
+      child: Text(
+        _statusLabel(status),
+        style: TextStyle(
+          color: color,
+          fontSize: 11,
+          fontWeight: FontWeight.w900,
+        ),
+      ),
+    );
+  }
+}
+
+class _ReturnRequestCard extends StatelessWidget {
+  final OrderDetail order;
+
+  const _ReturnRequestCard({required this.order});
+
+  @override
+  Widget build(BuildContext context) {
+    final request = order.returnRequest!;
+    final status = request.status.toUpperCase();
+    final color = switch (status) {
+      "APPROVED" => const Color(0xff16a34a),
+      "REJECTED" => const Color(0xffef4444),
+      _ => _PendingOrderDetailScreenState.shopee,
+    };
+
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(Icons.assignment_return_outlined, color: color),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Expanded(
+                      child: Text(
+                        "Yêu cầu trả hàng/hoàn tiền",
+                        style: TextStyle(
+                          color: _PendingOrderDetailScreenState.textDark,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      _returnStatusLabel(status),
+                      style: TextStyle(
+                        color: color,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  request.reason.isEmpty ? "Không có lý do" : request.reason,
+                  style: const TextStyle(
+                    color: _PendingOrderDetailScreenState.textMuted,
+                    height: 1.3,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  "Gửi lúc ${_formatDate(request.createdAt)}",
+                  style: const TextStyle(
+                    color: _PendingOrderDetailScreenState.textMuted,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -665,6 +1075,67 @@ class _BottomCancelBar extends StatelessWidget {
 }
 
 /// Bottom sheet cho phép chọn địa chỉ đã lưu để cập nhật đơn hàng.
+class _BottomReturnBar extends StatelessWidget {
+  final bool loading;
+  final VoidCallback onReturn;
+
+  const _BottomReturnBar({required this.loading, required this.onReturn});
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      left: 0,
+      right: 0,
+      bottom: 0,
+      child: SafeArea(
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.08),
+                blurRadius: 14,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SizedBox(
+            width: double.infinity,
+            height: 48,
+            child: ElevatedButton.icon(
+              onPressed: loading ? null : onReturn,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: _PendingOrderDetailScreenState.shopee,
+                disabledBackgroundColor: const Color(0xffd1d5db),
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ),
+              icon:
+                  loading
+                      ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                      : const Icon(Icons.assignment_return_outlined),
+              label: const Text(
+                "Trả hàng / Hoàn tiền",
+                style: TextStyle(fontWeight: FontWeight.w900),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _AddressPickerSheet extends StatelessWidget {
   final List<UserAddress> addresses;
 
@@ -752,4 +1223,31 @@ String _formatPrice(num price) {
   return price
       .toStringAsFixed(0)
       .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
+}
+
+String _formatDate(DateTime? date) {
+  if (date == null) return "--";
+  String two(int value) => value.toString().padLeft(2, "0");
+  return "${two(date.day)}/${two(date.month)}/${date.year} "
+      "${two(date.hour)}:${two(date.minute)}";
+}
+
+String _statusLabel(String status) {
+  return switch (status.toUpperCase()) {
+    "PENDING" => "Chờ xác nhận",
+    "PAID" => "Chờ giao hàng",
+    "DELIVERED" => "Đã giao",
+    "CANCEL" => "Đã hủy",
+    "FAILED" => "Thất bại",
+    _ => status,
+  };
+}
+
+String _returnStatusLabel(String status) {
+  return switch (status.toUpperCase()) {
+    "APPROVED" => "Đã duyệt",
+    "REJECTED" => "Từ chối",
+    "PENDING" => "Chờ duyệt",
+    _ => status,
+  };
 }

@@ -61,7 +61,7 @@ namespace ShopBackend.Services
 
         public async Task<User?> GetCurrentUser(string? userIdClaim)
         {
-            if (!int.TryParse(userIdClaim, out var userId))
+            if (!long.TryParse(userIdClaim, out var userId))
             {
                 return null;
             }

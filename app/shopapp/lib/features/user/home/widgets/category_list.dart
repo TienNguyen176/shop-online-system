@@ -30,7 +30,7 @@ class _CategoryListState extends State<CategoryList> {
       builder: (context, provider, _) {
         if (provider.isLoading) {
           return const SizedBox(
-            height: 84,
+            height: 104,
             child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
           );
         }
@@ -42,12 +42,12 @@ class _CategoryListState extends State<CategoryList> {
         }
 
         return SizedBox(
-          height: 84,
+          height: 104,
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 22),
             scrollDirection: Axis.horizontal,
             itemCount: categories.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 24),
+            separatorBuilder: (_, __) => const SizedBox(width: 18),
             itemBuilder: (context, index) {
               final cat = categories[index];
               final isSelected = selectedCategoryId == cat.id;
@@ -58,7 +58,7 @@ class _CategoryListState extends State<CategoryList> {
                   widget.onSelected(cat.id);
                 },
                 child: SizedBox(
-                  width: 58,
+                  width: 72,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -83,19 +83,23 @@ class _CategoryListState extends State<CategoryList> {
                         ),
                       ),
                       const SizedBox(height: 8),
-                      Text(
-                        cat.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          color:
-                              isSelected
-                                  ? const Color(0xff2563eb)
-                                  : const Color(0xff64748b),
-                          fontSize: 11,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                      SizedBox(
+                        height: 30,
+                        child: Text(
+                          cat.name,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color:
+                                isSelected
+                                    ? const Color(0xff2563eb)
+                                    : const Color(0xff64748b),
+                            fontSize: 11,
+                            height: 1.15,
+                            fontWeight:
+                                isSelected ? FontWeight.w700 : FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],

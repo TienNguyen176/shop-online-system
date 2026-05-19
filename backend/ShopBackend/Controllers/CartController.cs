@@ -76,7 +76,7 @@ namespace ShopBackend.Controllers
 
         // GET CART
         [HttpGet("{userId}")]
-        public async Task<IActionResult> GetCart(int userId)
+        public async Task<IActionResult> GetCart(long userId)
         {
             var cart = await _db.Carts.FirstOrDefaultAsync(c => c.UserId == userId);
             if (cart == null) return Ok(new List<object>());

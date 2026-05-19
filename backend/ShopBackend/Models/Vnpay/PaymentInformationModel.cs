@@ -7,7 +7,7 @@ namespace ShopBackend.Models.Vnpay
 
         public string OrderType { get; set; }
 
-        public int UserId { get; set; }
+        public long UserId { get; set; }
 
         public double Amount { get; set; }
 
