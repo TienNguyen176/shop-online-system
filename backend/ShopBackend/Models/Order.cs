@@ -10,7 +10,7 @@ namespace ShopBackend.Models
         public required string OrderCode { get; set; }
 
         [Column("user_id")]
-        public long? UserId { get; set; }
+        public long UserId { get; set; }
 
         public string Status { get; set; } = "PENDING";
 

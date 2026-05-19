@@ -15,14 +15,18 @@ import 'repositories/impl/product_repository.dart';
 import 'repositories/impl/category_repository.dart';
 import 'repositories/impl/auth_repository.dart';
 import 'repositories/impl/cart_repository.dart';
+import 'repositories/impl/order_repository.dart';
+import 'repositories/impl/statistic_repository.dart';
 
 import 'repositories/interfaces/i_product_repository.dart';
 import 'repositories/interfaces/i_category_repository.dart';
 
 import 'features/user/home/providers/home_provider.dart';
 import 'features/admin/category/providers/category_provider.dart';
+import 'features/admin/dashboard/providers/dashboard_provider.dart';
 import 'features/admin/product/providers/product_admin_provider.dart';
 import 'features/user/cart/providers/cart_provider.dart';
+import 'features/user/order_status/providers/order_status_provider.dart';
 
 import 'services/auth/social_auth_service.dart';
 
@@ -40,7 +44,9 @@ Future<void> main() async {
   final adminProductRepo = ProductAdminRepository();
 
   final cartRepo = CartRepository();
+  final orderRepo = OrderRepository();
   final paymentRepo = PaymentRepository();
+  final statisticRepo = StatisticRepository();
 
   runApp(
     MultiProvider(
@@ -61,11 +67,17 @@ Future<void> main() async {
         /// CART SCREEN
         ChangeNotifierProvider(create: (_) => CartProvider(cartRepo)),
 
+        /// ORDER STATUS SCREEN
+        ChangeNotifierProvider(create: (_) => OrderStatusProvider(orderRepo)),
+
         /// PAYMENT SCREEN
         ChangeNotifierProvider(create: (_) => PaymentProvider(paymentRepo)),
 
         /// NOTIFICATION SCREEN
         ChangeNotifierProvider(create: (_) => NotificationProvider()),
+
+        /// ADMIN DASHBOARD
+        ChangeNotifierProvider(create: (_) => DashboardProvider(statisticRepo)),
 
         /// ADMIN CATEGORY
         ChangeNotifierProvider(
