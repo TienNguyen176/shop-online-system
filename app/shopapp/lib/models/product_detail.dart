@@ -8,6 +8,7 @@ class ProductDetail {
   final List<String> images;
   final double minPrice;
   final double rating;
+  final int soldCount;
   final List<AttributeModel> attributes;
   final List<ProductVariant> variants;
   final Map<String, String> imagesByColor;
@@ -19,6 +20,7 @@ class ProductDetail {
     required this.images,
     required this.minPrice,
     required this.rating,
+    required this.soldCount,
     required this.attributes,
     required this.variants,
     required this.imagesByColor,
@@ -26,19 +28,22 @@ class ProductDetail {
 
   factory ProductDetail.fromJson(Map<String, dynamic> json) {
     return ProductDetail(
-      id: json['id'],
-      name: json['name'],
-      description: json['description'],
-      images: List<String>.from(json['images']),
-      minPrice: (json['minPrice'] as num).toDouble(),
-      rating: (json['rating'] as num).toDouble(),
-      attributes: (json['attributes'] as List)
+      id: json['id'] ?? json['Id'],
+      name: json['name'] ?? json['Name'] ?? "",
+      description: json['description'] ?? json['Description'] ?? "",
+      images: List<String>.from(json['images'] ?? json['Images'] ?? []),
+      minPrice: ((json['minPrice'] ?? json['MinPrice']) as num).toDouble(),
+      rating: ((json['rating'] ?? json['Rating']) as num).toDouble(),
+      soldCount: json['soldCount'] ?? json['sold_count'] ?? json['SoldCount'] ?? 0,
+      attributes: ((json['attributes'] ?? json['Attributes']) as List)
           .map((e) => AttributeModel.fromJson(e))
           .toList(),
-      variants: (json['variants'] as List)
+      variants: ((json['variants'] ?? json['Variants']) as List)
           .map((e) => ProductVariant.fromJson(e))
           .toList(),
-      imagesByColor: Map<String, String>.from(json['imagesByColor']),
+      imagesByColor: Map<String, String>.from(
+        json['imagesByColor'] ?? json['ImagesByColor'] ?? {},
+      ),
     );
   }
 }

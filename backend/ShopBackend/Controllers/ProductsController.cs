@@ -195,6 +195,7 @@ namespace ShopBackend.Controllers
                     p.Name,
                     p.Description,
                     p.RatingAvg,
+                    p.SoldCount,
 
                     Images = _db.ProductImages
                         .Where(i => i.ProductId == p.Id && i.VariantId == null)
@@ -312,6 +313,7 @@ namespace ShopBackend.Controllers
                 Images = product.Images,
                 MinPrice = minPrice,
                 Rating = (double)product.RatingAvg,
+                SoldCount = product.SoldCount,
                 Attributes = attributes,
                 Variants = variants,
                 ImagesByColor = imagesByColor

@@ -47,7 +47,12 @@ class CartHelper {
     }
 
     if (variant == null) {
-      _showSnack(context, "Sản phẩm chưa có biến thể");
+      _showSnack(context, "Sáº£n pháº©m chÆ°a cÃ³ biáº¿n thá»ƒ");
+      return;
+    }
+
+    if (variant.stockQuantity <= 0) {
+      _showSnack(context, "San pham da het hang");
       return;
     }
 
@@ -60,7 +65,7 @@ class CartHelper {
 
     if (!context.mounted) return;
 
-    _showSnack(context, "Đã thêm vào giỏ hàng");
+    _showSnack(context, "ÄÃ£ thÃªm vÃ o giá» hÃ ng");
   }
 
   /// ================= COMMON =================
@@ -87,21 +92,21 @@ class CartHelper {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text("Vui lòng đăng nhập để tiếp tục"),
+                    const Text("Vui lÃ²ng Ä‘Äƒng nháº­p Ä‘á»ƒ tiáº¿p tá»¥c"),
                     const SizedBox(height: 12),
                     Row(
                       children: [
                         Expanded(
                           child: TextButton(
                             onPressed: () => Navigator.pop(ctx, false),
-                            child: const Text("Huỷ"),
+                            child: const Text("Huá»·"),
                           ),
                         ),
                         Expanded(
                           child: TextButton(
                             onPressed: () => Navigator.pop(ctx, true),
                             child: const Text(
-                              "Đăng nhập",
+                              "ÄÄƒng nháº­p",
                               style: TextStyle(color: Colors.red),
                             ),
                           ),

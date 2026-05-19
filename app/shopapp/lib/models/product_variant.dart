@@ -18,15 +18,22 @@ class ProductVariant {
 
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
     return ProductVariant(
-      id: json["variantId"] ?? 0,
-      sku: json["sku"],
-      price: (json["price"] ?? 0).toDouble(),
-      stockQuantity: json["stock_quantity"] ?? 0,
+      id: json["variantId"] ?? json["VariantId"] ?? 0,
+      sku: json["sku"] ?? json["Sku"],
+      price: (json["price"] ?? json["Price"] ?? 0).toDouble(),
+      stockQuantity:
+          json["stock_quantity"] ??
+          json["stockQuantity"] ??
+          json["stock"] ??
+          json["Stock"] ??
+          0,
       createdAt:
           json["created_at"] != null
               ? DateTime.parse(json["created_at"])
               : null,
-      attributes: Map<String, String>.from(json['attributes']),
+      attributes: Map<String, String>.from(
+        json['attributes'] ?? json['Attributes'] ?? {},
+      ),
     );
   }
 }

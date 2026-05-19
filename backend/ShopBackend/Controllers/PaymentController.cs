@@ -164,11 +164,30 @@ namespace ShopBackend.Controllers
                 payment.VnpResponseCode = response.VnPayResponseCode;
                 payment.PaidAt = DateTime.Now;
 
-                // UPDATE ORDER
+                // UPDATE ORDER + PRODUCT SOLD/STOCK
                 var order = _db.Orders.FirstOrDefault(x => x.Id == orderId);
                 if (order != null)
                 {
                     order.Status = "PAID";
+
+                    var items = _db.OrderItems
+                        .Where(x => x.OrderId == order.Id)
+                        .ToList();
+
+                    foreach (var item in items)
+                    {
+                        var product = _db.Products.FirstOrDefault(x => x.Id == item.ProductId);
+                        if (product != null)
+                        {
+                            product.SoldCount += item.Quantity;
+                        }
+
+                        var variant = _db.ProductVariants.FirstOrDefault(x => x.Id == item.VariantId);
+                        if (variant != null)
+                        {
+                            variant.StockQuantity = Math.Max(0, variant.StockQuantity - item.Quantity);
+                        }
+                    }
                 }
 
                 _db.SaveChanges();

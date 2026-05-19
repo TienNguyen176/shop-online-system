@@ -12,6 +12,8 @@
 
         public double Rating { get; set; }
 
+        public int SoldCount { get; set; }
+
         public List<string> Images { get; set; } = new();
 
         public List<AttributeDto> Attributes { get; set; } = new();
