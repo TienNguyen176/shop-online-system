@@ -1,4 +1,4 @@
-import 'dart:math';
+﻿import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -66,7 +66,7 @@ class _DashboardScreenState extends State<DashboardScreen>
             backgroundColor: Color(0xFF0D1117),
             body: Center(
               child: Text(
-                "Chua co du lieu",
+                "Chưa có dữ liệu",
                 style: TextStyle(color: Color(0xFF7D8590)),
               ),
             ),
@@ -130,7 +130,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                   children: [
                                     const Expanded(
                                       child: Text(
-                                        "Phan bo danh muc",
+                                        "Phân bố danh mục",
                                         style: TextStyle(
                                           color: Color(0xFFF0F6FC),
                                           fontSize: 14,
@@ -190,7 +190,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                                                     ),
                                                   ),
                                                   const Text(
-                                                    "Tong",
+                                                    "Tổng",
                                                     style: TextStyle(
                                                       color: Color(0xFF7D8590),
                                                       fontSize: 11,
@@ -229,7 +229,7 @@ class _DashboardScreenState extends State<DashboardScreen>
                           const Padding(
                             padding: EdgeInsets.only(bottom: 10),
                             child: Text(
-                              "Chi tiet",
+                              "Chi tiết",
                               style: TextStyle(
                                 color: Color(0xFFF0F6FC),
                                 fontSize: 14,

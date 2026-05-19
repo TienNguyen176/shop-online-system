@@ -33,13 +33,13 @@ class _AdminLayoutState extends State<AdminLayout> {
 
     pages.addAll([
       _AdminPage(
-        "Dashboard",
+        "Tổng quan",
         Icons.dashboard,
         DashboardScreen(),
       ),
 
       _AdminPage(
-        "Products",
+        "Sản phẩm",
         Icons.shopping_bag,
         ProductListScreen(),
       ),
@@ -76,7 +76,7 @@ class _AdminLayoutState extends State<AdminLayout> {
         centerTitle: false,
         actions: [
           IconButton(
-            tooltip: "Dang xuat",
+            tooltip: "Đăng xuất",
             onPressed: logout,
             icon: const Icon(Icons.logout_rounded),
           ),
@@ -105,7 +105,7 @@ class _AdminLayoutState extends State<AdminLayout> {
               const SizedBox(height: 10),
 
               const Text(
-                "Admin Panel",
+                "Quản trị hệ thống",
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 18,
@@ -167,7 +167,7 @@ class _AdminLayoutState extends State<AdminLayout> {
                     color: Color(0xfffca5a5),
                   ),
                   title: const Text(
-                    "Dang xuat",
+                    "Đăng xuất",
                     style: TextStyle(
                       color: Color(0xfffca5a5),
                       fontWeight: FontWeight.bold,

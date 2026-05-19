@@ -128,7 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               onFilterTap: _showFilterDialog,
                             ),
                             const SizedBox(height: 22),
-                            const _SectionHeader(title: "Categories"),
+                            const _SectionHeader(title: "Danh mục"),
                             const SizedBox(height: 8),
                             CategoryList(
                               onSelected: (categoryId) {
@@ -141,9 +141,9 @@ class _HomeScreenState extends State<HomeScreen> {
                             BannerSlider(products: provider.bannerProducts),
                             const SizedBox(height: 18),
                             _SectionHeader(
-                              title: "Trending Now",
+                              title: "Đang thịnh hành",
                               onSeeAll: () => _openProducts(
-                                const ProductBrowseArgs(title: "Products"),
+                                const ProductBrowseArgs(title: "Sản phẩm"),
                               ),
                             ),
                             const SizedBox(height: 8),
@@ -155,7 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           hasScrollBody: false,
                           child: Center(
                             child: Text(
-                              "Khong co san pham",
+                              "Không có sản phẩm",
                               style: TextStyle(color: Color(0xff6b7280)),
                             ),
                           ),
@@ -216,7 +216,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _openProducts(
       ProductBrowseArgs(
         searchKeyword: trimmed.isEmpty ? null : trimmed,
-        title: trimmed.isEmpty ? "Products" : "Search: $trimmed",
+        title: trimmed.isEmpty ? "Sản phẩm" : "Tìm kiếm: $trimmed",
       ),
     );
   }
@@ -270,7 +270,7 @@ class _SectionHeader extends StatelessWidget {
               ),
               onPressed: onSeeAll,
               child: const Text(
-                "See All",
+                "Xem tất cả",
                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700),
               ),
             ),

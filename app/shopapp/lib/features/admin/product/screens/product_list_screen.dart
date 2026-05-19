@@ -78,7 +78,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                         setState(() => keyword = value);
                       },
                       decoration: InputDecoration(
-                        hintText: "Search product...",
+                        hintText: "Tìm kiếm sản phẩm...",
                         prefixIcon: const Icon(Icons.search),
                         filled: true,
                         fillColor: Colors.grey.shade100,
@@ -110,7 +110,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                       }
                     },
                     icon: const Icon(Icons.add),
-                    label: const Text("Add"),
+                    label: const Text("Thêm"),
                   ),
                 ],
               ),
@@ -123,7 +123,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                     provider.loading && provider.products.isEmpty
                         ? const Center(child: CircularProgressIndicator())
                         : data.isEmpty
-                        ? const Center(child: Text("No products found"))
+                        ? const Center(child: Text("Không tìm thấy sản phẩm"))
                         : ListView.builder(
                           controller: scrollController,
                           itemCount: data.length + (provider.hasMore ? 1 : 0),
@@ -173,9 +173,9 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                   context: context,
                                   builder:
                                       (_) => AlertDialog(
-                                        title: const Text("Confirm"),
+                                        title: const Text("Xác nhận"),
                                         content: const Text(
-                                          "Delete this product?",
+                                          "Xóa sản phẩm này?",
                                         ),
                                         actions: [
                                           TextButton(
@@ -184,7 +184,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                   context,
                                                   false,
                                                 ),
-                                            child: const Text("Cancel"),
+                                            child: const Text("Hủy"),
                                           ),
                                           TextButton(
                                             onPressed:
@@ -192,7 +192,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
                                                   context,
                                                   true,
                                                 ),
-                                            child: const Text("Delete"),
+                                            child: const Text("Xóa"),
                                           ),
                                         ],
                                       ),

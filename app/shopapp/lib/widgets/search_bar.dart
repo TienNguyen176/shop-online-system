@@ -31,7 +31,7 @@ class SearchBar extends StatelessWidget {
                 textAlignVertical: TextAlignVertical.center,
                 style: const TextStyle(color: Color(0xff1f2937), fontSize: 14),
                 decoration: InputDecoration(
-                  hintText: "Tim kiem san pham...",
+                  hintText: "Tìm kiếm sản phẩm...",
                   hintStyle: TextStyle(
                     color: const Color(0xff64748b).withOpacity(0.55),
                     fontSize: 14,

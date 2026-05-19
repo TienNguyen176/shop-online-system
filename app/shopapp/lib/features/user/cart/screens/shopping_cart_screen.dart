@@ -422,7 +422,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
       amount: total,
       name: user['name'] ?? "User",
       orderType: "billpayment",
-      orderDescription: "Thanh toan don hang",
+      orderDescription: "Thanh toán đơn hàng",
       items: selectedItems.map((e) => mapCartItem(e)).toList(),
       shippingName: user['name'] ?? "",
       shippingPhone: "",

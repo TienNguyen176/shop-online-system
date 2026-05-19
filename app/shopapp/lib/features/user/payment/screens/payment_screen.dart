@@ -7,6 +7,7 @@ import '../../../../models/checkout_request.dart';
 import '../../../../models/order_item.dart';
 import '../../profile/models/user_address.dart';
 import '../../profile/services/address_service.dart';
+import '../../profile/widgets/address_form_sheet.dart';
 import '../providers/payment_provider.dart';
 import 'payment_webview_screen.dart';
 
@@ -71,7 +72,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         await _loadShippingFee(selected);
       }
     } catch (e) {
-      _showMessage("Khong the tai dia chi giao hang");
+      _showMessage("Không thể tải địa chỉ giao hàng");
     } finally {
       if (mounted) setState(() => _loadingAddresses = false);
     }
@@ -104,7 +105,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     } catch (e) {
       if (!mounted) return;
       setState(() => _shippingFee = 0);
-      _showMessage("Khong the tinh phi van chuyen");
+      _showMessage("Không thể tính phí vận chuyển");
     } finally {
       if (mounted) setState(() => _loadingShippingFee = false);
     }
@@ -122,7 +123,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         title: const Text(
-          "Thanh toan",
+          "Thanh toán",
           style: TextStyle(fontWeight: FontWeight.w800),
         ),
       ),
@@ -173,7 +174,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     if (_loadingAddresses) return;
 
     if (_addresses.isEmpty) {
-      _showMessage("Vui long them dia chi trong Ho so truoc");
+      await _openAddressForm();
       return;
     }
 
@@ -188,6 +189,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
           (_) => _AddressPickerSheet(
             addresses: _addresses,
             selectedAddress: _selectedAddress,
+            onAddAddress: _openAddressForm,
           ),
     );
 
@@ -197,10 +199,40 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  Future<UserAddress?> _openAddressForm() async {
+    final created = await showModalBottomSheet<UserAddress>(
+      context: context,
+      isScrollControlled: true,
+      useSafeArea: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(14)),
+      ),
+      builder:
+          (_) => AddressFormSheet(
+            service: _addressService,
+            initialDefault: _addresses.isEmpty,
+            showDefaultSwitch: false,
+            title: "Thêm địa chỉ nhận hàng",
+            submitLabel: "Lưu và dùng địa chỉ này",
+            accentColor: shopee,
+          ),
+    );
+
+    if (created == null) return null;
+
+    setState(() {
+      _addresses.add(created);
+      _selectedAddress = created;
+    });
+    await _loadShippingFee(created);
+    return created;
+  }
+
   Future<void> _checkout() async {
     final address = _selectedAddress;
     if (address == null) {
-      _showMessage("Vui long chon dia chi giao hang");
+      _showMessage("Vui lòng chọn địa chỉ giao hàng");
       return;
     }
 
@@ -209,7 +241,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
       amount: _grandTotal,
       name: address.receiverName,
       orderType: "billpayment",
-      orderDescription: "Thanh toan don hang",
+      orderDescription: "Thanh toán đơn hàng",
       items: widget.request.items,
       shippingName: address.receiverName,
       shippingPhone: address.phone,
@@ -301,7 +333,7 @@ class _AddressCard extends StatelessWidget {
                             child:
                                 selectedAddress == null
                                     ? const Text(
-                                      "Chon dia chi giao hang",
+                                      "Chọn địa chỉ giao hàng",
                                       style: TextStyle(
                                         color: _PaymentScreenState.textDark,
                                         fontSize: 15,
@@ -313,7 +345,7 @@ class _AddressCard extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         const Text(
-                                          "Dia chi nhan hang",
+                                          "Địa chỉ nhận hàng",
                                           style: TextStyle(
                                             color: _PaymentScreenState.shopee,
                                             fontWeight: FontWeight.w800,
@@ -433,7 +465,7 @@ class _ProductTile extends StatelessWidget {
                 Row(
                   children: [
                     Text(
-                      "${_formatPrice(item.price)}d",
+                      "${_formatPrice(item.price)}đ",
                       style: const TextStyle(
                         color: _PaymentScreenState.shopee,
                         fontWeight: FontWeight.w900,
@@ -535,7 +567,7 @@ class _PaymentMethodCard extends StatelessWidget {
           const ListTile(
             leading: Icon(Icons.payments_outlined),
             title: Text(
-              "Phuong thuc thanh toan",
+              "Phương thức thanh toán",
               style: TextStyle(fontWeight: FontWeight.w800),
             ),
           ),
@@ -544,7 +576,7 @@ class _PaymentMethodCard extends StatelessWidget {
             groupValue: method,
             assetPath: "assets/vnpay_logo.jpg",
             title: "VNPay",
-            subtitle: "Thanh toan qua cong VNPay",
+            subtitle: "Thanh toán qua cổng VNPay",
             onChanged: onChanged,
           ),
           _PaymentOptionTile(
@@ -552,7 +584,7 @@ class _PaymentMethodCard extends StatelessWidget {
             groupValue: method,
             assetPath: "assets/momo_logo.jpg",
             title: "MoMo",
-            subtitle: "Sap ho tro",
+            subtitle: "Sắp hỗ trợ",
             onChanged: null,
           ),
         ],
@@ -689,21 +721,21 @@ class _SummaryCard extends StatelessWidget {
       child: Column(
         children: [
           _SummaryRow(
-            label: "Tong tien hang ($totalQuantity san pham)",
-            value: "${_formatPrice(subtotal)}d",
+            label: "Tổng tiền hàng ($totalQuantity sản phẩm)",
+            value: "${_formatPrice(subtotal)}đ",
           ),
           const SizedBox(height: 8),
           _SummaryRow(
-            label: "Phi van chuyen",
+            label: "Phí vận chuyển",
             value:
                 loadingShippingFee
-                    ? "Dang tinh..."
-                    : "${_formatPrice(shippingFee)}d",
+                    ? "Đang tính..."
+                    : "${_formatPrice(shippingFee)}đ",
           ),
           const Divider(height: 24, color: _PaymentScreenState.border),
           _SummaryRow(
-            label: "Tong thanh toan",
-            value: "${_formatPrice(subtotal + shippingFee)}d",
+            label: "Tổng thanh toán",
+            value: "${_formatPrice(subtotal + shippingFee)}đ",
             strong: true,
           ),
         ],
@@ -799,14 +831,14 @@ class _BottomCheckoutBar extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     const Text(
-                      "Tong thanh toan",
+                      "Tổng thanh toán",
                       style: TextStyle(
                         color: _PaymentScreenState.textMuted,
                         fontSize: 12,
                       ),
                     ),
                     Text(
-                      "${_formatPrice(total)}d",
+                      "${_formatPrice(total)}đ",
                       style: const TextStyle(
                         color: _PaymentScreenState.shopee,
                         fontSize: 20,
@@ -841,7 +873,7 @@ class _BottomCheckoutBar extends StatelessWidget {
                             ),
                           )
                           : const Text(
-                            "Dat hang",
+                            "Đặt hàng",
                             style: TextStyle(fontWeight: FontWeight.w900),
                           ),
                 ),
@@ -863,10 +895,12 @@ class _BottomCheckoutBar extends StatelessWidget {
 class _AddressPickerSheet extends StatelessWidget {
   final List<UserAddress> addresses;
   final UserAddress? selectedAddress;
+  final Future<UserAddress?> Function() onAddAddress;
 
   const _AddressPickerSheet({
     required this.addresses,
     required this.selectedAddress,
+    required this.onAddAddress,
   });
 
   @override
@@ -880,7 +914,7 @@ class _AddressPickerSheet extends StatelessWidget {
             children: [
               const Expanded(
                 child: Text(
-                  "Chon dia chi",
+                  "Chọn địa chỉ",
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900),
                 ),
               ),
@@ -890,6 +924,32 @@ class _AddressPickerSheet extends StatelessWidget {
               ),
             ],
           ),
+          SizedBox(
+            width: double.infinity,
+            height: 44,
+            child: OutlinedButton.icon(
+              onPressed: () async {
+                final navigator = Navigator.of(context);
+                final created = await onAddAddress();
+                if (created != null) {
+                  navigator.pop(created);
+                }
+              },
+              icon: const Icon(Icons.add_location_alt_outlined),
+              label: const Text(
+                "Thêm địa chỉ mới",
+                style: TextStyle(fontWeight: FontWeight.w800),
+              ),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: _PaymentScreenState.shopee,
+                side: const BorderSide(color: _PaymentScreenState.shopee),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 10),
           Flexible(
             child: ListView.separated(
               shrinkWrap: true,
@@ -933,7 +993,7 @@ class _AddressPickerSheet extends StatelessWidget {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: const Text(
-                              "Mac dinh",
+                              "Mặc định",
                               style: TextStyle(
                                 color: _PaymentScreenState.shopee,
                                 fontSize: 12,

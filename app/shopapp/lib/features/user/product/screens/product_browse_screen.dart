@@ -148,7 +148,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
     _applyArgs(
       _args.copyWith(
         searchKeyword: trimmed.isEmpty ? null : trimmed,
-        title: trimmed.isEmpty ? "Products" : "Search: $trimmed",
+        title: trimmed.isEmpty ? "Sản phẩm" : "Tìm kiếm: $trimmed",
         clearSearchKeyword: trimmed.isEmpty,
       ),
     );
@@ -179,7 +179,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
         backgroundColor: const Color(0xff2563eb),
         foregroundColor: Colors.white,
         elevation: 0,
-        title: Text(_args.title ?? "Products"),
+        title: Text(_args.title ?? "Sản phẩm"),
         centerTitle: true,
       ),
       bottomNavigationBar: const AppBottomNav(
@@ -219,7 +219,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
                     hasScrollBody: false,
                     child: Center(
                       child: Text(
-                        "Khong co san pham",
+                        "Không có sản phẩm",
                         style: TextStyle(color: Color(0xff64748b)),
                       ),
                     ),

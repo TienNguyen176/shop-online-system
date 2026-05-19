@@ -138,7 +138,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       "variants": [],
     };
 
-    /// chỉ gửi file local (không gửi URL)
+    /// Chỉ gửi file local, không gửi URL.
     final localImages = images.where((e) => !_isNetwork(e)).toList();
 
     await provider.createProduct(dto: dto, imagePaths: localImages);
@@ -175,7 +175,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     return Scaffold(
       backgroundColor: const Color(0xFFF3F4F6),
       appBar: AppBar(
-        title: Text(widget.product == null ? "Add Product" : "Edit Product"),
+        title: Text(widget.product == null ? "Thêm sản phẩm" : "Sửa sản phẩm"),
         backgroundColor: primary,
       ),
       body: SingleChildScrollView(
@@ -200,7 +200,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   ),
                 ),
                 onPressed: _submit,
-                child: const Text("Save Product"),
+                child: const Text("Lưu sản phẩm"),
               ),
             ),
           ],
@@ -220,7 +220,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text("Images"),
+          const Text("Hình ảnh"),
           const SizedBox(height: 10),
 
           SizedBox(
@@ -265,14 +265,14 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
       ),
       child: Column(
         children: [
-          TextField(controller: nameCtrl, decoration: _input("Product Name")),
+          TextField(controller: nameCtrl, decoration: _input("Tên sản phẩm")),
           const SizedBox(height: 10),
-          TextField(controller: brandCtrl, decoration: _input("Brand")),
+          TextField(controller: brandCtrl, decoration: _input("Thương hiệu")),
           const SizedBox(height: 10),
           TextField(
             controller: descCtrl,
             maxLines: 3,
-            decoration: _input("Description"),
+            decoration: _input("Mô tả"),
           ),
         ],
       ),
@@ -291,7 +291,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            "Attributes",
+            "Thuộc tính",
             style: TextStyle(fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 10),
@@ -304,7 +304,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   Expanded(
                     child: DropdownButtonFormField<int>(
                       value: row.attributeId,
-                      decoration: _input("Attribute"),
+                      decoration: _input("Thuộc tính"),
                       items:
                           attrProvider.attributes.map((attr) {
                             return DropdownMenuItem<int>(
@@ -333,7 +333,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       value: row.value,
-                      decoration: _input("Value"),
+                      decoration: _input("Giá trị"),
                       items:
                           (attrProvider.attributes
                                   .firstWhere(
@@ -379,7 +379,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
               });
             },
             icon: const Icon(Icons.add),
-            label: const Text("Add Attribute"),
+            label: const Text("Thêm thuộc tính"),
           ),
         ],
       ),

@@ -88,14 +88,14 @@ class AdminProductCard extends StatelessWidget {
                   const SizedBox(height: 6),
 
                   Text(
-                    "Thể loại: ${product.categoryName ?? 'No category'}",
+                    "Thể loại: ${product.categoryName ?? 'Chưa có thể loại'}",
                     style: TextStyle(color: Colors.grey.shade700),
                   ),
 
                   const SizedBox(height: 6),
 
                   Text(
-                    "Thương hiệu: ${product.brand ?? 'No brand'}",
+                    "Thương hiệu: ${product.brand ?? 'Chưa có thương hiệu'}",
                     style: TextStyle(color: Colors.grey.shade700),
                   ),
 
@@ -126,8 +126,8 @@ class AdminProductCard extends StatelessWidget {
               },
               itemBuilder:
                   (context) => const [
-                    PopupMenuItem(value: "edit", child: Text("Edit")),
-                    PopupMenuItem(value: "delete", child: Text("Delete")),
+                    PopupMenuItem(value: "edit", child: Text("Sửa")),
+                    PopupMenuItem(value: "delete", child: Text("Xóa")),
                   ],
             ),
           ],

@@ -129,7 +129,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                   const Expanded(
                     child: Center(
                       child: Text(
-                        "Filter",
+                        "Bộ lọc",
                         style: TextStyle(
                           color: Color(0xff111827),
                           fontWeight: FontWeight.w800,
@@ -140,7 +140,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                   TextButton(
                     onPressed: _reset,
                     child: const Text(
-                      "Reset",
+                      "Đặt lại",
                       style: TextStyle(fontWeight: FontWeight.w800),
                     ),
                   ),
@@ -154,7 +154,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                 padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
                 children: [
                   _FilterSection(
-                    title: "Khoang gia",
+                    title: "Khoảng giá",
                     child: Column(
                       children: [
                         RangeSlider(
@@ -172,14 +172,14 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                           children: [
                             Expanded(
                               child: _priceBox(
-                                label: "Gia thap nhat",
+                                label: "Giá thấp nhất",
                                 value: _formatVnd(_priceRange.start),
                               ),
                             ),
                             const SizedBox(width: 12),
                             Expanded(
                               child: _priceBox(
-                                label: "Gia cao nhat",
+                                label: "Giá cao nhất",
                                 value: _formatVnd(_priceRange.end),
                               ),
                             ),
@@ -189,7 +189,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                     ),
                   ),
                   _FilterSection(
-                    title: "Danh gia",
+                    title: "Đánh giá",
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: List.generate(5, (index) {
@@ -218,11 +218,11 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                     ),
                   ),
                   _FilterSection(
-                    title: "Danh muc",
+                    title: "Danh mục",
                     child: Column(
                       children: [
                         _filterCheckRow(
-                          label: "Tat ca",
+                          label: "Tất cả",
                           selected: _selectedCategoryIds.isEmpty,
                           onTap: () {
                             setState(() {
@@ -260,7 +260,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                     builder: (context, snapshot) {
                       final brands = snapshot.data ?? [];
                       return _FilterSection(
-                        title: "Brand",
+                        title: "Thương hiệu",
                         child:
                             snapshot.connectionState == ConnectionState.waiting
                                 ? const Padding(
@@ -274,7 +274,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                                 : Column(
                                   children: [
                                     _filterCheckRow(
-                                      label: "Tat ca",
+                                      label: "Tất cả",
                                       selected: _selectedBrands.isEmpty,
                                       onTap: () {
                                         setState(_selectedBrands.clear);
@@ -325,7 +325,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
                   ),
                   onPressed: _submit,
                   child: const Text(
-                    "Loc",
+                    "Lọc",
                     style: TextStyle(fontWeight: FontWeight.w800),
                   ),
                 ),
@@ -346,7 +346,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
       if (selectedBrands.isNotEmpty) selectedBrands.join(", "),
     ];
 
-    return parts.isEmpty ? "Products" : parts.join(" - ");
+    return parts.isEmpty ? "Sản phẩm" : parts.join(" - ");
   }
 
   Widget _priceBox({required String label, required String value}) {

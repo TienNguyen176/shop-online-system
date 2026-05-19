@@ -1,12 +1,12 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../routes/app_routes.dart';
 import '../../auth/providers/auth_provider.dart';
 import '../../cart/providers/cart_provider.dart';
-import '../models/location_option.dart';
 import '../models/user_address.dart';
 import '../services/address_service.dart';
+import '../widgets/address_form_sheet.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -52,7 +52,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ..addAll(data);
       });
     } catch (e) {
-      _showMessage("Khong the tai dia chi");
+      _showMessage("Không thể tải địa chỉ");
     } finally {
       if (mounted) setState(() => _loadingAddresses = false);
     }
@@ -65,12 +65,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     if (user == null) {
       return Scaffold(
-        appBar: AppBar(title: const Text("Ho so")),
+        appBar: AppBar(title: const Text("Hồ sơ")),
         body: Center(
           child: ElevatedButton(
             onPressed:
                 () => Navigator.pushReplacementNamed(context, AppRoutes.login),
-            child: const Text("Dang nhap"),
+            child: const Text("Đăng nhập"),
           ),
         ),
       );
@@ -82,7 +82,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final role = _text(user, ["role"]);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Ho so")),
+      appBar: AppBar(title: const Text("Hồ sơ")),
       body: RefreshIndicator(
         onRefresh: _loadAddresses,
         child: ListView(
@@ -127,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: "ID",
               value: user["id"]?.toString() ?? "",
             ),
-            _ProfileTile(icon: Icons.person_outline, label: "Ten", value: name),
+            _ProfileTile(icon: Icons.person_outline, label: "Tên", value: name),
             _ProfileTile(
               icon: Icons.email_outlined,
               label: "Email",
@@ -135,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             _ProfileTile(
               icon: Icons.verified_user_outlined,
-              label: "Vai tro",
+              label: "Vai trò",
               value: role,
             ),
             const SizedBox(height: 18),
@@ -160,7 +160,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 onPressed: () => _logout(context),
                 icon: const Icon(Icons.logout_rounded),
                 label: const Text(
-                  "Dang xuat",
+                  "Đăng xuất",
                   style: TextStyle(fontWeight: FontWeight.w800),
                 ),
               ),
@@ -172,18 +172,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   Future<void> _openAddressForm([UserAddress? address]) async {
-    final saved = await showModalBottomSheet<bool>(
+    final saved = await showModalBottomSheet<UserAddress>(
       context: context,
       isScrollControlled: true,
       useSafeArea: true,
       builder:
-          (_) => _AddressFormSheet(
+          (_) => AddressFormSheet(
             service: _addressService,
             address: address,
           ),
     );
 
-    if (saved == true) {
+    if (saved != null) {
       await _loadAddresses();
     }
   }
@@ -192,9 +192,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     try {
       await _addressService.deleteAddress(address.id);
       await _loadAddresses();
-      _showMessage("Da xoa dia chi");
+      _showMessage("Đã xóa địa chỉ");
     } catch (e) {
-      _showMessage("Khong the xoa dia chi");
+      _showMessage("Không thể xóa địa chỉ");
     }
   }
 
@@ -244,12 +244,12 @@ class _AddressSection extends StatelessWidget {
           children: [
             const Expanded(
               child: Text(
-                "Dia chi giao hang",
+                "Địa chỉ giao hàng",
                 style: TextStyle(fontSize: 18, fontWeight: FontWeight.w800),
               ),
             ),
             IconButton(
-              tooltip: "Them dia chi",
+              tooltip: "Thêm địa chỉ",
               onPressed: onAdd,
               icon: const Icon(Icons.add_location_alt_outlined),
             ),
@@ -264,7 +264,7 @@ class _AddressSection extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(vertical: 8),
             child: Text(
-              "Chua co dia chi",
+              "Chưa có địa chỉ",
               style: TextStyle(color: Colors.grey.shade700),
             ),
           )
@@ -290,7 +290,7 @@ class _AddressSection extends StatelessWidget {
                 title: Text(
                   address.receiverName.isNotEmpty
                       ? address.receiverName
-                      : "Nguoi nhan",
+                      : "Người nhận",
                   style: const TextStyle(fontWeight: FontWeight.w800),
                 ),
                 subtitle: Padding(
@@ -299,7 +299,7 @@ class _AddressSection extends StatelessWidget {
                     [
                       if (address.phone.isNotEmpty) address.phone,
                       if (address.fullAddress.isNotEmpty) address.fullAddress,
-                      if (address.isDefault) "Mac dinh",
+                      if (address.isDefault) "Mặc định",
                     ].join("\n"),
                   ),
                 ),
@@ -311,385 +311,14 @@ class _AddressSection extends StatelessWidget {
                   },
                   itemBuilder:
                       (_) => const [
-                        PopupMenuItem(value: "edit", child: Text("Sua")),
-                        PopupMenuItem(value: "delete", child: Text("Xoa")),
+                        PopupMenuItem(value: "edit", child: Text("Sửa")),
+                        PopupMenuItem(value: "delete", child: Text("Xóa")),
                       ],
                 ),
               ),
             ),
           ),
       ],
-    );
-  }
-}
-
-class _AddressFormSheet extends StatefulWidget {
-  final AddressService service;
-  final UserAddress? address;
-
-  const _AddressFormSheet({
-    required this.service,
-    this.address,
-  });
-
-  @override
-  State<_AddressFormSheet> createState() => _AddressFormSheetState();
-}
-
-class _AddressFormSheetState extends State<_AddressFormSheet> {
-  final _formKey = GlobalKey<FormState>();
-  final _receiverCtrl = TextEditingController();
-  final _phoneCtrl = TextEditingController();
-  final _lineCtrl = TextEditingController();
-
-  List<LocationOption> _provinces = [];
-  List<LocationOption> _districts = [];
-  List<LocationOption> _wards = [];
-
-  LocationOption? _province;
-  LocationOption? _district;
-  LocationOption? _ward;
-  bool _isDefault = false;
-  bool _loadingLocations = true;
-  bool _saving = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final address = widget.address;
-    if (address != null) {
-      _receiverCtrl.text = address.receiverName;
-      _phoneCtrl.text = address.phone;
-      _lineCtrl.text = address.addressLine;
-      _isDefault = address.isDefault;
-    }
-    _loadInitialLocations();
-  }
-
-  @override
-  void dispose() {
-    _receiverCtrl.dispose();
-    _phoneCtrl.dispose();
-    _lineCtrl.dispose();
-    super.dispose();
-  }
-
-  Future<void> _loadInitialLocations() async {
-    try {
-      final provinces = await widget.service.getProvinces();
-      final address = widget.address;
-
-      List<LocationOption> districts = [];
-      List<LocationOption> wards = [];
-      LocationOption? province;
-      LocationOption? district;
-      LocationOption? ward;
-
-      if (address?.provinceId != null) {
-        province = LocationOption(
-          id: address!.provinceId.toString(),
-          name: address.provinceName,
-        );
-        districts = await widget.service.getDistricts(address.provinceId!);
-      }
-
-      if (address?.districtId != null) {
-        district = LocationOption(
-          id: address!.districtId.toString(),
-          name: address.districtName,
-        );
-        wards = await widget.service.getWards(address.districtId!);
-      }
-
-      if (address != null && address.wardCode.isNotEmpty) {
-        ward = LocationOption(id: address.wardCode, name: address.wardName);
-      }
-
-      if (!mounted) return;
-      final provinceItems = _mergeSelected(provinces, province);
-      final districtItems = _mergeSelected(districts, district);
-      final wardItems = _mergeSelected(wards, ward);
-      setState(() {
-        _provinces = provinceItems;
-        _districts = districtItems;
-        _wards = wardItems;
-        _province = _selectedFrom(provinceItems, province);
-        _district = _selectedFrom(districtItems, district);
-        _ward = _selectedFrom(wardItems, ward);
-        _loadingLocations = false;
-      });
-    } catch (e) {
-      if (!mounted) return;
-      setState(() => _loadingLocations = false);
-      _showMessage("Khong the tai du lieu dia chi GHN");
-    }
-  }
-
-  List<LocationOption> _mergeSelected(
-    List<LocationOption> options,
-    LocationOption? selected,
-  ) {
-    if (selected == null || selected.id.isEmpty) return options;
-    if (options.any((item) => item.id == selected.id)) return options;
-    return [selected, ...options];
-  }
-
-  LocationOption? _selectedFrom(
-    List<LocationOption> options,
-    LocationOption? selected,
-  ) {
-    if (selected == null) return null;
-    for (final option in options) {
-      if (option.id == selected.id) return option;
-    }
-    return selected;
-  }
-
-  Future<void> _onProvinceChanged(LocationOption? value) async {
-    setState(() {
-      _province = value;
-      _district = null;
-      _ward = null;
-      _districts = [];
-      _wards = [];
-    });
-
-    final provinceId = int.tryParse(value?.id ?? "");
-    if (provinceId == null) return;
-
-    final districts = await widget.service.getDistricts(provinceId);
-    if (!mounted) return;
-    setState(() => _districts = districts);
-  }
-
-  Future<void> _onDistrictChanged(LocationOption? value) async {
-    setState(() {
-      _district = value;
-      _ward = null;
-      _wards = [];
-    });
-
-    final districtId = int.tryParse(value?.id ?? "");
-    if (districtId == null) return;
-
-    final wards = await widget.service.getWards(districtId);
-    if (!mounted) return;
-    setState(() => _wards = wards);
-  }
-
-  Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_province == null || _district == null || _ward == null) {
-      _showMessage("Vui long chon tinh, quan/huyen, phuong/xa");
-      return;
-    }
-
-    final request = {
-      "receiverName": _receiverCtrl.text.trim(),
-      "phone": _phoneCtrl.text.trim(),
-      "addressLine": _lineCtrl.text.trim(),
-      "provinceId": int.parse(_province!.id),
-      "provinceName": _province!.name,
-      "districtId": int.parse(_district!.id),
-      "districtName": _district!.name,
-      "wardCode": _ward!.id,
-      "wardName": _ward!.name,
-      "isDefault": _isDefault,
-    };
-
-    try {
-      setState(() => _saving = true);
-      final id = widget.address?.id;
-      if (id == null) {
-        await widget.service.createAddress(request);
-      } else {
-        await widget.service.updateAddress(id, request);
-      }
-      if (!mounted) return;
-      Navigator.pop(context, true);
-    } catch (e) {
-      _showMessage("Khong the luu dia chi");
-    } finally {
-      if (mounted) setState(() => _saving = false);
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(
-        left: 16,
-        right: 16,
-        top: 12,
-        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
-      ),
-      child:
-          _loadingLocations
-              ? const SizedBox(
-                height: 220,
-                child: Center(child: CircularProgressIndicator()),
-              )
-              : Form(
-                key: _formKey,
-                child: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              widget.address == null
-                                  ? "Them dia chi"
-                                  : "Sua dia chi",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () => Navigator.pop(context),
-                            icon: const Icon(Icons.close),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      TextFormField(
-                        controller: _receiverCtrl,
-                        decoration: const InputDecoration(
-                          labelText: "Nguoi nhan",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: _required,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _phoneCtrl,
-                        keyboardType: TextInputType.phone,
-                        decoration: const InputDecoration(
-                          labelText: "So dien thoai",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: _required,
-                      ),
-                      const SizedBox(height: 12),
-                      TextFormField(
-                        controller: _lineCtrl,
-                        decoration: const InputDecoration(
-                          labelText: "So nha, ten duong",
-                          border: OutlineInputBorder(),
-                        ),
-                        validator: _required,
-                      ),
-                      const SizedBox(height: 12),
-                      _LocationDropdown(
-                        label: "Tinh/Thanh pho",
-                        value: _province,
-                        items: _provinces,
-                        onChanged: _onProvinceChanged,
-                      ),
-                      const SizedBox(height: 12),
-                      _LocationDropdown(
-                        label: "Quan/Huyen",
-                        value: _district,
-                        items: _districts,
-                        onChanged:
-                            _province == null ? null : _onDistrictChanged,
-                      ),
-                      const SizedBox(height: 12),
-                      _LocationDropdown(
-                        label: "Phuong/Xa",
-                        value: _ward,
-                        items: _wards,
-                        onChanged:
-                            _district == null
-                                ? null
-                                : (value) => setState(() => _ward = value),
-                      ),
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        contentPadding: EdgeInsets.zero,
-                        value: _isDefault,
-                        onChanged: (value) => setState(() => _isDefault = value),
-                        title: const Text("Dat lam dia chi mac dinh"),
-                      ),
-                      const SizedBox(height: 12),
-                      SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton.icon(
-                          onPressed: _saving ? null : _save,
-                          icon:
-                              _saving
-                                  ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      color: Colors.white,
-                                    ),
-                                  )
-                                  : const Icon(Icons.save_outlined),
-                          label: const Text("Luu dia chi"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-    );
-  }
-
-  String? _required(String? value) {
-    return value == null || value.trim().isEmpty ? "Bat buoc" : null;
-  }
-
-  void _showMessage(String message) {
-    if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        behavior: SnackBarBehavior.floating,
-        content: Text(message),
-      ),
-    );
-  }
-}
-
-class _LocationDropdown extends StatelessWidget {
-  final String label;
-  final LocationOption? value;
-  final List<LocationOption> items;
-  final ValueChanged<LocationOption?>? onChanged;
-
-  const _LocationDropdown({
-    required this.label,
-    required this.value,
-    required this.items,
-    required this.onChanged,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return DropdownButtonFormField<LocationOption>(
-      value: value,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      items:
-          items
-              .map(
-                (item) => DropdownMenuItem<LocationOption>(
-                  value: item,
-                  child: Text(item.name, overflow: TextOverflow.ellipsis),
-                ),
-              )
-              .toList(),
-      onChanged: onChanged,
-      validator: (value) => value == null ? "Bat buoc" : null,
     );
   }
 }
@@ -710,7 +339,7 @@ class _ProfileTile extends StatelessWidget {
     return ListTile(
       leading: Icon(icon),
       title: Text(label),
-      subtitle: Text(value.isNotEmpty ? value : "Chua co thong tin"),
+      subtitle: Text(value.isNotEmpty ? value : "Chưa có thông tin"),
       contentPadding: const EdgeInsets.symmetric(horizontal: 4),
     );
   }
