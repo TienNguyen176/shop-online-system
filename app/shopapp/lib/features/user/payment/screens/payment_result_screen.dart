@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+/// Màn hiển thị kết quả thanh toán thành công hoặc thất bại.
 class PaymentResultScreen extends StatelessWidget {
   final bool success;
 

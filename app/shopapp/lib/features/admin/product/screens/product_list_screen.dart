@@ -6,6 +6,7 @@ import '../providers/product_admin_provider.dart';
 import '../widgets/admin_product_card.dart';
 import 'product_form_screen.dart';
 
+/// Màn admin danh sách sản phẩm: tìm kiếm, phân trang, sửa/xóa sản phẩm.
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
 
@@ -20,6 +21,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
   String keyword = "";
 
   @override
+  /// Khởi tạo scroll listener và tải danh sách sản phẩm ban đầu.
   void initState() {
     super.initState();
 
@@ -30,6 +32,7 @@ class _ProductListScreenState extends State<ProductListScreen> {
     scrollController.addListener(_onScroll);
   }
 
+  /// Khi cuộn gần cuối danh sách thì yêu cầu provider tải thêm sản phẩm.
   void _onScroll() {
     final provider = context.read<ProductAdminProvider>();
 

@@ -6,6 +6,7 @@ import '../providers/notification_provider.dart';
 /// =======================================================
 /// SCREEN HIỂN THỊ DANH SÁCH THÔNG BÁO
 /// =======================================================
+/// Màn hình thông báo của người dùng.
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
@@ -67,9 +68,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
         builder: (context, provider, _) {
           /// Loading dữ liệu
           if (provider.loading) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           /// Không có thông báo
@@ -88,8 +87,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
             itemCount: provider.notifications.length,
 
-            separatorBuilder:
-                (context, index) => const SizedBox(height: 12),
+            separatorBuilder: (context, index) => const SizedBox(height: 12),
 
             itemBuilder: (context, index) {
               final notification = provider.notifications[index];
@@ -112,10 +110,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                     children: [
                       const CircleAvatar(
                         backgroundColor: Colors.blue,
-                        child: Icon(
-                          Icons.notifications,
-                          color: Colors.white,
-                        ),
+                        child: Icon(Icons.notifications, color: Colors.white),
                       ),
 
                       /// Chấm đỏ nếu chưa đọc
@@ -181,9 +176,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         notification.read
                             ? null
                             : () {
-                              context
-                                  .read<NotificationProvider>()
-                                  .markAsRead(notification.id);
+                              context.read<NotificationProvider>().markAsRead(
+                                notification.id,
+                              );
                             },
 
                     tooltip: 'Đánh dấu đã đọc',
@@ -206,6 +201,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   /// - 2 giờ trước
   /// - 3 ngày trước
   ///
+  /// Định dạng ngày thông báo thành chuỗi dễ đọc.
   String _formatDate(DateTime date) {
     final now = DateTime.now();
 

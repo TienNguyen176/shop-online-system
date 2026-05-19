@@ -7,6 +7,7 @@ import '../repositories/interfaces/i_category_repository.dart';
 
 import '../routes/app_routes.dart';
 
+/// Màn splash: khởi động app, restore session và điều hướng theo trạng thái đăng nhập.
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -26,6 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
     });
   }
 
+  /// Tải dữ liệu nền, khôi phục phiên đăng nhập và điều hướng tới màn phù hợp.
   Future<void> initApp() async {
     try {
       setState(() => loadingText = "Đang tải dữ liệu...");
@@ -89,12 +91,14 @@ class _SplashScreenState extends State<SplashScreen> {
     }
   }
 
+  /// Lấy userId từ dữ liệu user, hỗ trợ cả key thường và key viết hoa.
   int? _userIdFrom(Map<String, dynamic>? user) {
     final id = user?["id"] ?? user?["Id"];
     if (id is int) return id;
     return int.tryParse(id?.toString() ?? "");
   }
 
+  /// Lấy role của user để quyết định vào admin hay home người dùng.
   String _roleFrom(Map<String, dynamic>? user) {
     final role = user?["role"] ?? user?["Role"];
     return role?.toString().trim().toLowerCase() ?? "user";

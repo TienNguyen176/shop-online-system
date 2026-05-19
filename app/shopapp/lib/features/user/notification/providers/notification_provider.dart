@@ -3,114 +3,69 @@ import 'package:flutter/material.dart';
 import '../data/notification_mock_data.dart';
 import '../models/user_notification.dart';
 
-/// =======================================================
-/// PROVIDER QUẢN LÝ THÔNG BÁO
-/// =======================================================
-///
-/// Chức năng:
-/// - Load danh sách thông báo
-/// - Đếm số thông báo chưa đọc
-/// - Đánh dấu đã đọc
-/// - Đánh dấu tất cả đã đọc
-/// - Xóa toàn bộ thông báo
-///
+/// Provider quản lý thông báo người dùng: tải dữ liệu, đếm chưa đọc và cập nhật trạng thái đọc.
 class NotificationProvider extends ChangeNotifier {
-
-  /// =====================================================
-  /// STATE
-  /// =====================================================
-
-  /// Trạng thái loading dữ liệu
+  /// Trạng thái loading khi tải danh sách thông báo.
   bool loading = false;
 
-  /// Danh sách thông báo
+  /// Danh sách thông báo đang hiển thị.
   List<UserNotification> notifications = [];
 
-  /// =====================================================
-  /// GETTER
-  /// =====================================================
-
-  /// Đếm số lượng thông báo chưa đọc
+  /// Đếm số lượng thông báo chưa đọc để hiển thị badge.
   int get unreadCount =>
-      notifications
-          .where((notification) => !notification.read)
-          .length;
+      notifications.where((notification) => !notification.read).length;
 
-  /// =====================================================
-  /// LOAD DANH SÁCH THÔNG BÁO
-  /// =====================================================
+  /// Tải danh sách thông báo từ mock data, sau này có thể đổi sang API thật.
   Future<void> loadNotifications() async {
-
-    /// Bật loading
+    /// Bật loading để UI hiển thị trạng thái chờ.
     loading = true;
     notifyListeners();
 
-    /// Giả lập delay gọi API
+    /// Giả lập độ trễ gọi API.
     await Future.delayed(
       const Duration(milliseconds: 500),
     );
 
-    /// Copy dữ liệu mock
+    /// Copy dữ liệu mock để tránh sửa trực tiếp danh sách gốc.
     notifications = List<UserNotification>.from(
       mockNotifications,
     );
 
-    /// Tắt loading
+    /// Tắt loading sau khi đã có dữ liệu.
     loading = false;
 
-    /// Cập nhật UI
+    /// Báo cho UI render lại.
     notifyListeners();
   }
 
-  /// =====================================================
-  /// ĐÁNH DẤU TẤT CẢ ĐÃ ĐỌC
-  /// =====================================================
+  /// Đánh dấu tất cả thông báo là đã đọc.
   void markAllAsRead() {
-
-    /// Duyệt toàn bộ thông báo
+    /// Duyệt toàn bộ thông báo và cập nhật trạng thái.
     for (final notification in notifications) {
-
-      /// Set trạng thái đã đọc
       notification.read = true;
     }
 
-    /// Refresh UI
+    /// Cập nhật UI sau khi thay đổi dữ liệu.
     notifyListeners();
   }
 
-  /// =====================================================
-  /// ĐÁNH DẤU 1 THÔNG BÁO ĐÃ ĐỌC
-  /// =====================================================
-  ///
-  /// [id] = ID thông báo
-  ///
+  /// Đánh dấu một thông báo là đã đọc theo id.
   void markAsRead(int id) {
-
-    /// Tìm vị trí thông báo theo ID
+    /// Tìm vị trí thông báo trong danh sách hiện tại.
     final index = notifications.indexWhere(
       (item) => item.id == id,
     );
 
-    /// Nếu tìm thấy
+    /// Nếu tìm thấy thì cập nhật trạng thái đọc và refresh UI.
     if (index != -1) {
-
-      /// Set trạng thái đã đọc
       notifications[index].read = true;
-
-      /// Refresh UI
       notifyListeners();
     }
   }
 
-  /// =====================================================
-  /// XÓA TOÀN BỘ THÔNG BÁO
-  /// =====================================================
+  /// Xóa toàn bộ thông báo khỏi danh sách đang hiển thị.
   void clearAll() {
-
-    /// Clear list
     notifications.clear();
-
-    /// Refresh UI
     notifyListeners();
   }
 }

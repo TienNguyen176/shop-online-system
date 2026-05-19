@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../providers/dashboard_provider.dart';
 
+/// Màn dashboard admin: hiển thị thống kê doanh thu/sản phẩm bằng biểu đồ.
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
@@ -26,6 +27,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   ];
 
   @override
+  /// Khởi tạo animation và tải dữ liệu thống kê sau frame đầu tiên.
   void initState() {
     super.initState();
     _animController = AnimationController(
@@ -278,6 +280,7 @@ class _DashboardScreenState extends State<DashboardScreen>
   }
 }
 
+/// Model nội bộ dùng để vẽ biểu đồ với tiêu đề, phần trăm và màu.
 class _ChartData {
   final String title;
   final int percent;
@@ -290,6 +293,7 @@ class _ChartData {
   });
 }
 
+/// Cụm thẻ tổng quan hiển thị mục cao nhất/thấp nhất.
 class _StatSummary extends StatelessWidget {
   final bool compact;
   final String topTitle;
@@ -579,6 +583,7 @@ class _BarRow extends StatelessWidget {
   }
 }
 
+/// Painter tự vẽ biểu đồ donut theo dữ liệu thống kê.
 class _DonutPainter extends CustomPainter {
   final List<_ChartData> data;
   final double progress;
@@ -586,6 +591,7 @@ class _DonutPainter extends CustomPainter {
   _DonutPainter(this.data, this.progress);
 
   @override
+  /// Vẽ từng cung tròn của biểu đồ theo phần trăm và tiến độ animation.
   void paint(Canvas canvas, Size size) {
     if (data.isEmpty) return;
 

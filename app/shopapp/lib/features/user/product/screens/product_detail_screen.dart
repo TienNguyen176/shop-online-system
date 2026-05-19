@@ -10,6 +10,7 @@ import '../../../../widgets/cart_item_badge.dart';
 import '../../notification/providers/notification_provider.dart';
 import '../providers/product_detail_provider.dart';
 
+/// Màn chi tiết sản phẩm: xem ảnh, chọn biến thể và thêm vào giỏ hàng.
 class ProductDetailScreen extends StatefulWidget {
   final int productId;
 
@@ -116,6 +117,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     return images;
   }
 
+  /// Kiểm tra biến thể đã chọn và thêm sản phẩm vào giỏ hàng.
   Future<void> _handleAddToCart(ProductDetailProvider provider) async {
     if (_loading) return;
 
@@ -138,6 +140,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
     }
   }
 
+  /// Hiển thị thông báo ngắn cho thao tác ở màn chi tiết.
   void _showSnack(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

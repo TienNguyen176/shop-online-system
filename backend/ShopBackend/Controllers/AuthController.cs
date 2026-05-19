@@ -28,6 +28,16 @@ namespace ShopBackend.Controllers
             return Ok(res);
         }
 
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh(RefreshTokenRequest req)
+        {
+            var res = await _auth.RefreshToken(req.RefreshToken);
+
+            if (res == null) return Unauthorized();
+
+            return Ok(res);
+        }
+
         [Authorize]
         [HttpGet("me")]
         public async Task<IActionResult> Me()

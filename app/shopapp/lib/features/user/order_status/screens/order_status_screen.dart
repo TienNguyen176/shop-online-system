@@ -1,9 +1,13 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../../../models/order_model.dart';
 import '../providers/order_status_provider.dart';
+import 'pending_order_detail_screen.dart';
 
+/// Màn hình danh sách đơn hàng theo trạng thái.
 class OrderStatusScreen extends StatefulWidget {
   final int userId;
 
@@ -21,14 +25,37 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
   static const textMuted = Color(0xff64748b);
   static const border = Color(0xffdbeafe);
 
+  Timer? _refreshTimer;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<OrderStatusProvider>().loadOrders(widget.userId);
+      _startRealtimeRefresh();
     });
   }
 
+  @override
+  void dispose() {
+    _refreshTimer?.cancel();
+    super.dispose();
+  }
+
+  /// Tự động làm mới danh sách đơn hàng định kỳ khi màn hình còn mở.
+  void _startRealtimeRefresh() {
+    _refreshTimer?.cancel();
+    _refreshTimer = Timer.periodic(const Duration(seconds: 8), (_) {
+      if (!mounted) return;
+
+      final orderStatus = context.read<OrderStatusProvider>();
+      if (orderStatus.loading) return;
+
+      orderStatus.loadOrders(widget.userId, showLoading: false);
+    });
+  }
+
+  /// Định dạng tiền đơn hàng theo kiểu Việt Nam.
   String formatPrice(num? price) {
     return (price ?? 0)
         .toStringAsFixed(0)
@@ -92,6 +119,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
     );
   }
 
+  /// Thanh tab lọc đơn theo trạng thái.
   Widget _tabs(OrderStatusProvider orderStatus) {
     return Padding(
       padding: const EdgeInsets.fromLTRB(22, 8, 22, 14),
@@ -148,14 +176,16 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
     );
   }
 
+  /// Xây dựng nội dung danh sách theo trạng thái loading/rỗng/có dữ liệu.
   Widget _buildList(OrderStatusProvider orderStatus) {
-    if (orderStatus.loading) {
+    if (orderStatus.loading && orderStatus.orders.isEmpty) {
       return const Center(child: CircularProgressIndicator(color: primary));
     }
 
     if (orderStatus.error != null) {
-      return Center(
-        child: Padding(
+      return _refreshable(
+        orderStatus,
+        Padding(
           padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -203,8 +233,9 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
     }
 
     if (orderStatus.orders.isEmpty) {
-      return const Center(
-        child: Column(
+      return _refreshable(
+        orderStatus,
+        const Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
@@ -236,6 +267,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
       color: primary,
       onRefresh: () => orderStatus.loadOrders(widget.userId),
       child: ListView.separated(
+        physics: const AlwaysScrollableScrollPhysics(),
         padding: const EdgeInsets.fromLTRB(22, 0, 22, 24),
         itemCount: orderStatus.orders.length,
         separatorBuilder: (_, __) => const SizedBox(height: 12),
@@ -244,117 +276,159 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
     );
   }
 
-  Widget _orderItem(OrderModel order) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xffe5eefc)),
-        boxShadow: [
-          BoxShadow(
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-            color: primaryDark.withOpacity(0.08),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                width: 38,
-                height: 38,
-                decoration: BoxDecoration(
-                  color: border,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: const Icon(
-                  Icons.local_shipping_outlined,
-                  color: primary,
-                  size: 21,
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  order.orderCode,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(
-                    color: textDark,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w800,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: _statusColor(order.status).withOpacity(0.12),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  _statusLabel(order.status),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: _statusColor(order.status),
-                    fontWeight: FontWeight.w800,
-                    fontSize: 11,
-                    letterSpacing: 0,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          _InfoRow(
-            icon: Icons.person_outline_rounded,
-            text: order.shippingName,
-          ),
-          const SizedBox(height: 8),
-          _InfoRow(icon: Icons.phone_outlined, text: order.shippingPhone),
-          const SizedBox(height: 8),
-          _InfoRow(
-            icon: Icons.location_on_outlined,
-            text: order.shippingAddress,
-          ),
-          const SizedBox(height: 14),
-          const Divider(height: 1, color: Color(0xffe5eefc)),
-          const SizedBox(height: 12),
-          Row(
-            children: [
-              const Text(
-                "Tổng tiền",
-                style: TextStyle(
-                  color: textMuted,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const Spacer(),
-              Text(
-                "${formatPrice(order.totalPrice)}đ",
-                style: const TextStyle(
-                  color: primary,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0,
-                ),
-              ),
-            ],
-          ),
-        ],
+  /// Bọc nội dung bằng RefreshIndicator để người dùng kéo làm mới.
+  Widget _refreshable(OrderStatusProvider orderStatus, Widget child) {
+    return RefreshIndicator(
+      color: primary,
+      onRefresh: () => orderStatus.loadOrders(widget.userId),
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          return SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: ConstrainedBox(
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(child: child),
+            ),
+          );
+        },
       ),
     );
+  }
+
+  /// Card hiển thị thông tin tóm tắt của một đơn hàng.
+  Widget _orderItem(OrderModel order) {
+    final canOpen = order.status.toUpperCase() == "PENDING";
+
+    return Material(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(8),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(8),
+        onTap: canOpen ? () => _openPendingOrder(order.id) : null,
+        child: Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(8),
+            border: Border.all(color: const Color(0xffe5eefc)),
+            boxShadow: [
+              BoxShadow(
+                blurRadius: 16,
+                offset: const Offset(0, 8),
+                color: primaryDark.withOpacity(0.08),
+              ),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 38,
+                    height: 38,
+                    decoration: BoxDecoration(
+                      color: border,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.local_shipping_outlined,
+                      color: primary,
+                      size: 21,
+                    ),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      order.orderCode,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: textDark,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _statusColor(order.status).withOpacity(0.12),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      _statusLabel(order.status),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: _statusColor(order.status),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 11,
+                        letterSpacing: 0,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 14),
+              _InfoRow(
+                icon: Icons.person_outline_rounded,
+                text: order.shippingName,
+              ),
+              const SizedBox(height: 8),
+              _InfoRow(icon: Icons.phone_outlined, text: order.shippingPhone),
+              const SizedBox(height: 8),
+              _InfoRow(
+                icon: Icons.location_on_outlined,
+                text: order.shippingAddress,
+              ),
+              const SizedBox(height: 14),
+              const Divider(height: 1, color: Color(0xffe5eefc)),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  const Text(
+                    "Tổng tiền",
+                    style: TextStyle(
+                      color: textMuted,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const Spacer(),
+                  Text(
+                    "${formatPrice(order.totalPrice)}đ",
+                    style: const TextStyle(
+                      color: primary,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Mở màn chi tiết đơn chờ xác nhận và reload danh sách nếu đơn có thay đổi.
+  Future<void> _openPendingOrder(int orderId) async {
+    final changed = await Navigator.push<bool>(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PendingOrderDetailScreen(orderId: orderId),
+      ),
+    );
+
+    if (!mounted || changed != true) return;
+    await context.read<OrderStatusProvider>().loadOrders(widget.userId);
   }
 
   Color _statusColor(String status) {
@@ -374,6 +448,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
     }
   }
 
+  /// Chuyển mã trạng thái backend thành nhãn tiếng Việt trên UI.
   String _statusLabel(String status) {
     switch (status.toUpperCase()) {
       case "DELIVERED":

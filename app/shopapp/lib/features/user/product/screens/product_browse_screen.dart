@@ -11,6 +11,7 @@ import '../../../admin/category/providers/category_provider.dart';
 import '../models/product_browse_args.dart';
 import '../widgets/product_card.dart';
 
+/// Màn duyệt sản phẩm theo tìm kiếm, danh mục, thương hiệu và bộ lọc.
 class ProductBrowseScreen extends StatefulWidget {
   final ProductBrowseArgs args;
 
@@ -65,6 +66,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
     super.dispose();
   }
 
+  /// Tải danh sách sản phẩm theo filter hiện tại, có thể refresh về trang đầu.
   Future<void> _loadProducts({bool refresh = false}) async {
     if (_fetching) return;
 
@@ -126,11 +128,13 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
     });
   }
 
+  /// Tải thêm sản phẩm khi người dùng cuộn gần cuối danh sách.
   Future<void> _loadMore() async {
     setState(() => _loadingMore = true);
     await _loadProducts();
   }
 
+  /// Áp dụng tham số duyệt sản phẩm từ màn khác truyền sang.
   void _applyArgs(ProductBrowseArgs args) {
     setState(() {
       _args = args;
@@ -143,6 +147,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
     _loadProducts(refresh: true);
   }
 
+  /// Cập nhật keyword và reload danh sách sản phẩm.
   void _searchProducts(String keyword) {
     final trimmed = keyword.trim();
     _applyArgs(
@@ -154,6 +159,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen> {
     );
   }
 
+  /// Mở dialog lọc sản phẩm và áp dụng bộ lọc được chọn.
   Future<void> _showFilterDialog() async {
     final result = await showDialog<ProductBrowseArgs>(
       context: context,

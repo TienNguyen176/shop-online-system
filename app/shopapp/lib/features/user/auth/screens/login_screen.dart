@@ -5,6 +5,7 @@ import '../../../../routes/app_routes.dart';
 import '../../cart/providers/cart_provider.dart';
 import '../providers/auth_provider.dart';
 
+/// Màn hình đăng nhập bằng tài khoản xã hội.
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
@@ -159,6 +160,7 @@ class LoginScreen extends StatelessWidget {
   }
 }
 
+/// Nút đăng nhập mạng xã hội, dùng chung cho Google/Facebook.
 class _SocialLoginButton extends StatelessWidget {
   final String label;
   final String assetPath;

@@ -7,27 +7,40 @@ import '../../../../core/api/api_client.dart';
 import '../../../../repositories/interfaces/i_auth_repository.dart';
 import '../../../../services/auth/social_auth_service.dart';
 
+/// Provider quản lý đăng nhập, phiên người dùng và lưu token bảo mật.
 class AuthProvider extends ChangeNotifier {
   final IAuthRepository repo;
   final SocialAuthService social;
   final FlutterSecureStorage _storage = const FlutterSecureStorage();
 
+  /// Trạng thái xử lý khi đăng nhập/cập nhật hồ sơ.
   bool loading = false;
+
+  /// Trạng thái khôi phục phiên khi app vừa mở.
   bool restoring = false;
+
+  /// Access token dùng cho các API cần xác thực.
   String? accessToken;
+
+  /// Refresh token dùng để xin access token mới khi token cũ hết hạn.
   String? refreshToken;
+
+  /// Lỗi đăng nhập hoặc lỗi phiên hiện tại.
   String? error;
 
+  /// Thông tin user đang đăng nhập.
   Map<String, dynamic>? user;
 
   AuthProvider(this.repo, this.social);
 
+  /// Kiểm tra người dùng đã có access token hay chưa.
   bool get isLoggedIn => accessToken != null;
 
   static const _tokenKey = "token";
   static const _refreshTokenKey = "refresh_token";
   static const _userKey = "user";
 
+  /// Đăng nhập bằng Google, gửi token Google về backend để lấy session app.
   Future<void> loginGoogle() async {
     try {
       loading = true;
@@ -52,6 +65,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Đăng nhập bằng Facebook, gửi token Facebook về backend để lấy session app.
   Future<void> loginFacebook() async {
     try {
       loading = true;
@@ -76,6 +90,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Khôi phục phiên đăng nhập từ secure storage khi app khởi động.
   Future<void> restoreSession() async {
     try {
       restoring = true;
@@ -107,6 +122,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Cập nhật thông tin hồ sơ người dùng trên backend.
   Future<void> updateProfile({
     required String fullName,
     String? avatarPath,
@@ -130,6 +146,7 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
+  /// Đăng xuất: xóa token, user local và trạng thái đăng nhập.
   Future<void> logout() async {
     await _storage.delete(key: _tokenKey);
     await _storage.delete(key: _refreshTokenKey);
@@ -147,6 +164,7 @@ class AuthProvider extends ChangeNotifier {
     await social.logout();
   }
 
+  /// Gán dữ liệu session từ response login/refresh vào state provider.
   Future<void> _setSession(Map<String, dynamic> res) async {
     accessToken = res["accessToken"];
     refreshToken = res["refreshToken"];
@@ -154,6 +172,7 @@ class AuthProvider extends ChangeNotifier {
     await _saveSession();
   }
 
+  /// Lưu access token, refresh token và user vào secure storage.
   Future<void> _saveSession() async {
     if (accessToken != null && accessToken!.isNotEmpty) {
       await _storage.write(key: _tokenKey, value: accessToken);
