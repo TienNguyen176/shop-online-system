@@ -18,8 +18,6 @@ namespace ShopBackend.Services.Vnpay
 
             var now = DateTime.UtcNow;
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(now, timeZoneById);
-            var tick = now.Ticks.ToString();
-
             var pay = new VnPayLibrary();
 
             var urlCallBack = _configuration["VNPAY:PaymentBackReturnUrl"];
@@ -42,7 +40,7 @@ namespace ShopBackend.Services.Vnpay
 
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
 
-            pay.AddRequestData("vnp_TxnRef", tick);
+            pay.AddRequestData("vnp_TxnRef", model.OrderId.ToString());
 
             return pay.CreateRequestUrl(
                 _configuration["VNPAY:BaseUrl"],

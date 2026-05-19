@@ -112,6 +112,7 @@ namespace ShopBackend.Controllers
             // =====================
             // 4. BUILD VNPay MODEL
             // =====================
+            model.OrderId = order.Id;
             model.OrderDescription = $"Order {order.OrderCode}";
             model.Name = order.OrderCode;
 
@@ -132,18 +133,11 @@ namespace ShopBackend.Controllers
         public IActionResult Return()
         {
             var response = _vnPayService.PaymentExecute(Request.Query);
+            var result = ProcessVnPayPayment(response);
 
-            if (response == null)
-            {
-                return Redirect("https://shopapp.ddns.net/payment-failed");
-            }
-
-            if (response.VnPayResponseCode == "00")
-            {
-                return Redirect("https://shopapp.ddns.net/payment-success");
-            }
-
-            return Redirect("https://shopapp.ddns.net/payment-failed");
+            return Redirect(result.Success
+                ? "https://shopapp.ddns.net/payment-success"
+                : "https://shopapp.ddns.net/payment-failed");
         }
 
         // =====================================
@@ -153,27 +147,34 @@ namespace ShopBackend.Controllers
         public IActionResult Ipn()
         {
             var response = _vnPayService.PaymentExecute(Request.Query);
+            var result = ProcessVnPayPayment(response);
 
+            return Ok(new { result.RspCode, result.Message });
+        }
+
+        private (string RspCode, string Message, bool Success) ProcessVnPayPayment(
+            PaymentResponseModel? response)
+        {
             // =====================
             // 1. VALIDATE BASIC
             // =====================
             if (response == null || string.IsNullOrEmpty(response.OrderId))
-                return Ok(new { RspCode = "01", Message = "Invalid data" });
+                return ("01", "Invalid data", false);
 
             if (!long.TryParse(response.OrderId, out long orderId))
-                return Ok(new { RspCode = "01", Message = "Invalid order id" });
+                return ("01", "Invalid order id", false);
 
             var payment = _db.Payments
                 .FirstOrDefault(x => x.OrderId == orderId);
 
             if (payment == null)
-                return Ok(new { RspCode = "01", Message = "Payment not found" });
+                return ("01", "Payment not found", false);
 
             // =====================
             // 2. PREVENT DUPLICATE
             // =====================
             if (payment.Status == "SUCCESS")
-                return Ok(new { RspCode = "02", Message = "Already processed" });
+                return ("02", "Already processed", true);
 
             // =====================
             // 3. CHECK AMOUNT (SECURITY)
@@ -181,7 +182,7 @@ namespace ShopBackend.Controllers
             var amountFromVnpay = response.Amount / 100;
 
             if (payment.Amount != amountFromVnpay)
-                return Ok(new { RspCode = "04", Message = "Invalid amount" });
+                return ("04", "Invalid amount", false);
 
             // =====================
             // 4. CHECK SUCCESS
@@ -206,7 +207,9 @@ namespace ShopBackend.Controllers
 
                     foreach (var item in items)
                     {
-                        var product = _db.Products.FirstOrDefault(x => x.Id == item.ProductId);
+                        var product = _db.Products
+                            .IgnoreQueryFilters()
+                            .FirstOrDefault(x => x.Id == item.ProductId);
                         if (product != null)
                         {
                             product.SoldCount += item.Quantity;
@@ -218,11 +221,37 @@ namespace ShopBackend.Controllers
                             variant.StockQuantity = Math.Max(0, variant.StockQuantity - item.Quantity);
                         }
                     }
+
+                    var cart = _db.Carts.FirstOrDefault(x => x.UserId == order.UserId);
+                    if (cart != null)
+                    {
+                        var orderedQuantitiesByVariant = items
+                            .GroupBy(x => x.VariantId)
+                            .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
+
+                        var orderedVariantIds = orderedQuantitiesByVariant.Keys.ToList();
+                        var cartItems = _db.CartItems
+                            .Where(x => x.CartId == cart.Id && orderedVariantIds.Contains(x.VariantId))
+                            .ToList();
+
+                        foreach (var cartItem in cartItems)
+                        {
+                            var orderedQuantity = orderedQuantitiesByVariant[cartItem.VariantId];
+                            if (cartItem.Quantity > orderedQuantity)
+                            {
+                                cartItem.Quantity -= orderedQuantity;
+                            }
+                            else
+                            {
+                                _db.CartItems.Remove(cartItem);
+                            }
+                        }
+                    }
                 }
 
                 _db.SaveChanges();
 
-                return Ok(new { RspCode = "00", Message = "Success" });
+                return ("00", "Success", true);
             }
 
             // =====================
@@ -238,7 +267,7 @@ namespace ShopBackend.Controllers
 
             _db.SaveChanges();
 
-            return Ok(new { RspCode = "97", Message = "Failed" });
+            return ("97", "Failed", false);
         }
     }
 }

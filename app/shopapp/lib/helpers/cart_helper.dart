@@ -57,11 +57,36 @@ class CartHelper {
     }
 
     /// ===== ADD TO CART =====
-    await cart.addToCart(
-      productId: productId,
-      variantId: variant.id,
-      quantity: 1,
-    );
+    try {
+      await cart.addToCart(
+        productId: productId,
+        variantId: variant.id,
+        quantity: 1,
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+
+      final message = e.toString();
+      final sessionExpired =
+          message.contains("Phi") ||
+          message.contains("401") ||
+          message.toLowerCase().contains("unauthorized");
+
+      if (sessionExpired) {
+        await auth.logout();
+        if (!context.mounted) return;
+        context.read<CartProvider>().clearCart();
+        _showSnack(context, "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+        return;
+      }
+
+      _showSnack(context, "Không thể thêm vào giỏ hàng. Vui lòng thử lại.");
+      return;
+    }
 
     if (!context.mounted) return;
 
