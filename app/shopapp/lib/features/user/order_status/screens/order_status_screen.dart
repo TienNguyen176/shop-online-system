@@ -363,6 +363,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
         return const Color(0xff16a34a);
       case "SHIPPING":
         return primary;
+      case "PAID":
+        return primary;
+      case "CANCEL":
+      case "FAILED":
+        return const Color(0xffef4444);
       case "PENDING":
       default:
         return const Color(0xffffb020);
@@ -375,6 +380,11 @@ class _OrderStatusScreenState extends State<OrderStatusScreen> {
         return "Đã giao";
       case "SHIPPING":
         return "Đang giao";
+      case "PAID":
+        return "Chờ giao hàng";
+      case "CANCEL":
+      case "FAILED":
+        return "Đã hủy";
       case "PENDING":
         return "Chờ xác nhận";
       default:

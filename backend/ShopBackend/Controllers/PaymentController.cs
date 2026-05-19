@@ -209,6 +209,13 @@ namespace ShopBackend.Controllers
             // 5. FAILED
             // =====================
             payment.Status = "FAILED";
+
+            var failedOrder = _db.Orders.FirstOrDefault(x => x.Id == orderId);
+            if (failedOrder != null)
+            {
+                failedOrder.Status = "CANCEL";
+            }
+
             _db.SaveChanges();
 
             return Ok(new { RspCode = "97", Message = "Failed" });

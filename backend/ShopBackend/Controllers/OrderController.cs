@@ -42,9 +42,11 @@ namespace ShopBackend.Controllers
             long userId,
             string status)
         {
+            var normalizedStatus = status.ToUpper();
+
             var orders = await _context.Orders
                 .Where(o => o.UserId == userId &&
-                            o.Status == status)
+                            o.Status == normalizedStatus)
                 .OrderByDescending(o => o.CreatedAt)
                 .ToListAsync();
 

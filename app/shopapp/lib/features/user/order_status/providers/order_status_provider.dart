@@ -8,9 +8,19 @@ class OrderStatusProvider extends ChangeNotifier {
 
   OrderStatusProvider(this.repo);
 
-  static const List<String> tabs = ["Chờ xác nhận", "Chờ giao hàng", "Đã giao"];
+  static const List<String> tabs = [
+    "Chờ xác nhận",
+    "Chờ giao hàng",
+    "Đã giao",
+    "Đã hủy",
+  ];
 
-  static const List<String> apiStatus = ["PENDING", "SHIPPING", "DELIVERED"];
+  static const List<String> apiStatus = [
+    "PENDING",
+    "PAID",
+    "DELIVERED",
+    "CANCEL",
+  ];
 
   List<OrderModel> _orders = [];
   bool _loading = false;
