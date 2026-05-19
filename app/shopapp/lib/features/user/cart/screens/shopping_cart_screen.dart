@@ -26,7 +26,11 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final user = context.read<AuthProvider>().user;
       if (user != null) {
-        context.read<CartProvider>().loadCart(user['id']);
+        final id = user['id'];
+        final userId = id is int ? id : int.tryParse(id.toString());
+        if (userId != null) {
+          context.read<CartProvider>().loadCart(userId, force: true);
+        }
       }
     });
   }

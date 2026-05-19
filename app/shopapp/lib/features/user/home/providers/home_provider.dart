@@ -11,10 +11,12 @@ class HomeProvider extends ChangeNotifier {
 
   List<Product> products = [];
   List<Product> allProducts = [];
+  List<Product> bannerProducts = [];
 
   final Set<int> loadedIds = {};
 
   bool loading = false;
+  bool loadingBanner = false;
   bool loadingMore = false;
   bool hasMore = true;
   bool isFetching = false;
@@ -29,6 +31,22 @@ class HomeProvider extends ChangeNotifier {
   /// ===============================
   /// LOAD PRODUCTS
   /// ===============================
+  Future<void> loadBannerProducts() async {
+    if (loadingBanner || bannerProducts.isNotEmpty) return;
+
+    loadingBanner = true;
+    notifyListeners();
+
+    try {
+      bannerProducts = await repo.getBannerProducts();
+    } catch (e) {
+      bannerProducts = [];
+    }
+
+    loadingBanner = false;
+    notifyListeners();
+  }
+
   Future<void> loadProducts({bool refresh = false}) async {
     if (isFetching) return;
 

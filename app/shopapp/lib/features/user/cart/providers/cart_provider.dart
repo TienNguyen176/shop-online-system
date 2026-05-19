@@ -16,6 +16,7 @@ class CartProvider extends ChangeNotifier {
   String? _error;
 
   int _userId = 0;
+  bool _hasLoaded = false;
 
   int get totalItems {
     return items.fold(0, (sum, item) => sum + item.quantity);
@@ -47,7 +48,11 @@ class CartProvider extends ChangeNotifier {
 
   /// ================= CORE =================
 
-  Future<void> loadCart(int userId) async {
+  Future<void> loadCart(int userId, {bool force = false}) async {
+    if (!force && _hasLoaded && _userId == userId) {
+      return;
+    }
+
     _userId = userId;
 
     _loading = true;
@@ -61,6 +66,8 @@ class CartProvider extends ChangeNotifier {
       _selectedIds
         ..clear()
         ..addAll(_items.map((e) => e.id));
+
+      _hasLoaded = true;
     } catch (e) {
       _error = e.toString();
     }

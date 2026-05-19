@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 
-import '../../auth/providers/auth_provider.dart';
 import '../../../../routes/app_routes.dart';
-import '../../order_status/screens/order_status_screen.dart';
 import '../../../../widgets/cart_item_badge.dart';
 
 class HomeHeader extends StatelessWidget {
@@ -12,69 +9,53 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+      padding: const EdgeInsets.fromLTRB(22, 18, 22, 10),
       child: Row(
         children: [
-          GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, AppRoutes.userProfile);
-            },
-            child: const CircleAvatar(
-              radius: 18,
-              backgroundColor: Colors.blue,
-              child: Icon(Icons.person, color: Colors.white, size: 18),
-            ),
-          ),
-
-          const Spacer(),
-
-          /// icon đơn hàng
-          GestureDetector(
-            onTap: () async {
-              // Lấy userId từ AuthProvider thay vì SecureStorage
-              final auth = Provider.of<AuthProvider>(context, listen: false);
-
-              if (!auth.isLoggedIn || auth.user == null) {
-                return;
-              }
-
-              final userId = auth.user!['id'];
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder:
-                      (_) => OrderStatusScreen(
-                        userId:
-                            userId is int
-                                ? userId
-                                : int.parse(userId.toString()),
-                      ),
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(9),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xff1d4ed8).withOpacity(0.08),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 ),
-              );
-            },
-            child: const Icon(
-              Icons.receipt_long,
-              size: 28,
-              color: Colors.black,
+              ],
+            ),
+            clipBehavior: Clip.antiAlias,
+            child: Image.asset(
+              "assets/icon.jpg",
+              fit: BoxFit.cover,
             ),
           ),
-
-          const SizedBox(width: 16),
-
-          const CartIconWithBadge(),
-
-          const SizedBox(width: 16),
-
-          GestureDetector(
-            onTap: () {
+          const SizedBox(width: 10),
+          const Text(
+            "NEXT4SHOP",
+            style: TextStyle(
+              color: Color(0xff1f2937),
+              fontSize: 18,
+              fontWeight: FontWeight.w700,
+              letterSpacing: 1.2,
+            ),
+          ),
+          const Spacer(),
+          IconButton(
+            tooltip: "Thong bao",
+            visualDensity: VisualDensity.compact,
+            onPressed: () {
               Navigator.pushNamed(context, AppRoutes.notifications);
             },
-            child: const Icon(
-              Icons.notifications_none,
-              size: 28,
-              color: Colors.black,
+            icon: const Icon(
+              Icons.notifications_none_rounded,
+              size: 24,
+              color: Color(0xff1f2937),
             ),
           ),
+          const CartIconWithBadge(),
         ],
       ),
     );

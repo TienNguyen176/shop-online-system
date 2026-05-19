@@ -10,6 +10,7 @@ class Product {
 
   final double ratingAvg;
   final int ratingCount;
+  final int soldCount;
 
   final DateTime? createdAt;
 
@@ -29,6 +30,7 @@ class Product {
     this.brand,
     required this.ratingAvg,
     required this.ratingCount,
+    this.soldCount = 0,
     this.createdAt,
     this.price,
     this.image,
@@ -41,17 +43,18 @@ class Product {
       id: json["id"],
       name: json["name"] ?? "",
       description: json["description"],
-      categoryId: json["category_id"],
+      categoryId: json["category_id"] ?? json["categoryId"],
       brand: json["brand"],
 
       // hỗ trợ cả rating_avg và rating
       ratingAvg: ((json["rating_avg"] ?? json["rating"]) ?? 0).toDouble(),
 
-      ratingCount: json["rating_count"] ?? 0,
+      ratingCount: json["rating_count"] ?? json["ratingCount"] ?? 0,
+      soldCount: json["sold_count"] ?? json["soldCount"] ?? 0,
 
       createdAt:
-          json["created_at"] != null
-              ? DateTime.parse(json["created_at"])
+          (json["created_at"] ?? json["createdAt"]) != null
+              ? DateTime.parse(json["created_at"] ?? json["createdAt"])
               : null,
 
       // API home

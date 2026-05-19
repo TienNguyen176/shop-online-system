@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import '../../../../helpers/cart_helper.dart';
-import '../../../../models/product_variant.dart';
 
+import '../../../../core/config/app_config.dart';
+import '../../../../helpers/cart_helper.dart';
 import '../../../../models/product.dart';
+import '../../../../models/product_variant.dart';
 import '../../../../services/product/product_service.dart';
 import '../screens/product_detail_screen.dart';
-import '../../../../core/config/app_config.dart';
 
 class ProductCard extends StatefulWidget {
   final Product product;
@@ -19,12 +19,10 @@ class ProductCard extends StatefulWidget {
 
 class _ProductCardState extends State<ProductCard> {
   bool _loading = false;
-
   ProductVariant? _cachedVariant;
 
   Product get product => widget.product;
 
-  // ================= ADD TO CART =================
   Future<void> _handleAddToCart() async {
     if (_loading) return;
 
@@ -41,8 +39,6 @@ class _ProductCardState extends State<ProductCard> {
     }
   }
 
-  // ================= UI =================
-
   @override
   Widget build(BuildContext context) {
     final imageUrl =
@@ -52,30 +48,31 @@ class _ProductCardState extends State<ProductCard> {
 
     return Container(
       decoration: BoxDecoration(
-        color: Colors.blue[50],
-        borderRadius: BorderRadius.circular(14),
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xff1d4ed8).withOpacity(0.08),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
+          ),
         ],
       ),
       padding: const EdgeInsets.all(10),
-
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildImage(imageUrl),
           const SizedBox(height: 8),
           _buildName(),
-          const SizedBox(height: 4),
+          const SizedBox(height: 5),
           _buildPriceRow(),
-          const SizedBox(height: 8),
+          const SizedBox(height: 10),
           _buildActions(),
         ],
       ),
     );
   }
-
-  // ================= WIDGET PARTS =================
 
   Widget _buildImage(String? imageUrl) {
     return Expanded(
@@ -89,12 +86,12 @@ class _ProductCardState extends State<ProductCard> {
           );
         },
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(8),
+          borderRadius: BorderRadius.circular(16),
           child:
               imageUrl != null
                   ? CachedNetworkImage(
                     imageUrl: imageUrl,
-                    fit: BoxFit.contain,
+                    fit: BoxFit.cover,
                     width: double.infinity,
                     placeholder: (_, __) => _imagePlaceholder(),
                     errorWidget: (_, __, ___) => _imageError(),
@@ -107,35 +104,56 @@ class _ProductCardState extends State<ProductCard> {
 
   Widget _imagePlaceholder() {
     return Container(
-      color: Colors.grey[200],
+      color: const Color(0xffe0ecff),
       child: const Center(child: CircularProgressIndicator(strokeWidth: 2)),
     );
   }
 
   Widget _imageError() {
     return Container(
-      color: Colors.grey[200],
-      child: const Center(child: Icon(Icons.image)),
+      color: const Color(0xffe0ecff),
+      child: const Center(
+        child: Icon(Icons.image_outlined, color: Color(0xff9ca3af)),
+      ),
     );
   }
 
   Widget _buildName() {
-    return Text(product.name, maxLines: 2, overflow: TextOverflow.ellipsis);
+    return Text(
+      product.name,
+      maxLines: 2,
+      overflow: TextOverflow.ellipsis,
+      style: const TextStyle(
+        color: Color(0xff1f2937),
+        fontSize: 14,
+        fontWeight: FontWeight.w700,
+        height: 1.15,
+      ),
+    );
   }
 
   Widget _buildPriceRow() {
     return Row(
       children: [
         Text(
-          "${product.minPrice.toStringAsFixed(0)} đ",
+          "${product.minPrice.toStringAsFixed(0)} d",
           style: const TextStyle(
-            color: Colors.red,
-            fontWeight: FontWeight.bold,
+            color: Color(0xff2563eb),
+            fontWeight: FontWeight.w800,
+            fontSize: 13,
           ),
         ),
         const Spacer(),
-        const Icon(Icons.star, color: Colors.orange, size: 16),
-        Text(product.ratingAvg.toStringAsFixed(1)),
+        const Icon(Icons.star_rounded, color: Color(0xffffb020), size: 15),
+        const SizedBox(width: 2),
+        Text(
+          product.ratingAvg.toStringAsFixed(1),
+          style: const TextStyle(
+            color: Color(0xff6b7280),
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
       ],
     );
   }
@@ -150,18 +168,17 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
-  // ================= BUTTON =================
-
   Widget _buildAddToCartButton() {
     return AbsorbPointer(
       absorbing: _loading,
       child: InkWell(
+        borderRadius: BorderRadius.circular(18),
         onTap: _handleAddToCart,
         child: Container(
           width: 32,
           height: 32,
           decoration: BoxDecoration(
-            color: _loading ? Colors.grey : Colors.red,
+            color: _loading ? Colors.grey : const Color(0xff2563eb),
             shape: BoxShape.circle,
           ),
           child: Center(
@@ -176,7 +193,7 @@ class _ProductCardState extends State<ProductCard> {
                       ),
                     )
                     : const Icon(
-                      Icons.shopping_cart,
+                      Icons.shopping_bag_outlined,
                       size: 16,
                       color: Colors.white,
                     ),
@@ -190,13 +207,19 @@ class _ProductCardState extends State<ProductCard> {
     return GestureDetector(
       onTap: () {},
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 6),
+        height: 32,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: Colors.red[300],
-          borderRadius: BorderRadius.circular(20),
+          color: const Color(0xff1e3a8a),
+          borderRadius: BorderRadius.circular(16),
         ),
-        child: const Center(
-          child: Text("Mua ngay", style: TextStyle(color: Colors.white)),
+        child: const Text(
+          "Buy now",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 12,
+            fontWeight: FontWeight.w700,
+          ),
         ),
       ),
     );

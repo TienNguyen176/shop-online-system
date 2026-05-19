@@ -21,17 +21,78 @@ namespace ShopBackend.Controllers
         public async Task<IActionResult> GetProducts(
             int page = 1,
             int pageSize = 10,
-            long? categoryId = null)
+            long? categoryId = null,
+            string? categoryIds = null,
+            string? search = null,
+            string? brand = null,
+            string? brands = null,
+            decimal? minRating = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null)
         {
             var query = _db.Products.AsQueryable();
 
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                query = query.Where(p => p.Name.Contains(search));
+            }
+
+            if (!string.IsNullOrWhiteSpace(brand))
+            {
+                query = query.Where(p => p.Brand == brand);
+            }
+
+            if (!string.IsNullOrWhiteSpace(brands))
+            {
+                var brandList = brands
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .ToList();
+
+                query = query.Where(p => brandList.Contains(p.Brand));
+            }
+
+            if (minRating.HasValue)
+            {
+                query = query.Where(p => p.RatingAvg >= minRating.Value);
+            }
+
             if (categoryId.HasValue && categoryId != 0)
             {
-                var categoryIds = await GetAllChildIds(categoryId.Value);
+                var childCategoryIds = await GetAllChildIds(categoryId.Value);
 
                 query = query.Where(p =>
                     p.CategoryId.HasValue &&
-                    categoryIds.Contains(p.CategoryId.Value)
+                    childCategoryIds.Contains(p.CategoryId.Value)
+                );
+            }
+
+            if (!string.IsNullOrWhiteSpace(categoryIds))
+            {
+                var selectedIds = categoryIds
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                    .Select(long.Parse)
+                    .ToList();
+
+                var expandedIds = new List<long>();
+                foreach (var id in selectedIds)
+                {
+                    expandedIds.AddRange(await GetAllChildIds(id));
+                }
+
+                query = query.Where(p =>
+                    p.CategoryId.HasValue &&
+                    expandedIds.Contains(p.CategoryId.Value)
+                );
+            }
+
+            if (minPrice.HasValue || maxPrice.HasValue)
+            {
+                query = query.Where(p =>
+                    _db.ProductVariants.Any(v =>
+                        v.ProductId == p.Id &&
+                        (!minPrice.HasValue || v.Price >= minPrice.Value) &&
+                        (!maxPrice.HasValue || v.Price <= maxPrice.Value)
+                    )
                 );
             }
 
@@ -44,6 +105,51 @@ namespace ShopBackend.Controllers
                     Id = p.Id,
                     Name = p.Name,
                     Rating = p.RatingAvg,
+
+                    Price = _db.ProductVariants
+                        .Where(v => v.ProductId == p.Id)
+                        .Select(v => (decimal?)v.Price)
+                        .Min() ?? 0,
+
+                    Image = _db.ProductImages
+                        .Where(i => i.ProductId == p.Id && i.IsMain)
+                        .Select(i => i.ImageUrl)
+                        .FirstOrDefault()
+                })
+                .ToListAsync();
+
+            return Ok(products);
+        }
+
+        // GET: api/products/brands
+        [HttpGet("brands")]
+        public async Task<IActionResult> GetBrands()
+        {
+            var brands = await _db.Products
+                .Where(p => p.Brand != null && p.Brand != "")
+                .Select(p => p.Brand)
+                .Distinct()
+                .OrderBy(b => b)
+                .ToListAsync();
+
+            return Ok(brands);
+        }
+
+        // GET: api/products/banner
+        [HttpGet("banner")]
+        public async Task<IActionResult> GetBannerProducts()
+        {
+            var products = await _db.Products
+                .OrderByDescending(p => p.CreatedAt)
+                .ThenByDescending(p => p.SoldCount)
+                .Take(5)
+                .Select(p => new ProductHomeDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Rating = p.RatingAvg,
+                    SoldCount = p.SoldCount,
+                    CreatedAt = p.CreatedAt,
 
                     Price = _db.ProductVariants
                         .Where(v => v.ProductId == p.Id)

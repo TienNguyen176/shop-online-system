@@ -15,24 +15,39 @@ class CategoryList extends StatefulWidget {
 class _CategoryListState extends State<CategoryList> {
   int selectedCategoryId = 0;
 
+  static const List<IconData> _icons = [
+    Icons.category_outlined,
+    Icons.event_seat_outlined,
+    Icons.lightbulb_outline,
+    Icons.weekend_outlined,
+    Icons.inventory_2_outlined,
+    Icons.home_outlined,
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CategoryProvider>(
       builder: (context, provider, _) {
         if (provider.isLoading) {
           return const SizedBox(
-            height: 40,
-            child: Center(child: CircularProgressIndicator()),
+            height: 84,
+            child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
           );
         }
 
         final categories = provider.categories;
 
+        if (categories.isEmpty) {
+          return const SizedBox.shrink();
+        }
+
         return SizedBox(
-          height: 40,
-          child: ListView.builder(
+          height: 84,
+          child: ListView.separated(
+            padding: const EdgeInsets.symmetric(horizontal: 22),
             scrollDirection: Axis.horizontal,
             itemCount: categories.length,
+            separatorBuilder: (_, __) => const SizedBox(width: 24),
             itemBuilder: (context, index) {
               final cat = categories[index];
               final isSelected = selectedCategoryId == cat.id;
@@ -40,25 +55,50 @@ class _CategoryListState extends State<CategoryList> {
               return GestureDetector(
                 onTap: () {
                   setState(() => selectedCategoryId = cat.id);
-
                   widget.onSelected(cat.id);
                 },
-                child: Container(
-                  margin: const EdgeInsets.only(right: 12),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    color: isSelected ? Colors.blue : Colors.white,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    cat.name,
-                    style: TextStyle(
-                      color: isSelected ? Colors.white : Colors.black,
-                    ),
+                child: SizedBox(
+                  width: 58,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      AnimatedContainer(
+                        duration: const Duration(milliseconds: 180),
+                        width: 46,
+                        height: 46,
+                        decoration: BoxDecoration(
+                          color:
+                              isSelected
+                                  ? const Color(0xff2563eb)
+                                  : Colors.white,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Icon(
+                          _icons[index % _icons.length],
+                          color:
+                              isSelected
+                                  ? Colors.white
+                                  : const Color(0xff475569),
+                          size: 23,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        cat.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color:
+                              isSelected
+                                  ? const Color(0xff2563eb)
+                                  : const Color(0xff64748b),
+                          fontSize: 11,
+                          fontWeight:
+                              isSelected ? FontWeight.w700 : FontWeight.w500,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );

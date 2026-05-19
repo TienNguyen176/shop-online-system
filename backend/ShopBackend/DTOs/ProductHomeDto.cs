@@ -12,5 +12,9 @@
 
         public decimal Rating { get; set; }
 
+        public int SoldCount { get; set; }
+
+        public DateTime CreatedAt { get; set; }
+
     }
 }

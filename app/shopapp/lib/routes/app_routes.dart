@@ -3,6 +3,8 @@ import '../features/user/home/screens/home_screen.dart';
 import '../features/user/auth/screens/login_screen.dart';
 import '../features/user/notification/screens/notification_screen.dart';
 import '../features/user/profile/screens/profile_screen.dart';
+import '../features/user/product/models/product_browse_args.dart';
+import '../features/user/product/screens/product_browse_screen.dart';
 import '../features/admin/layout/admin_layout.dart';
 import '../features/splash_screen.dart';
 
@@ -10,6 +12,7 @@ class AppRoutes {
   static const splash = '/';
   static const login = '/login';
   static const userHome = '/home';
+  static const userProducts = '/products';
   static const userProfile = '/profile';
   static const notifications = '/notifications';
   static const admin = '/admin';
@@ -21,6 +24,16 @@ class AppRoutes {
     login: (context) => const LoginScreen(),
 
     userHome: (context) => const HomeScreen(),
+
+    userProducts: (context) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+      return ProductBrowseScreen(
+        args:
+            args is ProductBrowseArgs
+                ? args
+                : const ProductBrowseArgs(),
+      );
+    },
 
     notifications: (context) => const NotificationScreen(),
 
