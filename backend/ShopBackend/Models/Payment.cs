@@ -13,7 +13,7 @@ namespace ShopBackend.Models
         public int PaymentMethodId { get; set; } // 2 = VNPAY
 
         [Column("transaction_id")]
-        public string TransactionId { get; set; }
+        public string? TransactionId { get; set; }
 
         [Column("amount")]
         public decimal Amount { get; set; }
@@ -31,10 +31,10 @@ namespace ShopBackend.Models
 
         // ADD IMPORTANT FIELDS
         [Column("vnp_response_code")]
-        public string VnpResponseCode { get; set; }
+        public string? VnpResponseCode { get; set; }
 
         [Column("bank_code")]
-        public string BankCode { get; set; }
+        public string? BankCode { get; set; }
 
         [Column("paid_at")]
         public DateTime? PaidAt { get; set; }
@@ -43,6 +43,6 @@ namespace ShopBackend.Models
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         // NAVIGATION
-        public Order Order { get; set; }
+        public Order? Order { get; set; }
     }
 }

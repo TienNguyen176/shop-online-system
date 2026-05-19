@@ -29,19 +29,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
             NavigationDelegate(
               onNavigationRequest: (request) {
                 final url = request.url;
-                final uri = Uri.tryParse(url);
-
-                if (_isVnPayReturn(uri)) {
-                  final responseCode = uri?.queryParameters["vnp_ResponseCode"];
-                  final transactionStatus =
-                      uri?.queryParameters["vnp_TransactionStatus"];
-                  final success =
-                      responseCode == "00" &&
-                      (transactionStatus == null || transactionStatus == "00");
-
-                  _openResult(success);
-                  return NavigationDecision.prevent;
-                }
 
                 // SUCCESS
                 if (url.contains("payment-success")) {
@@ -68,13 +55,6 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
       appBar: AppBar(title: const Text("Thanh toán")),
       body: WebViewWidget(controller: controller),
     );
-  }
-
-  bool _isVnPayReturn(Uri? uri) {
-    if (uri == null) return false;
-
-    return uri.path.contains("/api/payment/vnpay-return") ||
-        uri.path.contains("/payment/vnpay-return");
   }
 
   void _openResult(bool success) {

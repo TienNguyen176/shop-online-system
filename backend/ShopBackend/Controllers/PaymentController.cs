@@ -38,12 +38,11 @@ namespace ShopBackend.Controllers
                 .Select(v => v.Id)
                 .ToList();
 
-            var existingVariantIds = _db.ProductVariants
+            var variantsById = _db.ProductVariants
                 .Where(v => variantIds.Contains(v.Id))
-                .Select(v => v.Id)
-                .ToList();
+                .ToDictionary(v => v.Id);
 
-            if (existingVariantIds.Count != variantIds.Count || unavailableVariantIds.Any())
+            if (variantsById.Count != variantIds.Count || unavailableVariantIds.Any())
                 return BadRequest("Một số sản phẩm trong giỏ hàng không còn khả dụng");
 
             var productAmount = model.Items?
@@ -80,7 +79,7 @@ namespace ShopBackend.Controllers
                     _db.OrderItems.Add(new OrderItem
                     {
                         OrderId = order.Id,
-                        ProductId = item.ProductId,
+                        ProductId = variantsById[item.VariantId].ProductId,
                         VariantId = item.VariantId,
                         ProductName = item.ProductName,
                         VariantName = item.VariantName,
@@ -132,12 +131,19 @@ namespace ShopBackend.Controllers
         [HttpGet("vnpay-return")]
         public IActionResult Return()
         {
-            var response = _vnPayService.PaymentExecute(Request.Query);
-            var result = ProcessVnPayPayment(response);
+            try
+            {
+                var response = _vnPayService.PaymentExecute(Request.Query);
+                var result = ProcessVnPayPayment(response);
 
-            return Redirect(result.Success
-                ? "https://shopapp.ddns.net/payment-success"
-                : "https://shopapp.ddns.net/payment-failed");
+                return Redirect(result.Success
+                    ? "https://shopapp.ddns.net/payment-success"
+                    : "https://shopapp.ddns.net/payment-failed");
+            }
+            catch
+            {
+                return Redirect("https://shopapp.ddns.net/payment-failed");
+            }
         }
 
         // =====================================
@@ -146,10 +152,17 @@ namespace ShopBackend.Controllers
         [HttpGet("vnpay-ipn")]
         public IActionResult Ipn()
         {
-            var response = _vnPayService.PaymentExecute(Request.Query);
-            var result = ProcessVnPayPayment(response);
+            try
+            {
+                var response = _vnPayService.PaymentExecute(Request.Query);
+                var result = ProcessVnPayPayment(response);
 
-            return Ok(new { result.RspCode, result.Message });
+                return Ok(new { result.RspCode, result.Message });
+            }
+            catch
+            {
+                return Ok(new { RspCode = "99", Message = "Unknown error" });
+            }
         }
 
         private (string RspCode, string Message, bool Success) ProcessVnPayPayment(
@@ -193,6 +206,7 @@ namespace ShopBackend.Controllers
                 payment.Status = "SUCCESS";
                 payment.TransactionId = response.TransactionId;
                 payment.VnpResponseCode = response.VnPayResponseCode;
+                payment.BankCode = response.BankCode;
                 payment.PaidAt = DateTime.Now;
 
                 // UPDATE ORDER + PRODUCT SOLD/STOCK
@@ -205,21 +219,40 @@ namespace ShopBackend.Controllers
                         .Where(x => x.OrderId == order.Id)
                         .ToList();
 
+                    var orderedVariantIds = items.Select(x => x.VariantId).Distinct().ToList();
+                    var variants = _db.ProductVariants
+                        .Where(x => orderedVariantIds.Contains(x.Id))
+                        .ToList();
+
+                    var soldQuantitiesByProduct = new Dictionary<long, int>();
+
                     foreach (var item in items)
                     {
-                        var product = _db.Products
-                            .IgnoreQueryFilters()
-                            .FirstOrDefault(x => x.Id == item.ProductId);
-                        if (product != null)
-                        {
-                            product.SoldCount += item.Quantity;
-                        }
+                        var variant = variants.FirstOrDefault(x => x.Id == item.VariantId);
+                        if (variant == null)
+                            continue;
 
-                        var variant = _db.ProductVariants.FirstOrDefault(x => x.Id == item.VariantId);
-                        if (variant != null)
+                        variant.StockQuantity = Math.Max(0, variant.StockQuantity - item.Quantity);
+
+                        if (soldQuantitiesByProduct.ContainsKey(variant.ProductId))
                         {
-                            variant.StockQuantity = Math.Max(0, variant.StockQuantity - item.Quantity);
+                            soldQuantitiesByProduct[variant.ProductId] += item.Quantity;
                         }
+                        else
+                        {
+                            soldQuantitiesByProduct[variant.ProductId] = item.Quantity;
+                        }
+                    }
+
+                    var soldProductIds = soldQuantitiesByProduct.Keys.ToList();
+                    var products = _db.Products
+                        .IgnoreQueryFilters()
+                        .Where(x => soldProductIds.Contains(x.Id))
+                        .ToList();
+
+                    foreach (var product in products)
+                    {
+                        product.SoldCount += soldQuantitiesByProduct[product.Id];
                     }
 
                     var cart = _db.Carts.FirstOrDefault(x => x.UserId == order.UserId);
@@ -229,7 +262,7 @@ namespace ShopBackend.Controllers
                             .GroupBy(x => x.VariantId)
                             .ToDictionary(g => g.Key, g => g.Sum(x => x.Quantity));
 
-                        var orderedVariantIds = orderedQuantitiesByVariant.Keys.ToList();
+                        orderedVariantIds = orderedQuantitiesByVariant.Keys.ToList();
                         var cartItems = _db.CartItems
                             .Where(x => x.CartId == cart.Id && orderedVariantIds.Contains(x.VariantId))
                             .ToList();

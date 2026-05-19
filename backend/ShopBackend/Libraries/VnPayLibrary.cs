@@ -22,8 +22,19 @@ namespace ShopBackend.Libraries
                     vnPay.AddResponseData(key, value);
                 }
             }
-            var orderId = Convert.ToInt64(vnPay.GetResponseData("vnp_TxnRef"));
-            var vnPayTranId = Convert.ToInt64(vnPay.GetResponseData("vnp_TransactionNo"));
+            var orderIdRaw = vnPay.GetResponseData("vnp_TxnRef");
+            var transactionNoRaw = vnPay.GetResponseData("vnp_TransactionNo");
+            var amountRaw = vnPay.GetResponseData("vnp_Amount");
+            var bankCode = vnPay.GetResponseData("vnp_BankCode");
+
+            long.TryParse(orderIdRaw, out var orderId);
+            long.TryParse(transactionNoRaw, out var vnPayTranId);
+            decimal.TryParse(
+                amountRaw,
+                NumberStyles.Number,
+                CultureInfo.InvariantCulture,
+                out var amount);
+
             var vnpResponseCode = vnPay.GetResponseData("vnp_ResponseCode");
             var vnpSecureHash =
                 collection.FirstOrDefault(k => k.Key == "vnp_SecureHash").Value; //hash của dữ liệu trả về
@@ -44,7 +55,9 @@ namespace ShopBackend.Libraries
                 PaymentId = vnPayTranId.ToString(),
                 TransactionId = vnPayTranId.ToString(),
                 Token = vnpSecureHash,
-                VnPayResponseCode = vnpResponseCode
+                VnPayResponseCode = vnpResponseCode,
+                Amount = amount,
+                BankCode = bankCode
             };
         }
 

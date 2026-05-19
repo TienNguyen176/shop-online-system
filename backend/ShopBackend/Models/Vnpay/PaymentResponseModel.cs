@@ -12,5 +12,7 @@ namespace ShopBackend.Models.Vnpay
         public string VnPayResponseCode { get; set; }
 
         public decimal Amount { get; set; }
+
+        public string? BankCode { get; set; }
     }
 }
