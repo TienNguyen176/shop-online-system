@@ -20,6 +20,7 @@ class ProductBrowseScreen extends StatefulWidget {
     this.args = const ProductBrowseArgs(),
   });
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductBrowseScreen> createState() => _ProductBrowseScreenState();
 }
@@ -42,6 +43,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen>
   int _page = 1;
   static const int _pageSize = 12;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -61,6 +63,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen>
     });
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -69,6 +72,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen>
     super.dispose();
   }
 
+  /// Xu ly thay doi vong doi ung dung.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -188,6 +192,7 @@ class _ProductBrowseScreenState extends State<ProductBrowseScreen>
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

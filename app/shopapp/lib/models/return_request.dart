@@ -15,6 +15,7 @@ class ReturnRequestModel {
     required this.createdAt,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory ReturnRequestModel.fromJson(Map<String, dynamic> json) {
     return ReturnRequestModel(
       id: int.tryParse(json["id"]?.toString() ?? "") ?? 0,
@@ -27,6 +28,7 @@ class ReturnRequestModel {
   }
 }
 
+/// Chuyen doi gia tri dong thanh doi tuong DateTime neu hop le.
 DateTime? _dateOf(dynamic value) {
   final text = value?.toString();
   if (text == null || text.isEmpty) return null;

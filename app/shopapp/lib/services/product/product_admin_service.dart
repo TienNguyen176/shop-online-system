@@ -70,6 +70,7 @@ class ProductAdminService {
     return res.data['url'];
   }
 
+  /// Lay du lieu cho getVariants.
   Future<List<AdminProductVariant>> getVariants(int productId) async {
     final res = await dio.get("/api/admin/products/$productId/variants");
     final List data = res.data;
@@ -77,10 +78,12 @@ class ProductAdminService {
     return data.map((e) => AdminProductVariant.fromJson(e)).toList();
   }
 
+  /// Tao moi du lieu thong qua createVariant.
   Future<void> createVariant(int productId, Map<String, dynamic> data) async {
     await dio.post("/api/admin/products/$productId/variants", data: data);
   }
 
+  /// Cap nhat du lieu thong qua updateVariant.
   Future<void> updateVariant(
     int productId,
     int variantId,
@@ -92,6 +95,7 @@ class ProductAdminService {
     );
   }
 
+  /// Xoa du lieu thong qua deleteVariant.
   Future<void> deleteVariant(int productId, int variantId) async {
     await dio.delete("/api/admin/products/$productId/variants/$variantId");
   }

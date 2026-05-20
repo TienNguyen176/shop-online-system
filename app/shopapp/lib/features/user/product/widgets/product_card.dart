@@ -18,6 +18,7 @@ class ProductCard extends StatefulWidget {
 
   const ProductCard({super.key, required this.product});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductCard> createState() => _ProductCardState();
 }
@@ -28,6 +29,7 @@ class _ProductCardState extends State<ProductCard> {
 
   Product get product => widget.product;
 
+  /// Xu ly logic cho ham _handleAddToCart.
   Future<void> _handleAddToCart() async {
     if (_loading) return;
 
@@ -44,6 +46,7 @@ class _ProductCardState extends State<ProductCard> {
     }
   }
 
+  /// Xu ly logic cho ham _handleBuyNow.
   Future<void> _handleBuyNow() async {
     if (_loading) return;
 
@@ -106,6 +109,7 @@ class _ProductCardState extends State<ProductCard> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final imageUrl =
@@ -141,6 +145,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _buildImage.
   Widget _buildImage(String? imageUrl) {
     return Expanded(
       child: GestureDetector(
@@ -169,6 +174,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _imagePlaceholder.
   Widget _imagePlaceholder() {
     return Container(
       color: const Color(0xffe0ecff),
@@ -176,6 +182,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _imageError.
   Widget _imageError() {
     return Container(
       color: const Color(0xffe0ecff),
@@ -185,6 +192,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _buildName.
   Widget _buildName() {
     return Text(
       product.name,
@@ -199,6 +207,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _buildPriceRow.
   Widget _buildPriceRow() {
     return Row(
       children: [
@@ -225,6 +234,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _buildActions.
   Widget _buildActions() {
     return Row(
       children: [
@@ -235,6 +245,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _buildAddToCartButton.
   Widget _buildAddToCartButton() {
     return AbsorbPointer(
       absorbing: _loading,
@@ -270,6 +281,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _buildBuyNowButton.
   Widget _buildBuyNowButton() {
     return GestureDetector(
       onTap: _handleBuyNow,
@@ -292,6 +304,7 @@ class _ProductCardState extends State<ProductCard> {
     );
   }
 
+  /// Xu ly logic cho ham _fetchFirstVariant.
   Future<ProductVariant?> _fetchFirstVariant() async {
     if (_cachedVariant != null) return _cachedVariant;
 
@@ -309,6 +322,7 @@ class _ProductCardState extends State<ProductCard> {
     }
   }
 
+  /// Xu ly logic cho ham _variantName.
   String _variantName(ProductVariant variant) {
     if (variant.attributes.isEmpty) {
       return variant.sku ?? "";
@@ -319,6 +333,7 @@ class _ProductCardState extends State<ProductCard> {
         .join(" / ");
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     if (!mounted) return;
 

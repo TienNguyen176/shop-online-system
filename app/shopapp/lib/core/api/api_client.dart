@@ -30,6 +30,7 @@ class ApiClient {
     dio.options.headers.remove("Authorization");
   }
 
+  /// Xu ly logic cho ham _forceLogin.
   static Future<void> _forceLogin() async {
     clearToken();
 

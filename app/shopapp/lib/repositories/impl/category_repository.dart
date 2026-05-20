@@ -8,6 +8,7 @@ class CategoryRepository implements ICategoryRepository {
   List<Category>? _treeCache;
   List<Category>? _flatCache;
 
+  /// Lay du lieu cho getCategories.
   @override
   Future<List<Category>> getCategories() async {
     if (_treeCache != null) {
@@ -19,6 +20,7 @@ class CategoryRepository implements ICategoryRepository {
     return _treeCache!;
   }
 
+  /// Lay du lieu cho getAllCategories.
   @override
   Future<List<Category>> getAllCategories() async {
     if (_flatCache != null) {
@@ -30,6 +32,7 @@ class CategoryRepository implements ICategoryRepository {
     return _flatCache!;
   }
 
+  /// Tao moi du lieu thong qua createCategory.
   @override
   Future<Category> createCategory(Map<String, dynamic> data) async {
     final created = await service.createCategory(data);
@@ -37,6 +40,7 @@ class CategoryRepository implements ICategoryRepository {
     return created;
   }
 
+  /// Cap nhat du lieu thong qua updateCategory.
   @override
   Future<Category> updateCategory(int id, Map<String, dynamic> data) async {
     final updated = await service.updateCategory(id, data);
@@ -44,12 +48,14 @@ class CategoryRepository implements ICategoryRepository {
     return updated;
   }
 
+  /// Xoa du lieu thong qua deleteCategory.
   @override
   Future<void> deleteCategory(int id) async {
     await service.deleteCategory(id);
     clearCache();
   }
 
+  /// Xoa du lieu cache hien co.
   @override
   void clearCache() {
     _treeCache = null;

@@ -9,6 +9,7 @@ class PaymentWebViewScreen extends StatefulWidget {
 
   const PaymentWebViewScreen({super.key, required this.url});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<PaymentWebViewScreen> createState() => _PaymentWebViewScreenState();
 }
@@ -49,6 +50,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
           ..loadRequest(Uri.parse(widget.url));
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -57,6 +59,7 @@ class _PaymentWebViewScreenState extends State<PaymentWebViewScreen> {
     );
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   void _openResult(bool success) {
     if (_handledResult || !mounted) return;
     _handledResult = true;

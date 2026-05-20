@@ -11,6 +11,7 @@ import '../routes/app_routes.dart';
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<SplashScreen> createState() => _SplashScreenState();
 }
@@ -18,6 +19,7 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   String loadingText = "Đang khởi động...";
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -104,6 +106,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return role?.toString().trim().toLowerCase() ?? "user";
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

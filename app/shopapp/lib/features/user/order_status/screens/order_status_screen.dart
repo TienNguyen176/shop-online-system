@@ -11,6 +11,7 @@ class OrderStatusScreen extends StatefulWidget {
 
   const OrderStatusScreen({super.key, required this.userId});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<OrderStatusScreen> createState() => _OrderStatusScreenState();
 }
@@ -24,6 +25,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
   static const textMuted = Color(0xff64748b);
   static const border = Color(0xffdbeafe);
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -33,6 +35,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
     });
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -47,6 +50,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
     }
   }
 
+  /// Lam moi du lieu hien tai.
   Future<void> _reloadOrders({bool showLoading = true}) async {
     if (!mounted) return;
 
@@ -63,6 +67,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
         .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<OrderStatusProvider>(
@@ -84,6 +89,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
     );
   }
 
+  /// Xu ly logic cho ham _appBar.
   AppBar _appBar(BuildContext context) {
     return AppBar(
       backgroundColor: bg,
@@ -435,6 +441,7 @@ class _OrderStatusScreenState extends State<OrderStatusScreen>
     await context.read<OrderStatusProvider>().loadOrders(widget.userId);
   }
 
+  /// Chon mau hien thi phu hop voi trang thai don hang.
   Color _statusColor(String status) {
     switch (status.toUpperCase()) {
       case "DELIVERED":
@@ -478,6 +485,7 @@ class _InfoRow extends StatelessWidget {
 
   const _InfoRow({required this.icon, required this.text});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Row(

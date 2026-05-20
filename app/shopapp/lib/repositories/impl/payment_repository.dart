@@ -8,6 +8,7 @@ class PaymentRepository implements IPaymentRepository {
   /// CACHE
   String? _lastPaymentUrl;
 
+  /// Thuc hien quy trinh thanh toan don hang.
   @override
   Future<String> checkout(CheckoutRequest request) async {
     final url = await service.checkout(request);

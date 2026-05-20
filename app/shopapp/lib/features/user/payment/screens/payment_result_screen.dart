@@ -6,6 +6,7 @@ class PaymentResultScreen extends StatelessWidget {
 
   const PaymentResultScreen({super.key, required this.success});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

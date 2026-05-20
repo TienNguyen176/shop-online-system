@@ -117,6 +117,7 @@ class OrderDetail {
   }
 }
 
+/// Chuyen doi gia tri dong thanh doi tuong DateTime neu hop le.
 DateTime? _dateOf(dynamic value) {
   if (value == null) return null;
   return DateTime.tryParse(value.toString());

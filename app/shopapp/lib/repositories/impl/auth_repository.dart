@@ -25,6 +25,7 @@ class AuthRepository implements IAuthRepository {
     return data;
   }
 
+  /// Cap nhat du lieu thong qua updateProfile.
   @override
   Future<Map<String, dynamic>> updateProfile({
     required String fullName,
@@ -40,6 +41,7 @@ class AuthRepository implements IAuthRepository {
     return data;
   }
 
+  /// Lay du lieu cho getCurrentUserFromServer.
   @override
   Future<Map<String, dynamic>> getCurrentUserFromServer() async {
     final data = await service.getCurrentUser();
@@ -49,14 +51,17 @@ class AuthRepository implements IAuthRepository {
     return data;
   }
 
+  /// Lay du lieu cho getToken.
   @override
   String? getToken() {
     return _token;
   }
 
+  /// Lay du lieu cho getCurrentUser.
   @override
   Map<String, dynamic>? getCurrentUser() => _cache;
 
+  /// Dang xuat va xoa phien lam viec hien tai.
   @override
   void logout() {
     _cache = null;

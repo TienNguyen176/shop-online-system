@@ -19,6 +19,7 @@ class ProductAdminProvider extends ChangeNotifier {
   bool isFetching = false;
   bool hasMore = true;
 
+  /// Tai du lieu can thiet cho loadProducts.
   Future<void> loadProducts({bool refresh = false}) async {
     if (isFetching) return;
 
@@ -55,6 +56,7 @@ class ProductAdminProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Tao moi du lieu thong qua createProduct.
   Future<void> createProduct({
     required Map<String, dynamic> dto,
     required List<String> imagePaths,
@@ -79,6 +81,7 @@ class ProductAdminProvider extends ChangeNotifier {
     }
   }
 
+  /// Cap nhat du lieu thong qua updateProduct.
   Future<void> updateProduct({
     required int id,
     required Map<String, dynamic> dto,
@@ -104,6 +107,7 @@ class ProductAdminProvider extends ChangeNotifier {
     }
   }
 
+  /// Xoa du lieu thong qua deleteProduct.
   Future<void> deleteProduct(int id) async {
     try {
       await repo.deleteProduct(id);
@@ -114,11 +118,13 @@ class ProductAdminProvider extends ChangeNotifier {
     }
   }
 
+  /// Tai du lieu can thiet cho loadMore.
   void loadMore() {
     if (loading || isFetching || !hasMore) return;
     loadProducts();
   }
 
+  /// Tai du lieu can thiet cho loadVariants.
   Future<void> loadVariants(int productId) async {
     loading = true;
     notifyListeners();
@@ -134,6 +140,7 @@ class ProductAdminProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> saveVariant({
     required int productId,
     AdminProductVariant? variant,
@@ -159,6 +166,7 @@ class ProductAdminProvider extends ChangeNotifier {
     }
   }
 
+  /// Xoa du lieu thong qua deleteVariant.
   Future<void> deleteVariant(int productId, int variantId) async {
     loading = true;
     notifyListeners();

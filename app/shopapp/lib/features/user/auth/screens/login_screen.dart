@@ -9,6 +9,7 @@ import '../providers/auth_provider.dart';
 class LoginScreen extends StatelessWidget {
   const LoginScreen({super.key});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -113,6 +114,7 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
+  /// Xu ly logic cho ham _handleLoginResult.
   static Future<void> _handleLoginResult(
     BuildContext context,
     AuthProvider auth,
@@ -148,12 +150,14 @@ class LoginScreen extends StatelessWidget {
     }
   }
 
+  /// Xu ly logic cho ham _userIdFrom.
   static int? _userIdFrom(Map<String, dynamic>? user) {
     final id = user?["id"] ?? user?["Id"];
     if (id is int) return id;
     return int.tryParse(id?.toString() ?? "");
   }
 
+  /// Xu ly logic cho ham _roleFrom.
   static String _roleFrom(Map<String, dynamic>? user) {
     final role = user?["role"] ?? user?["Role"];
     return role?.toString().trim().toLowerCase() ?? "user";
@@ -180,6 +184,7 @@ class _SocialLoginButton extends StatelessWidget {
     required this.onPressed,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SizedBox(

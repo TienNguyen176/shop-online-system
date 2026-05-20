@@ -11,6 +11,7 @@ import 'product_variant_management_screen.dart';
 class ProductListScreen extends StatefulWidget {
   const ProductListScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductListScreen> createState() => _ProductListScreenState();
 }
@@ -48,6 +49,7 @@ class _ProductListScreenState extends State<ProductListScreen>
     }
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -57,6 +59,7 @@ class _ProductListScreenState extends State<ProductListScreen>
     super.dispose();
   }
 
+  /// Xu ly thay doi vong doi ung dung.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed && mounted) {
@@ -64,6 +67,7 @@ class _ProductListScreenState extends State<ProductListScreen>
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<ProductAdminProvider>(

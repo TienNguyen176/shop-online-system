@@ -15,6 +15,7 @@ class UserNotification {
     this.read = false,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory UserNotification.fromJson(Map<String, dynamic> json) {
     return UserNotification(
       id: int.tryParse(json["id"]?.toString() ?? "") ?? 0,

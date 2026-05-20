@@ -5,6 +5,7 @@ import '../interfaces/i_order_repository.dart';
 class OrderRepository implements IOrderRepository {
   final OrderService service = OrderService();
 
+  /// Lay du lieu cho getOrdersByStatus.
   @override
   Future<List<OrderModel>> getOrdersByStatus({
     required int userId,

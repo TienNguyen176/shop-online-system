@@ -20,6 +20,7 @@ class AdminLayout extends StatefulWidget {
     required this.userId,
   });
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<AdminLayout> createState() => _AdminLayoutState();
 }
@@ -37,6 +38,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     _AdminPage("Thuộc tính", Icons.tune_outlined, AttributeManagementScreen()),
   ];
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -51,6 +53,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     Navigator.pop(context);
   }
 
+  /// Dang xuat va xoa phien lam viec hien tai.
   Future<void> logout() async {
     await context.read<AuthProvider>().logout();
     if (!mounted) return;
@@ -62,6 +65,7 @@ class _AdminLayoutState extends State<AdminLayout> {
     );
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

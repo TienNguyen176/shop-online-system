@@ -5,6 +5,7 @@ class AttributeModel {
 
   AttributeModel({required this.id, required this.name, required this.values});
 
+  /// Tao doi tuong tu du lieu JSON.
   factory AttributeModel.fromJson(Map<String, dynamic> json) {
     return AttributeModel(
       id: json['id'],
@@ -13,6 +14,7 @@ class AttributeModel {
     );
   }
 
+  /// Chuyen doi doi tuong hien tai thanh du lieu JSON.
   Map<String, dynamic> toJson() {
     return {
       "id": id,

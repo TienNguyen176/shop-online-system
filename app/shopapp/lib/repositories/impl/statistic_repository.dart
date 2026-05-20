@@ -7,6 +7,7 @@ class StatisticRepository implements IStatisticRepository {
 
   List<StatisticItem>? _statisticCache;
 
+  /// Lay du lieu cho getStatistic.
   @override
   Future<List<StatisticItem>> getStatistic() async {
     if (_statisticCache != null) {
@@ -19,6 +20,7 @@ class StatisticRepository implements IStatisticRepository {
     return data;
   }
 
+  /// Xoa du lieu cache hien co.
   void clearCache() {
     _statisticCache = null;
   }

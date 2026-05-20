@@ -24,6 +24,7 @@ class AddressFormSheet extends StatefulWidget {
     this.accentColor,
   });
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<AddressFormSheet> createState() => _AddressFormSheetState();
 }
@@ -47,6 +48,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
 
   Color get _accent => widget.accentColor ?? Theme.of(context).primaryColor;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -62,6 +64,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     _loadInitialLocations();
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     _receiverCtrl.dispose();
@@ -70,6 +73,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     super.dispose();
   }
 
+  /// Tai du lieu can thiet cho _loadInitialLocations.
   Future<void> _loadInitialLocations() async {
     try {
       final provinces = await widget.service.getProvinces();
@@ -121,6 +125,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     }
   }
 
+  /// Xu ly logic cho ham _mergeSelected.
   List<LocationOption> _mergeSelected(
     List<LocationOption> options,
     LocationOption? selected,
@@ -130,6 +135,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     return [selected, ...options];
   }
 
+  /// Cap nhat lua chon hien tai cua nguoi dung.
   LocationOption? _selectedFrom(
     List<LocationOption> options,
     LocationOption? selected,
@@ -141,6 +147,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     return selected;
   }
 
+  /// Xu ly logic cho ham _onProvinceChanged.
   Future<void> _onProvinceChanged(LocationOption? value) async {
     setState(() {
       _province = value;
@@ -162,6 +169,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     }
   }
 
+  /// Xu ly logic cho ham _onDistrictChanged.
   Future<void> _onDistrictChanged(LocationOption? value) async {
     setState(() {
       _district = value;
@@ -181,6 +189,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     }
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
     if (_province == null || _district == null || _ward == null) {
@@ -217,6 +226,7 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -360,10 +370,12 @@ class _AddressFormSheetState extends State<AddressFormSheet> {
     );
   }
 
+  /// Kiem tra gia tri bat buoc trong form.
   String? _required(String? value) {
     return value == null || value.trim().isEmpty ? "Bắt buộc" : null;
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -388,6 +400,7 @@ class _LocationDropdown extends StatelessWidget {
     required this.onChanged,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<LocationOption>(

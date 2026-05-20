@@ -56,6 +56,7 @@ class AuthInterceptor extends Interceptor {
     }
   }
 
+  /// Lam moi du lieu hien tai.
   Future<String?> _refreshAccessToken(DioException err) async {
     final refreshToken = await storage.read(key: "refresh_token");
     if (refreshToken == null || refreshToken.isEmpty) return null;
@@ -88,6 +89,7 @@ class AuthInterceptor extends Interceptor {
     return accessToken;
   }
 
+  /// Xu ly logic cho ham _clearSession.
   Future<void> _clearSession() async {
     await storage.delete(key: "token");
     await storage.delete(key: "refresh_token");
@@ -95,6 +97,7 @@ class AuthInterceptor extends Interceptor {
     await onSessionExpired?.call();
   }
 
+  /// Xu ly logic cho ham _sessionExpiredError.
   DioException _sessionExpiredError(DioException err) {
     return DioException(
       requestOptions: err.requestOptions,

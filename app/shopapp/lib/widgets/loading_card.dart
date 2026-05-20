@@ -4,6 +4,7 @@ import 'package:shimmer/shimmer.dart';
 class LoadingCard extends StatelessWidget {
   const LoadingCard({super.key});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(

@@ -8,6 +8,7 @@ import '../../notification/providers/notification_provider.dart';
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -56,6 +57,7 @@ class HomeHeader extends StatelessWidget {
 class _NotificationIconWithBadge extends StatelessWidget {
   const _NotificationIconWithBadge();
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<NotificationProvider>(

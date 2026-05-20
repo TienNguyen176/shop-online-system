@@ -26,6 +26,7 @@ class ProductDetail {
     required this.imagesByColor,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory ProductDetail.fromJson(Map<String, dynamic> json) {
     return ProductDetail(
       id: json['id'] ?? json['Id'],

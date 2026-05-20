@@ -3,6 +3,7 @@ import '../models/location_option.dart';
 import '../models/user_address.dart';
 
 class AddressService {
+  /// Lay du lieu cho getAddresses.
   Future<List<UserAddress>> getAddresses() async {
     final res = await ApiClient.dio.get("/api/user-addresses");
     final data = res.data as List;
@@ -11,11 +12,13 @@ class AddressService {
         .toList();
   }
 
+  /// Tao moi du lieu thong qua createAddress.
   Future<UserAddress> createAddress(Map<String, dynamic> request) async {
     final res = await ApiClient.dio.post("/api/user-addresses", data: request);
     return UserAddress.fromJson(Map<String, dynamic>.from(res.data));
   }
 
+  /// Cap nhat du lieu thong qua updateAddress.
   Future<UserAddress> updateAddress(
     int id,
     Map<String, dynamic> request,
@@ -27,15 +30,18 @@ class AddressService {
     return UserAddress.fromJson(Map<String, dynamic>.from(res.data));
   }
 
+  /// Xoa du lieu thong qua deleteAddress.
   Future<void> deleteAddress(int id) async {
     await ApiClient.dio.delete("/api/user-addresses/$id");
   }
 
+  /// Lay du lieu cho getProvinces.
   Future<List<LocationOption>> getProvinces() async {
     final res = await ApiClient.dio.get("/api/ghn/provinces");
     return _locationsFrom(res.data);
   }
 
+  /// Lay du lieu cho getDistricts.
   Future<List<LocationOption>> getDistricts(int provinceId) async {
     final res = await ApiClient.dio.get(
       "/api/ghn/districts",
@@ -44,6 +50,7 @@ class AddressService {
     return _locationsFrom(res.data);
   }
 
+  /// Lay du lieu cho getWards.
   Future<List<LocationOption>> getWards(int districtId) async {
     final res = await ApiClient.dio.get(
       "/api/ghn/wards",
@@ -52,6 +59,7 @@ class AddressService {
     return _locationsFrom(res.data);
   }
 
+  /// Lay du lieu cho getShippingFee.
   Future<double> getShippingFee({
     required int toDistrictId,
     required String toWardCode,
@@ -73,6 +81,7 @@ class AddressService {
     return double.tryParse(fee?.toString() ?? "") ?? 0;
   }
 
+  /// Xu ly logic cho ham _locationsFrom.
   List<LocationOption> _locationsFrom(dynamic data) {
     final list = data as List;
     return list

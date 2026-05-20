@@ -21,6 +21,7 @@ class ProductBrowseArgs {
     this.title,
   });
 
+  /// Tao ban sao doi tuong voi cac gia tri duoc cap nhat.
   ProductBrowseArgs copyWith({
     String? searchKeyword,
     int? categoryId,

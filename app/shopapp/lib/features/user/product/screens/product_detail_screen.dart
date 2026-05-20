@@ -16,6 +16,7 @@ class ProductDetailScreen extends StatefulWidget {
 
   const ProductDetailScreen({super.key, required this.productId});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductDetailScreen> createState() => _ProductDetailScreenState();
 }
@@ -25,6 +26,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
   bool _loading = false;
   int _imageIndex = 0;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -39,12 +41,14 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     });
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// Xu ly thay doi vong doi ung dung.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -52,6 +56,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     }
   }
 
+  /// Lam moi du lieu hien tai.
   Future<void> _refreshProduct({bool showLoading = false}) async {
     if (!mounted) return;
     await context.read<ProductDetailProvider>().load(
@@ -60,6 +65,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<ProductDetailProvider>(
@@ -119,6 +125,7 @@ class _ProductDetailScreenState extends State<ProductDetailScreen>
     );
   }
 
+  /// Xu ly logic cho ham _visibleImages.
   List<String> _visibleImages(
     ProductDetail product,
     ProductDetailProvider provider,
@@ -179,6 +186,7 @@ class _Header extends StatelessWidget {
 
   const _Header({required this.onBack});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -202,6 +210,7 @@ class _Header extends StatelessWidget {
 class _NotificationButton extends StatelessWidget {
   const _NotificationButton();
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<NotificationProvider>(
@@ -253,6 +262,7 @@ class _CircleButton extends StatelessWidget {
 
   const _CircleButton({required this.icon, required this.onPressed});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -288,6 +298,7 @@ class _ImageGallery extends StatelessWidget {
     required this.onChanged,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -373,6 +384,7 @@ class _ImageGallery extends StatelessWidget {
     );
   }
 
+  /// Tao URL day du cho duong dan hinh anh.
   static String _imageUrl(String path) {
     if (path.startsWith("http://") || path.startsWith("https://")) {
       return path;
@@ -395,6 +407,7 @@ class _InfoPanel extends StatelessWidget {
     required this.provider,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final stock = variant?.stockQuantity ?? 0;
@@ -563,12 +576,14 @@ class _InfoPanel extends StatelessWidget {
     );
   }
 
+  /// Xu ly logic cho ham _hasStockForValue.
   bool _hasStockForValue(String key, String value) {
     return product.variants.any(
       (variant) => variant.attributes[key] == value && variant.stockQuantity > 0,
     );
   }
 
+  /// Dinh dang gia tien de hien thi tren giao dien.
   static String _formatPrice(double value) {
     final text = value.round().toString();
     final buffer = StringBuffer();
@@ -589,6 +604,7 @@ class _StockPill extends StatelessWidget {
 
   const _StockPill({required this.inStock, required this.stock});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -620,6 +636,7 @@ class _BottomActions extends StatelessWidget {
     required this.onAddToCart,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SafeArea(

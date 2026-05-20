@@ -18,6 +18,7 @@ class Category {
     this.children = const [],
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory Category.fromJson(Map<String, dynamic> json) {
     final rawId = json['id'] ?? json['Id'];
     final rawParentId = json['parentId'] ?? json['ParentId'];
@@ -45,6 +46,7 @@ class Category {
     );
   }
 
+  /// Chuyen doi doi tuong hien tai thanh du lieu JSON.
   Map<String, dynamic> toJson() {
     return {
       "id": id,

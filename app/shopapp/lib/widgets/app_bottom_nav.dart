@@ -12,6 +12,7 @@ class AppBottomNav extends StatelessWidget {
 
   const AppBottomNav({super.key, required this.activeItem});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -62,21 +63,25 @@ class AppBottomNav extends StatelessWidget {
     );
   }
 
+  /// Xu ly logic cho ham _goHome.
   void _goHome(BuildContext context) {
     if (activeItem == AppBottomNavItem.home) return;
     Navigator.pushReplacementNamed(context, AppRoutes.userHome);
   }
 
+  /// Xu ly logic cho ham _goProduct.
   void _goProduct(BuildContext context) {
     if (activeItem == AppBottomNavItem.product) return;
     Navigator.pushNamed(context, AppRoutes.userProducts);
   }
 
+  /// Xu ly logic cho ham _goProfile.
   void _goProfile(BuildContext context) {
     if (activeItem == AppBottomNavItem.profile) return;
     Navigator.pushNamed(context, AppRoutes.userProfile);
   }
 
+  /// Xu ly logic cho ham _goOrder.
   void _goOrder(BuildContext context) {
     final user = context.read<AuthProvider>().user;
     final id = user?["id"];
@@ -109,6 +114,7 @@ class _NavButton extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final color = active ? const Color(0xff2563eb) : const Color(0xff9ca3af);

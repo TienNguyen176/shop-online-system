@@ -38,6 +38,7 @@ class Product {
     this.variants,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory Product.fromJson(Map<String, dynamic> json) {
     return Product(
       id: json["id"],

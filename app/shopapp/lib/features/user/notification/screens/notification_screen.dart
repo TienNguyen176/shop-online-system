@@ -10,6 +10,7 @@ import '../providers/notification_provider.dart';
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
 }
@@ -18,6 +19,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
   /// Kiểm tra đã load dữ liệu lần đầu chưa
   bool _initialized = false;
 
+  /// Xu ly khi dependency cua widget thay doi.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -35,6 +37,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Scaffold(

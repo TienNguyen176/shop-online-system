@@ -12,6 +12,7 @@ class BannerSlider extends StatefulWidget {
 
   const BannerSlider({super.key, required this.products});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<BannerSlider> createState() => _BannerSliderState();
 }
@@ -19,6 +20,7 @@ class BannerSlider extends StatefulWidget {
 class _BannerSliderState extends State<BannerSlider> {
   int activeIndex = 0;
 
+  /// Dong bo state khi widget cha cap nhat cau hinh.
   @override
   void didUpdateWidget(covariant BannerSlider oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -28,6 +30,7 @@ class _BannerSliderState extends State<BannerSlider> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     if (widget.products.isEmpty) {
@@ -206,6 +209,7 @@ class _BannerSliderState extends State<BannerSlider> {
     );
   }
 
+  /// Hien thi giao dien thay the khi khong tai duoc du lieu.
   Widget _imageFallback() {
     return Container(
       color: const Color(0xffdbeafe),
@@ -219,6 +223,7 @@ class _BannerSliderState extends State<BannerSlider> {
 class _BannerLoading extends StatelessWidget {
   const _BannerLoading();
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(

@@ -7,12 +7,14 @@ import '../providers/category_provider.dart';
 class CategoryManagementScreen extends StatefulWidget {
   const CategoryManagementScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<CategoryManagementScreen> createState() =>
       _CategoryManagementScreenState();
 }
 
 class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -21,6 +23,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     });
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<CategoryProvider>(
@@ -71,6 +74,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     );
   }
 
+  /// Xu ly logic cho ham _parentName.
   String _parentName(List<Category> categories, int? parentId) {
     if (parentId == null) return "Danh mục gốc";
     for (final category in categories) {
@@ -79,6 +83,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     return "Không rõ";
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   Future<void> _openForm(
     CategoryProvider provider, [
     Category? category,
@@ -102,6 +107,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     }
   }
 
+  /// Hien thi xac nhan truoc khi thuc hien hanh dong.
   Future<void> _confirmDelete(
     CategoryProvider provider,
     Category category,
@@ -134,6 +140,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     }
   }
 
+  /// Xu ly logic cho ham _friendlyError.
   String _friendlyError(Object e) {
     final text = e.toString();
     final marker = "message:";
@@ -142,6 +149,7 @@ class _CategoryManagementScreenState extends State<CategoryManagementScreen> {
     return text;
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
@@ -158,6 +166,7 @@ class _CategoryFormSheet extends StatefulWidget {
     this.category,
   });
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<_CategoryFormSheet> createState() => _CategoryFormSheetState();
 }
@@ -170,6 +179,7 @@ class _CategoryFormSheetState extends State<_CategoryFormSheet> {
   int? _parentId;
   bool _saving = false;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -182,6 +192,7 @@ class _CategoryFormSheetState extends State<_CategoryFormSheet> {
     }
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -190,6 +201,7 @@ class _CategoryFormSheetState extends State<_CategoryFormSheet> {
     super.dispose();
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final parents = widget.provider.flatCategories
@@ -306,10 +318,12 @@ class _CategoryFormSheetState extends State<_CategoryFormSheet> {
     );
   }
 
+  /// Kiem tra gia tri bat buoc trong form.
   String? _required(String? value) {
     return value == null || value.trim().isEmpty ? "Bắt buộc" : null;
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -355,6 +369,7 @@ class _CategoryTile extends StatelessWidget {
     required this.onDelete,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -398,6 +413,7 @@ class _Header extends StatelessWidget {
 
   const _Header({required this.title, required this.subtitle});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -437,6 +453,7 @@ class _EmptyState extends StatelessWidget {
 
   const _EmptyState({required this.message});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SizedBox(

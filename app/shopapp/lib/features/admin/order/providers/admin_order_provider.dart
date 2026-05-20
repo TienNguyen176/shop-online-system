@@ -25,6 +25,7 @@ class AdminOrderProvider extends ChangeNotifier {
   bool loading = false;
   String? error;
 
+  /// Tai du lieu can thiet cho loadOrders.
   Future<void> loadOrders({String? status}) async {
     selectedStatus = status ?? selectedStatus;
     loading = true;
@@ -53,6 +54,7 @@ class AdminOrderProvider extends ChangeNotifier {
     }
   }
 
+  /// Phe duyet don hang hoac yeu cau dang cho xu ly.
   Future<void> approve(AdminOrderModel order) async {
     final nextStatus = switch (order.status.toUpperCase()) {
       "PENDING" => "PAID",
@@ -76,6 +78,7 @@ class AdminOrderProvider extends ChangeNotifier {
     }
   }
 
+  /// Xu ly ket qua xet duyet yeu cau tra hang.
   Future<void> reviewReturnRequest({
     required AdminReturnRequestModel request,
     required String status,

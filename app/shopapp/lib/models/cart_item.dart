@@ -26,6 +26,7 @@ class CartItem {
     required this.quantity,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory CartItem.fromJson(Map<String, dynamic> json) {
     return CartItem(
       id: json["id"] ?? 0,

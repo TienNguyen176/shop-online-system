@@ -8,6 +8,7 @@ class CartRepository implements ICartRepository {
   /// CACHE theo user
   final Map<int, List<CartItem>> _cartCache = {};
 
+  /// Them du lieu moi vao danh sach hoac gio hang.
   @override
   Future<void> addToCart({
     required int userId,
@@ -26,6 +27,7 @@ class CartRepository implements ICartRepository {
     _cartCache.remove(userId);
   }
 
+  /// Lay du lieu cho getCart.
   @override
   Future<List<CartItem>> getCart(int userId, {bool forceRefresh = false}) async {
     /// dùng cache nếu có
@@ -40,6 +42,7 @@ class CartRepository implements ICartRepository {
     return data;
   }
 
+  /// Cap nhat du lieu thong qua updateQuantity.
   @override
   Future<void> updateQuantity(int itemId, int quantity) async {
     await service.updateQuantity(itemId, quantity);
@@ -48,6 +51,7 @@ class CartRepository implements ICartRepository {
     _cartCache.clear();
   }
 
+  /// Xoa du lieu thong qua deleteItem.
   @override
   Future<void> deleteItem(int itemId) async {
     await service.deleteItem(itemId);

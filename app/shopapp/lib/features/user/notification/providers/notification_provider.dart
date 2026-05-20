@@ -13,6 +13,7 @@ class NotificationProvider extends ChangeNotifier {
   int get unreadCount =>
       notifications.where((notification) => !notification.read).length;
 
+  /// Tai du lieu can thiet cho loadNotifications.
   Future<void> loadNotifications({bool forceRefresh = false}) async {
     if (!forceRefresh && notifications.isNotEmpty) return;
 
@@ -30,6 +31,7 @@ class NotificationProvider extends ChangeNotifier {
     }
   }
 
+  /// Cap nhat trang thai danh dau cho thong bao.
   Future<void> markAllAsRead() async {
     await _service.markAllAsRead();
 
@@ -40,6 +42,7 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Cap nhat trang thai danh dau cho thong bao.
   Future<void> markAsRead(int id) async {
     final index = notifications.indexWhere((item) => item.id == id);
     if (index == -1) return;
@@ -49,6 +52,7 @@ class NotificationProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Xoa du lieu tam thoi dang duoc luu trong state.
   void clearAll() {
     notifications.clear();
     notifyListeners();

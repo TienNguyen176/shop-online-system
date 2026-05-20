@@ -6,6 +6,7 @@ import '../models/order_detail.dart';
 import '../models/order_model.dart';
 
 class OrderService {
+  /// Lay du lieu cho getOrdersByStatus.
   Future<List<OrderModel>> getOrdersByStatus({
     required int userId,
     required String status,
@@ -20,11 +21,13 @@ class OrderService {
     return raw.map((e) => OrderModel.fromJson(e)).toList();
   }
 
+  /// Lay du lieu cho getOrderDetail.
   Future<OrderDetail> getOrderDetail(int orderId) async {
     final res = await ApiClient.dio.get("/api/order/$orderId");
     return OrderDetail.fromJson(Map<String, dynamic>.from(res.data));
   }
 
+  /// Cap nhat du lieu thong qua updateShippingAddress.
   Future<OrderDetail> updateShippingAddress({
     required int orderId,
     required UserAddress address,
@@ -36,6 +39,7 @@ class OrderService {
     return OrderDetail.fromJson(Map<String, dynamic>.from(res.data));
   }
 
+  /// Xoa du lieu thong qua deleteOrder.
   Future<void> deleteOrder(int orderId) async {
     try {
       await ApiClient.dio.delete("/api/order/$orderId");
@@ -44,6 +48,7 @@ class OrderService {
     }
   }
 
+  /// Tao moi du lieu thong qua createReturnRequest.
   Future<void> createReturnRequest({
     required int orderId,
     required String reason,
@@ -58,6 +63,7 @@ class OrderService {
     }
   }
 
+  /// Xu ly logic cho ham _errorMessage.
   String _errorMessage(Object error) {
     if (error is! DioException) return error.toString();
 

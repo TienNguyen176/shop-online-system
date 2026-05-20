@@ -19,6 +19,7 @@ class AdminProduct {
     required this.rating,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory AdminProduct.fromJson(Map<String, dynamic> json) {
     return AdminProduct(
       id: json['id'],

@@ -9,6 +9,7 @@ import '../providers/dashboard_provider.dart';
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<DashboardScreen> createState() => _DashboardScreenState();
 }
@@ -44,12 +45,14 @@ class _DashboardScreenState extends State<DashboardScreen>
     });
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     _animController.dispose();
     super.dispose();
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<DashboardProvider>(
@@ -309,6 +312,7 @@ class _StatSummary extends StatelessWidget {
     required this.bottomValue,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final topCard = _StatCard(
@@ -355,6 +359,7 @@ class _StatCard extends StatelessWidget {
     required this.isUp,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -439,6 +444,7 @@ class _SectionCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(18),
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -465,6 +471,7 @@ class _LegendItem extends StatelessWidget {
     required this.percent,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -528,6 +535,7 @@ class _BarRow extends StatelessWidget {
     required this.animValue,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
@@ -621,6 +629,7 @@ class _DonutPainter extends CustomPainter {
     }
   }
 
+  /// Xac dinh khi nao painter can ve lai.
   @override
   bool shouldRepaint(covariant _DonutPainter oldDelegate) {
     return oldDelegate.progress != progress || oldDelegate.data != data;

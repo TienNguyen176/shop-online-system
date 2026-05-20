@@ -13,6 +13,7 @@ class CategoryProvider extends ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  /// Tai du lieu can thiet cho loadCategories.
   Future<void> loadCategories({bool refresh = false}) async {
     if (!refresh && categories.isNotEmpty && flatCategories.isNotEmpty) return;
     if (refresh) {
@@ -44,6 +45,7 @@ class CategoryProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> saveCategory({
     Category? category,
     required String name,
@@ -67,6 +69,7 @@ class CategoryProvider extends ChangeNotifier {
     await loadCategories(refresh: true);
   }
 
+  /// Xoa du lieu thong qua deleteCategory.
   Future<void> deleteCategory(int id) async {
     await repository.deleteCategory(id);
     await loadCategories(refresh: true);

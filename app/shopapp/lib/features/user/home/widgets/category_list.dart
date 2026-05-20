@@ -8,6 +8,7 @@ class CategoryList extends StatefulWidget {
 
   const CategoryList({super.key, required this.onSelected});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<CategoryList> createState() => _CategoryListState();
 }
@@ -24,6 +25,7 @@ class _CategoryListState extends State<CategoryList> {
     Icons.home_outlined,
   ];
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<CategoryProvider>(

@@ -16,6 +16,7 @@ class ProductVariant {
     required this.attributes,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory ProductVariant.fromJson(Map<String, dynamic> json) {
     return ProductVariant(
       id: json["variantId"] ?? json["VariantId"] ?? 0,

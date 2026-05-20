@@ -3,6 +3,7 @@ import 'package:permission_handler/permission_handler.dart';
 class AppPermissionService {
   const AppPermissionService();
 
+  /// Yeu cau quyen hoac tac vu can thiet khi khoi dong.
   Future<void> requestStartupPermissions() async {
     final permissions = <Permission>[
       Permission.notification,

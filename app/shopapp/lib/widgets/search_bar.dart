@@ -14,6 +14,7 @@ class SearchBar extends StatelessWidget {
     this.onFilterTap,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(

@@ -2,6 +2,7 @@ import '../core/api/api_client.dart';
 import '../models/checkout_request.dart';
 
 class PaymentService {
+  /// Thuc hien quy trinh thanh toan don hang.
   Future<String> checkout(CheckoutRequest request) async {
     final data = {
       ...request.toJson(),

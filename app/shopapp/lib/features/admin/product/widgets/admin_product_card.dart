@@ -18,6 +18,7 @@ class AdminProductCard extends StatelessWidget {
     this.onDelete,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final imageUrl =

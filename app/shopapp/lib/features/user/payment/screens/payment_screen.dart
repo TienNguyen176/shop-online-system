@@ -16,6 +16,7 @@ class PaymentScreen extends StatefulWidget {
 
   const PaymentScreen({super.key, required this.request});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<PaymentScreen> createState() => _PaymentScreenState();
 }
@@ -48,12 +49,14 @@ class _PaymentScreenState extends State<PaymentScreen> {
 
   double get _grandTotal => _subtotal + _shippingFee;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _loadAddresses());
   }
 
+  /// Tai du lieu can thiet cho _loadAddresses.
   Future<void> _loadAddresses() async {
     try {
       setState(() => _loadingAddresses = true);
@@ -78,6 +81,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  /// Xu ly logic cho ham _defaultAddressFrom.
   UserAddress? _defaultAddressFrom(List<UserAddress> addresses) {
     for (final address in addresses) {
       if (address.isDefault) return address;
@@ -85,6 +89,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return addresses.isNotEmpty ? addresses.first : null;
   }
 
+  /// Tai du lieu can thiet cho _loadShippingFee.
   Future<void> _loadShippingFee(UserAddress address) async {
     final districtId = address.districtId;
     if (districtId == null || address.wardCode.isEmpty) {
@@ -111,6 +116,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<PaymentProvider>();
@@ -170,6 +176,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     );
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   Future<void> _openAddressPicker() async {
     if (_loadingAddresses) return;
 
@@ -199,6 +206,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   Future<UserAddress?> _openAddressForm() async {
     final created = await showModalBottomSheet<UserAddress>(
       context: context,
@@ -229,6 +237,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     return created;
   }
 
+  /// Thuc hien quy trinh thanh toan don hang.
   Future<void> _checkout() async {
     final address = _selectedAddress;
     if (address == null) {
@@ -260,6 +269,7 @@ class _PaymentScreenState extends State<PaymentScreen> {
     }
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -282,6 +292,7 @@ class _AddressCard extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final selectedAddress = address;
@@ -386,6 +397,7 @@ class _ProductSection extends StatelessWidget {
 
   const _ProductSection({required this.items});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -416,6 +428,7 @@ class _ProductTile extends StatelessWidget {
 
   const _ProductTile({required this.item});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -489,12 +502,14 @@ class _ProductTile extends StatelessWidget {
     );
   }
 
+  /// Dinh dang gia tien de hien thi tren giao dien.
   String _formatPrice(num price) {
     return price
         .toStringAsFixed(0)
         .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
   }
 
+  /// Tao URL day du cho duong dan hinh anh.
   String? _imageUrl(String path) {
     final trimmed = path.trim();
     if (trimmed.isEmpty) return null;
@@ -514,6 +529,7 @@ class _ProductImage extends StatelessWidget {
 
   const _ProductImage({required this.imageUrl});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null) return _fallback();
@@ -526,6 +542,7 @@ class _ProductImage extends StatelessWidget {
     );
   }
 
+  /// Hien thi trang thai dang tai du lieu.
   Widget _loading() {
     return const Center(
       child: SizedBox(
@@ -539,6 +556,7 @@ class _ProductImage extends StatelessWidget {
     );
   }
 
+  /// Hien thi giao dien thay the khi khong tai duoc du lieu.
   Widget _fallback() {
     return const Center(
       child: Icon(Icons.image_outlined, color: Colors.grey),
@@ -555,6 +573,7 @@ class _PaymentMethodCard extends StatelessWidget {
     required this.onChanged,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -610,6 +629,7 @@ class _PaymentOptionTile extends StatelessWidget {
     required this.onChanged,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final enabled = onChanged != null;
@@ -669,6 +689,7 @@ class _PaymentLogo extends StatelessWidget {
     required this.enabled,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Opacity(
@@ -710,6 +731,7 @@ class _SummaryCard extends StatelessWidget {
     required this.totalQuantity,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -743,6 +765,7 @@ class _SummaryCard extends StatelessWidget {
     );
   }
 
+  /// Dinh dang gia tien de hien thi tren giao dien.
   String _formatPrice(num price) {
     return price
         .toStringAsFixed(0)
@@ -761,6 +784,7 @@ class _SummaryRow extends StatelessWidget {
     this.strong = false,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -804,6 +828,7 @@ class _BottomCheckoutBar extends StatelessWidget {
     required this.onCheckout,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -885,6 +910,7 @@ class _BottomCheckoutBar extends StatelessWidget {
     );
   }
 
+  /// Dinh dang gia tien de hien thi tren giao dien.
   String _formatPrice(num price) {
     return price
         .toStringAsFixed(0)
@@ -903,6 +929,7 @@ class _AddressPickerSheet extends StatelessWidget {
     required this.onAddAddress,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(

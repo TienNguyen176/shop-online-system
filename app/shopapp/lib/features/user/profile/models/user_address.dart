@@ -27,6 +27,7 @@ class UserAddress {
     required this.fullAddress,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory UserAddress.fromJson(Map<String, dynamic> json) {
     return UserAddress(
       id: int.tryParse(json["id"]?.toString() ?? "") ?? 0,

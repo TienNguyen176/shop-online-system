@@ -14,6 +14,7 @@ import '../providers/cart_provider.dart';
 class ShoppingCartScreen extends StatefulWidget {
   const ShoppingCartScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ShoppingCartScreen> createState() => _ShoppingCartScreenState();
 }
@@ -27,6 +28,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen>
   static const textMuted = Color(0xff64748b);
   static const border = Color(0xffdbeafe);
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -34,12 +36,14 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) => _reloadCart());
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     super.dispose();
   }
 
+  /// Xu ly thay doi vong doi ung dung.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -54,6 +58,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen>
         .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(
@@ -67,6 +72,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen>
     );
   }
 
+  /// Xu ly logic cho ham _appBar.
   AppBar _appBar(BuildContext context) {
     return AppBar(
       backgroundColor: bg,
@@ -516,6 +522,7 @@ class _ShoppingCartScreenState extends State<ShoppingCartScreen>
         false;
   }
 
+  /// Tao URL day du cho duong dan hinh anh.
   String? _imageUrl(String path) {
     final trimmed = path.trim();
     if (trimmed.isEmpty) return null;
@@ -548,6 +555,7 @@ class _CartImage extends StatelessWidget {
 
   const _CartImage({required this.imageUrl});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
@@ -566,6 +574,7 @@ class _CartImage extends StatelessWidget {
     );
   }
 
+  /// Hien thi trang thai dang tai du lieu.
   Widget _loading() {
     return Container(
       width: 76,
@@ -583,6 +592,7 @@ class _CartImage extends StatelessWidget {
     );
   }
 
+  /// Hien thi giao dien thay the khi khong tai duoc du lieu.
   Widget _fallback() {
     return Container(
       width: 76,

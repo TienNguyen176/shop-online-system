@@ -12,6 +12,7 @@ import '../widgets/address_form_sheet.dart';
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -40,6 +41,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return "";
   }
 
+  /// Xu ly khi dependency cua widget thay doi.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -67,6 +69,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final auth = context.watch<AuthProvider>();
@@ -277,6 +280,7 @@ class _ProfileHeader extends StatelessWidget {
     required this.addressCount,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -373,6 +377,7 @@ class _HeaderMetric extends StatelessWidget {
     required this.value,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -430,6 +435,7 @@ class _InfoSection extends StatelessWidget {
     required this.role,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return _Surface(
@@ -471,6 +477,7 @@ class _AddressSection extends StatelessWidget {
     required this.onDelete,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return _Surface(
@@ -529,6 +536,7 @@ class _AddressCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -644,6 +652,7 @@ class _Surface extends StatelessWidget {
 
   const _Surface({required this.child});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -672,6 +681,7 @@ class _SectionTitle extends StatelessWidget {
 
   const _SectionTitle({required this.icon, required this.title});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -708,6 +718,7 @@ class _InfoRow extends StatelessWidget {
     this.showDivider = true,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -753,6 +764,7 @@ class _EmptyAddresses extends StatelessWidget {
 
   const _EmptyAddresses({required this.onAdd});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -793,6 +805,7 @@ class _EmptyAddresses extends StatelessWidget {
 class _DefaultBadge extends StatelessWidget {
   const _DefaultBadge();
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -826,6 +839,7 @@ class _TextAction extends StatelessWidget {
     this.destructive = false,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final color =
@@ -850,6 +864,7 @@ class _LogoutButton extends StatelessWidget {
 
   const _LogoutButton({required this.onPressed});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SizedBox(

@@ -3,6 +3,7 @@ import '../../models/product.dart';
 
 abstract class IProductRepository {
 
+  /// Lay du lieu cho getHomeProducts.
   Future<List<Product>> getHomeProducts({
     int page = 1,
     int pageSize = 8,
@@ -17,10 +18,13 @@ abstract class IProductRepository {
     bool forceRefresh = false,
   });
 
+  /// Lay du lieu cho getBrands.
   Future<List<String>> getBrands({bool forceRefresh = false});
 
+  /// Lay du lieu cho getBannerProducts.
   Future<List<Product>> getBannerProducts({bool forceRefresh = false});
 
+  /// Lay du lieu cho getProductDetail.
   Future<ProductDetail> getProductDetail(int id, {bool forceRefresh = false});
   
 }

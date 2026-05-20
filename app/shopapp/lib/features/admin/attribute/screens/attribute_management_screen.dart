@@ -7,12 +7,14 @@ import '../providers/attribute_provider.dart';
 class AttributeManagementScreen extends StatefulWidget {
   const AttributeManagementScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<AttributeManagementScreen> createState() =>
       _AttributeManagementScreenState();
 }
 
 class _AttributeManagementScreenState extends State<AttributeManagementScreen> {
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -21,6 +23,7 @@ class _AttributeManagementScreenState extends State<AttributeManagementScreen> {
     });
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<AttributeProvider>(
@@ -66,6 +69,7 @@ class _AttributeManagementScreenState extends State<AttributeManagementScreen> {
     );
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   Future<void> _openForm(
     AttributeProvider provider, [
     AttributeModel? attribute,
@@ -89,6 +93,7 @@ class _AttributeManagementScreenState extends State<AttributeManagementScreen> {
     }
   }
 
+  /// Hien thi xac nhan truoc khi thuc hien hanh dong.
   Future<void> _confirmDelete(
     AttributeProvider provider,
     AttributeModel attribute,
@@ -121,6 +126,7 @@ class _AttributeManagementScreenState extends State<AttributeManagementScreen> {
     }
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
@@ -137,6 +143,7 @@ class _AttributeFormSheet extends StatefulWidget {
     this.attribute,
   });
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<_AttributeFormSheet> createState() => _AttributeFormSheetState();
 }
@@ -148,6 +155,7 @@ class _AttributeFormSheetState extends State<_AttributeFormSheet> {
   final List<String> _values = [];
   bool _saving = false;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -158,6 +166,7 @@ class _AttributeFormSheetState extends State<_AttributeFormSheet> {
     }
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     _nameCtrl.dispose();
@@ -165,6 +174,7 @@ class _AttributeFormSheetState extends State<_AttributeFormSheet> {
     super.dispose();
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -275,10 +285,12 @@ class _AttributeFormSheetState extends State<_AttributeFormSheet> {
     );
   }
 
+  /// Kiem tra gia tri bat buoc trong form.
   String? _required(String? value) {
     return value == null || value.trim().isEmpty ? "Bắt buộc" : null;
   }
 
+  /// Them du lieu moi vao danh sach hoac gio hang.
   void _addValue() {
     final value = _valueCtrl.text.trim();
     if (value.isEmpty) return;
@@ -289,6 +301,7 @@ class _AttributeFormSheetState extends State<_AttributeFormSheet> {
     _valueCtrl.clear();
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -330,6 +343,7 @@ class _AttributeTile extends StatelessWidget {
     required this.onDelete,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -387,6 +401,7 @@ class _Header extends StatelessWidget {
 
   const _Header({required this.title, required this.subtitle});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -426,6 +441,7 @@ class _EmptyState extends StatelessWidget {
 
   const _EmptyState({required this.message});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SizedBox(

@@ -3,6 +3,7 @@ import '../features/admin/order/models/admin_order_model.dart';
 import '../features/admin/order/models/admin_return_request_model.dart';
 
 class AdminOrderService {
+  /// Lay du lieu cho getOrders.
   Future<List<AdminOrderModel>> getOrders({String? status}) async {
     final res = await ApiClient.dio.get(
       "/api/admin/orders",
@@ -18,6 +19,7 @@ class AdminOrderService {
         .toList();
   }
 
+  /// Cap nhat du lieu thong qua updateStatus.
   Future<AdminOrderModel> updateStatus({
     required int orderId,
     required String status,
@@ -30,6 +32,7 @@ class AdminOrderService {
     return AdminOrderModel.fromJson(Map<String, dynamic>.from(res.data));
   }
 
+  /// Lay du lieu cho getReturnRequests.
   Future<List<AdminReturnRequestModel>> getReturnRequests({
     String? status,
   }) async {
@@ -51,6 +54,7 @@ class AdminOrderService {
         .toList();
   }
 
+  /// Cap nhat du lieu thong qua updateReturnRequestStatus.
   Future<AdminReturnRequestModel> updateReturnRequestStatus({
     required int requestId,
     required String status,

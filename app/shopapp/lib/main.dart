@@ -36,6 +36,7 @@ import 'core/permissions/app_permission_service.dart';
 
 import 'routes/app_routes.dart';
 
+/// Khoi tao ung dung va cau hinh cac provider can thiet.
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -118,6 +119,7 @@ Future<void> main() async {
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return MaterialApp(

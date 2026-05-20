@@ -14,6 +14,7 @@ class ProductFormScreen extends StatefulWidget {
 
   const ProductFormScreen({super.key, this.product});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductFormScreen> createState() => _ProductFormScreenState();
 }
@@ -32,6 +33,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
 
   bool get isEdit => widget.product != null;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -47,15 +49,18 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     });
   }
 
+  /// Xu ly logic cho ham _isNetwork.
   bool _isNetwork(String path) {
     return path.startsWith("http");
   }
 
+  /// Xu ly logic cho ham _buildImageUrl.
   String _buildImageUrl(String path) {
     if (path.startsWith("http")) return path;
     return "${AppConfig.apiUrl}/$path";
   }
 
+  /// Tai du lieu can thiet cho _loadEditData.
   void _loadEditData() {
     final p = widget.product!;
 
@@ -76,6 +81,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     setState(() {});
   }
 
+  /// Xu ly logic cho ham _pickFromCamera.
   Future<void> _pickFromCamera() async {
     final file = await picker.pickImage(source: ImageSource.camera);
     if (file == null) return;
@@ -85,6 +91,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     });
   }
 
+  /// Xu ly logic cho ham _pickFromGallery.
   Future<void> _pickFromGallery() async {
     final files = await picker.pickMultiImage();
     if (files.isEmpty) return;
@@ -94,6 +101,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     });
   }
 
+  /// Xu ly logic cho ham _showImageSourceSheet.
   Future<void> _showImageSourceSheet() async {
     await showModalBottomSheet(
       context: context,
@@ -125,6 +133,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
+  /// Xu ly logic cho ham _buildImage.
   Widget _buildImage(String path) {
     final isNetwork = _isNetwork(path);
 
@@ -172,6 +181,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
+  /// Xu ly logic cho ham _submit.
   Future<void> _submit() async {
     final name = nameCtrl.text.trim();
     if (name.isEmpty) {
@@ -229,6 +239,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     }
   }
 
+  /// Xu ly logic cho ham _input.
   InputDecoration _input(String label) {
     return InputDecoration(
       labelText: label,
@@ -241,6 +252,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     nameCtrl.dispose();
@@ -249,6 +261,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     super.dispose();
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final categoryProvider = context.watch<CategoryProvider>();
@@ -295,6 +308,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
+  /// Xu ly logic cho ham _buildImageSection.
   Widget _buildImageSection() {
     return Container(
       padding: const EdgeInsets.all(16),
@@ -341,6 +355,7 @@ class _ProductFormScreenState extends State<ProductFormScreen> {
     );
   }
 
+  /// Xu ly logic cho ham _buildInfoSection.
   Widget _buildInfoSection(CategoryProvider categoryProvider) {
     final categories = categoryProvider.flatCategories;
     final selectedExists = categories.any((c) => c.id == selectedCategoryId);

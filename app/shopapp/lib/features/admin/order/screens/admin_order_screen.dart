@@ -8,6 +8,7 @@ import '../providers/admin_order_provider.dart';
 class AdminOrderScreen extends StatefulWidget {
   const AdminOrderScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<AdminOrderScreen> createState() => _AdminOrderScreenState();
 }
@@ -19,6 +20,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
   static const textMuted = Color(0xff64748b);
   static const border = Color(0xffdbeafe);
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -27,6 +29,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
     });
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<AdminOrderProvider>(
@@ -44,6 +47,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
     );
   }
 
+  /// Xu ly logic cho ham _body.
   Widget _body(AdminOrderProvider provider) {
     final isReturnTab = provider.selectedStatus.startsWith("RETURN_");
     final isPendingReturnTab = provider.selectedStatus == "RETURN_PENDING";
@@ -132,6 +136,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
     );
   }
 
+  /// Hien thi xac nhan truoc khi thuc hien hanh dong.
   Future<void> _confirmApprove(
     AdminOrderProvider provider,
     AdminOrderModel order,
@@ -167,6 +172,7 @@ class _AdminOrderScreenState extends State<AdminOrderScreen> {
     }
   }
 
+  /// Hien thi xac nhan truoc khi thuc hien hanh dong.
   Future<void> _confirmReviewReturn(
     AdminOrderProvider provider,
     AdminReturnRequestModel request,
@@ -205,6 +211,7 @@ class _StatusTabs extends StatelessWidget {
 
   const _StatusTabs({required this.provider});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -234,6 +241,7 @@ class _StatusTabs extends StatelessWidget {
     );
   }
 
+  /// Chuyen ma trang thai thanh nhan hien thi cho nguoi dung.
   String _statusLabel(String status) {
     return switch (status) {
       "ALL" => "Tất cả",
@@ -259,6 +267,7 @@ class _OrderCard extends StatelessWidget {
     required this.onApprove,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final status = order.status.toUpperCase();
@@ -359,6 +368,7 @@ class _ReturnRequestCard extends StatelessWidget {
     required this.onReject,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -450,6 +460,7 @@ class _ReturnStatusBadge extends StatelessWidget {
 
   const _ReturnStatusBadge({required this.status});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final normalized = status.toUpperCase();
@@ -482,6 +493,7 @@ class _StatusBadge extends StatelessWidget {
 
   const _StatusBadge({required this.status});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final color = switch (status) {
@@ -504,6 +516,7 @@ class _StatusBadge extends StatelessWidget {
     );
   }
 
+  /// Chuyen ma trang thai thanh nhan hien thi cho nguoi dung.
   String _statusLabel(String status) {
     return switch (status) {
       "PENDING" => "Chờ duyệt",
@@ -520,6 +533,7 @@ class _TimeLine extends StatelessWidget {
 
   const _TimeLine({required this.order});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -538,6 +552,7 @@ class _TimeLineRow extends StatelessWidget {
 
   const _TimeLineRow({required this.label, required this.time});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -575,6 +590,7 @@ class _InfoLine extends StatelessWidget {
 
   const _InfoLine({required this.icon, required this.text});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -595,12 +611,14 @@ class _InfoLine extends StatelessWidget {
   }
 }
 
+/// Dinh dang gia tien de hien thi tren giao dien.
 String _formatPrice(num price) {
   return price
       .toStringAsFixed(0)
       .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
 }
 
+/// Dinh dang ngay gio de hien thi tren giao dien.
 String _formatDate(DateTime? date) {
   if (date == null) return "--";
   String two(int value) => value.toString().padLeft(2, "0");

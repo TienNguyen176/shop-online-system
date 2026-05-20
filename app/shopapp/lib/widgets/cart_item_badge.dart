@@ -7,6 +7,7 @@ import '../features/user/cart/screens/shopping_cart_screen.dart';
 class CartIconWithBadge extends StatefulWidget {
   const CartIconWithBadge({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<CartIconWithBadge> createState() => _CartIconWithBadgeState();
 }
@@ -18,6 +19,7 @@ class _CartIconWithBadgeState extends State<CartIconWithBadge>
 
   int _lastCount = 0;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -33,12 +35,14 @@ class _CartIconWithBadgeState extends State<CartIconWithBadge>
     ]).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
+  /// Xu ly logic cho ham _triggerAnimation.
   void _triggerAnimation(int newCount) {
     if (newCount != _lastCount) {
       _lastCount = newCount;
@@ -46,6 +50,7 @@ class _CartIconWithBadgeState extends State<CartIconWithBadge>
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<CartProvider>(

@@ -14,6 +14,7 @@ class AttributeProvider with ChangeNotifier {
   bool isLoading = false;
   String? error;
 
+  /// Tai du lieu can thiet cho loadAttributes.
   Future<void> loadAttributes({bool refresh = false}) async {
     if (!refresh && _attributes.isNotEmpty) return;
     if (refresh) repository.clearCache();
@@ -33,6 +34,7 @@ class AttributeProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> saveAttribute({
     AttributeModel? attribute,
     required String name,
@@ -52,6 +54,7 @@ class AttributeProvider with ChangeNotifier {
     await loadAttributes(refresh: true);
   }
 
+  /// Xoa du lieu thong qua deleteAttribute.
   Future<void> deleteAttribute(int id) async {
     await repository.deleteAttribute(id);
     await loadAttributes(refresh: true);

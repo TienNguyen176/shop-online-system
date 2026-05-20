@@ -11,6 +11,7 @@ class SocialAuthService {
     serverClientId: AppConfig.googleServerClientId,
   );
 
+  /// Dang nhap nguoi dung bang phuong thuc tuong ung.
   Future<String?> loginGoogle() async {
     try {
       final account = await _googleSignIn.signIn();

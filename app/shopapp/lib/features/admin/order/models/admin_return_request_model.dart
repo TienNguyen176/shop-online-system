@@ -29,6 +29,7 @@ class AdminReturnRequestModel {
     required this.deliveredAt,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory AdminReturnRequestModel.fromJson(Map<String, dynamic> json) {
     return AdminReturnRequestModel(
       id: int.tryParse(json["id"]?.toString() ?? "") ?? 0,
@@ -48,6 +49,7 @@ class AdminReturnRequestModel {
   }
 }
 
+/// Chuyen doi gia tri dong thanh doi tuong DateTime neu hop le.
 DateTime? _dateOf(dynamic value) {
   final text = value?.toString();
   if (text == null || text.isEmpty) return null;

@@ -14,6 +14,7 @@ class PendingOrderDetailScreen extends StatefulWidget {
 
   const PendingOrderDetailScreen({super.key, required this.orderId});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<PendingOrderDetailScreen> createState() =>
       _PendingOrderDetailScreenState();
@@ -37,6 +38,7 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
   bool _requestingReturn = false;
   bool _changed = false;
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -63,6 +65,7 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
     }
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final order = _order;
@@ -157,6 +160,7 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
     return !DateTime.now().isAfter(deliveredAt.add(const Duration(days: 7)));
   }
 
+  /// Xu ly logic cho ham _emptyState.
   Widget _emptyState() {
     return const Center(
       child: Text(
@@ -205,6 +209,7 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
   }
 
   // ignore: unused_element
+  /// Xu ly logic cho ham _cancelOrder.
   Future<void> _cancelOrder() async {
     final confirmed = await showDialog<bool>(
       context: context,
@@ -337,6 +342,7 @@ class _PendingOrderDetailScreenState extends State<PendingOrderDetailScreen> {
     }
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
@@ -359,6 +365,7 @@ class _AddressCard extends StatelessWidget {
     required this.onTap,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Material(
@@ -451,6 +458,7 @@ class _OrderTimelineCard extends StatelessWidget {
 
   const _OrderTimelineCard({required this.order});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final status = order.status.toUpperCase();
@@ -564,6 +572,7 @@ class _TimelineRow extends StatelessWidget {
 
   const _TimelineRow({required this.step, required this.isLast});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final color =
@@ -658,6 +667,7 @@ class _TimelineStatusBadge extends StatelessWidget {
 
   const _TimelineStatusBadge({required this.status});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final color = switch (status) {
@@ -690,6 +700,7 @@ class _ReturnRequestCard extends StatelessWidget {
 
   const _ReturnRequestCard({required this.order});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final request = order.returnRequest!;
@@ -768,6 +779,7 @@ class _ProductSection extends StatelessWidget {
 
   const _ProductSection({required this.items});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -802,6 +814,7 @@ class _ProductTile extends StatelessWidget {
 
   const _ProductTile({required this.item});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -894,6 +907,7 @@ class _ProductImage extends StatelessWidget {
 
   const _ProductImage({required this.imageUrl});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     if (imageUrl.isEmpty) return _fallback();
@@ -906,6 +920,7 @@ class _ProductImage extends StatelessWidget {
     );
   }
 
+  /// Hien thi trang thai dang tai du lieu.
   Widget _loading() {
     return const Center(
       child: SizedBox(
@@ -919,6 +934,7 @@ class _ProductImage extends StatelessWidget {
     );
   }
 
+  /// Hien thi giao dien thay the khi khong tai duoc du lieu.
   Widget _fallback() {
     return const Center(child: Icon(Icons.image_outlined, color: Colors.grey));
   }
@@ -930,6 +946,7 @@ class _SummaryCard extends StatelessWidget {
 
   const _SummaryCard({required this.order});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final quantity = order.items.fold<int>(
@@ -980,6 +997,7 @@ class _SummaryRow extends StatelessWidget {
     this.strong = false,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Row(
@@ -1019,6 +1037,7 @@ class _BottomCancelBar extends StatelessWidget {
 
   const _BottomCancelBar({required this.loading, required this.onCancel});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -1081,6 +1100,7 @@ class _BottomReturnBar extends StatelessWidget {
 
   const _BottomReturnBar({required this.loading, required this.onReturn});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -1141,6 +1161,7 @@ class _AddressPickerSheet extends StatelessWidget {
 
   const _AddressPickerSheet({required this.addresses});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -1219,12 +1240,14 @@ class _AddressPickerSheet extends StatelessWidget {
   }
 }
 
+/// Dinh dang gia tien de hien thi tren giao dien.
 String _formatPrice(num price) {
   return price
       .toStringAsFixed(0)
       .replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (m) => '.');
 }
 
+/// Dinh dang ngay gio de hien thi tren giao dien.
 String _formatDate(DateTime? date) {
   if (date == null) return "--";
   String two(int value) => value.toString().padLeft(2, "0");
@@ -1232,6 +1255,7 @@ String _formatDate(DateTime? date) {
       "${two(date.hour)}:${two(date.minute)}";
 }
 
+/// Chuyen ma trang thai thanh nhan hien thi cho nguoi dung.
 String _statusLabel(String status) {
   return switch (status.toUpperCase()) {
     "PENDING" => "Chờ xác nhận",
@@ -1243,6 +1267,7 @@ String _statusLabel(String status) {
   };
 }
 
+/// Chuyen ma trang thai thanh nhan hien thi cho nguoi dung.
 String _returnStatusLabel(String status) {
   return switch (status.toUpperCase()) {
     "APPROVED" => "Đã duyệt",

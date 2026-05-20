@@ -54,6 +54,7 @@ class ProductRepository implements IProductRepository {
     return data;
   }
 
+  /// Lay du lieu cho getBrands.
   @override
   Future<List<String>> getBrands({bool forceRefresh = false}) async {
     if (!forceRefresh && _brandCache != null) {
@@ -65,6 +66,7 @@ class ProductRepository implements IProductRepository {
     return data;
   }
 
+  /// Lay du lieu cho getBannerProducts.
   @override
   Future<List<Product>> getBannerProducts({bool forceRefresh = false}) async {
     if (!forceRefresh && _bannerCache != null) {

@@ -11,6 +11,7 @@ class ProductImage {
     required this.isMain,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory ProductImage.fromJson(Map<String, dynamic> json) {
     return ProductImage(
       id: json["id"],

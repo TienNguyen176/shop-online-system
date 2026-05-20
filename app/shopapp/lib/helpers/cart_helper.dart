@@ -99,6 +99,7 @@ class CartHelper {
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
+  /// Xu ly logic cho ham _showLoginDialog.
   static Future<bool> _showLoginDialog(BuildContext context) async {
     final size = MediaQuery.of(context).size;
 

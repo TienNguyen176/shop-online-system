@@ -17,6 +17,7 @@ class ProductFilterDialog extends StatefulWidget {
     this.storageKey = "product_filter_dialog_list",
   });
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductFilterDialog> createState() => _ProductFilterDialogState();
 }
@@ -36,6 +37,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     }).toList();
   }
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -63,12 +65,14 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     );
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
   }
 
+  /// Xu ly logic cho ham _reset.
   void _reset() {
     setState(() {
       _selectedCategoryIds.clear();
@@ -79,6 +83,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     });
   }
 
+  /// Xu ly logic cho ham _submit.
   void _submit() {
     Navigator.pop(
       context,
@@ -104,6 +109,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     );
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Dialog(
@@ -349,6 +355,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     return parts.isEmpty ? "Sản phẩm" : parts.join(" - ");
   }
 
+  /// Xu ly logic cho ham _priceBox.
   Widget _priceBox({required String label, required String value}) {
     return Container(
       padding: const EdgeInsets.all(10),
@@ -378,6 +385,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     );
   }
 
+  /// Xu ly logic cho ham _filterCheckRow.
   Widget _filterCheckRow({
     required String label,
     required bool selected,
@@ -418,6 +426,7 @@ class _ProductFilterDialogState extends State<ProductFilterDialog> {
     );
   }
 
+  /// Xu ly logic cho ham _formatVnd.
   static String _formatVnd(double value) {
     final rounded = value.round();
     if (rounded >= 1000000) {
@@ -435,6 +444,7 @@ class _FilterSection extends StatelessWidget {
 
   const _FilterSection({required this.title, required this.child});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(

@@ -21,6 +21,7 @@ import '../widgets/home_header.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -30,6 +31,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   final TextEditingController searchController = TextEditingController();
 
   bool _initialized = false;
+  /// Xu ly khi dependency cua widget thay doi.
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -43,12 +45,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Xu ly logic cho ham _currentUserId.
   int? _currentUserId(BuildContext context) {
     final id = context.read<AuthProvider>().user?["id"];
     if (id is int) return id;
     return int.tryParse(id?.toString() ?? "");
   }
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -70,6 +74,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     });
   }
 
+  /// Giai phong controller, listener va tai nguyen khi widget bi huy.
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
@@ -78,6 +83,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     super.dispose();
   }
 
+  /// Xu ly thay doi vong doi ung dung.
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
@@ -85,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     }
   }
 
+  /// Lam moi du lieu hien tai.
   Future<void> _refreshProducts() async {
     if (!mounted) return;
 
@@ -93,6 +100,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     await provider.loadProducts(refresh: true);
   }
 
+  /// Lam moi du lieu hien tai.
   Future<void> _refreshHome() async {
     if (!mounted) return;
     final route = ModalRoute.of(context);
@@ -110,6 +118,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         .loadNotifications(forceRefresh: true);
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Consumer<HomeProvider>(
@@ -234,10 +243,12 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   void _openProducts(ProductBrowseArgs args) {
     Navigator.pushNamed(context, AppRoutes.userProducts, arguments: args);
   }
 
+  /// Mo man hinh hoac hop thoai lien quan.
   void _openProductsBySearch(String keyword) {
     final trimmed = keyword.trim();
     _openProducts(
@@ -248,6 +259,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
     );
   }
 
+  /// Xu ly logic cho ham _showFilterDialog.
   Future<void> _showFilterDialog() async {
     final result = await showDialog<ProductBrowseArgs>(
       context: context,
@@ -272,6 +284,7 @@ class _SectionHeader extends StatelessWidget {
 
   const _SectionHeader({required this.title, this.onSeeAll});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Padding(

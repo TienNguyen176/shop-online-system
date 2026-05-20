@@ -12,6 +12,7 @@ class ProductVariantManagementScreen extends StatefulWidget {
 
   const ProductVariantManagementScreen({super.key, required this.product});
 
+  /// Tao state quan ly vong doi cua widget.
   @override
   State<ProductVariantManagementScreen> createState() =>
       _ProductVariantManagementScreenState();
@@ -23,6 +24,7 @@ class _ProductVariantManagementScreenState
   static const _border = Color(0xFFE5E7EB);
   static const _muted = Color(0xFF6B7280);
 
+  /// Khoi tao state va du lieu ban dau cho man hinh.
   @override
   void initState() {
     super.initState();
@@ -34,6 +36,7 @@ class _ProductVariantManagementScreenState
     });
   }
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final provider = context.watch<ProductAdminProvider>();
@@ -189,6 +192,7 @@ class _ProductVariantManagementScreenState
     );
   }
 
+  /// Hien thi xac nhan truoc khi thuc hien hanh dong.
   Future<void> _confirmDelete(AdminProductVariant variant) async {
     final confirm = await showDialog<bool>(
       context: context,
@@ -224,6 +228,7 @@ class _ProductVariantManagementScreenState
     }
   }
 
+  /// Xu ly logic cho ham _showVariantSheet.
   Future<void> _showVariantSheet({AdminProductVariant? variant}) async {
     final priceCtrl = TextEditingController(
       text: variant == null ? "" : variant.price.toStringAsFixed(0),
@@ -412,6 +417,7 @@ class _ProductVariantManagementScreenState
     skuCtrl.dispose();
   }
 
+  /// Xu ly logic cho ham _buildAttributeRow.
   Widget _buildAttributeRow(
     _VariantAttributeRow row,
     List<AttributeModel> attributes,
@@ -518,6 +524,7 @@ class _ProductVariantManagementScreenState
     );
   }
 
+  /// Luu du lieu tu form hoac state hien tai.
   Future<void> _saveVariant(
     AdminProductVariant? variant,
     TextEditingController priceCtrl,
@@ -546,6 +553,7 @@ class _ProductVariantManagementScreenState
     );
   }
 
+  /// Xu ly logic cho ham _input.
   InputDecoration _input(String label) {
     return InputDecoration(
       labelText: label,
@@ -559,6 +567,7 @@ class _ProductVariantManagementScreenState
     );
   }
 
+  /// Hien thi thong bao nhanh cho nguoi dung.
   void _showMessage(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
@@ -582,6 +591,7 @@ class _VariantSummary extends StatelessWidget {
     required this.count,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -641,6 +651,7 @@ class _EmptyVariants extends StatelessWidget {
     required this.onAdd,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return ConstrainedBox(
@@ -717,6 +728,7 @@ class _VariantCard extends StatelessWidget {
     required this.onDelete,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     final title =
@@ -846,6 +858,7 @@ class _InfoChip extends StatelessWidget {
     required this.value,
   });
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -877,6 +890,7 @@ class _AttributePill extends StatelessWidget {
 
   const _AttributePill({required this.text});
 
+  /// Xay dung giao dien hien thi cho widget.
   @override
   Widget build(BuildContext context) {
     return Container(

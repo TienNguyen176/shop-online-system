@@ -29,6 +29,7 @@ class AdminOrderModel {
     required this.deliveredAt,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory AdminOrderModel.fromJson(Map<String, dynamic> json) {
     return AdminOrderModel(
       id: int.tryParse(json["id"]?.toString() ?? "") ?? 0,
@@ -47,10 +48,12 @@ class AdminOrderModel {
     );
   }
 
+  /// Xu ly logic cho ham _doubleOf.
   static double _doubleOf(dynamic value) {
     return double.tryParse(value?.toString() ?? "") ?? 0;
   }
 
+  /// Chuyen doi gia tri dong thanh doi tuong DateTime neu hop le.
   static DateTime? _dateOf(dynamic value) {
     final text = value?.toString();
     if (text == null || text.isEmpty) return null;

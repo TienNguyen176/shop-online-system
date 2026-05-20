@@ -13,6 +13,7 @@ class AdminProductVariant {
     required this.attributes,
   });
 
+  /// Tao doi tuong tu du lieu JSON.
   factory AdminProductVariant.fromJson(Map<String, dynamic> json) {
     return AdminProductVariant(
       id: json['id'],
