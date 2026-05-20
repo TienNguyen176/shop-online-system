@@ -32,6 +32,7 @@ import 'features/user/order_status/providers/order_status_provider.dart';
 import 'services/admin_order_service.dart';
 import 'services/auth/social_auth_service.dart';
 import 'core/api/api_client.dart';
+import 'core/permissions/app_permission_service.dart';
 
 import 'routes/app_routes.dart';
 
@@ -39,6 +40,7 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   await dotenv.load(fileName: ".env");
+  await const AppPermissionService().requestStartupPermissions();
 
   final authRepo = AuthRepository();
   final productRepo = ProductRepository();

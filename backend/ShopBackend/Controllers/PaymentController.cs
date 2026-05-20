@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using ShopBackend.Data;
 using ShopBackend.Models;
 using ShopBackend.Models.Vnpay;
+using ShopBackend.Services;
 using ShopBackend.Services.Vnpay;
 
 namespace ShopBackend.Controllers
@@ -12,11 +13,16 @@ namespace ShopBackend.Controllers
     public class PaymentController : ControllerBase
     {
         private readonly IVnPayService _vnPayService;
+        private readonly NotificationService _notificationService;
         private readonly AppDbContext _db;
 
-        public PaymentController(IVnPayService vnPayService, AppDbContext db)
+        public PaymentController(
+            IVnPayService vnPayService,
+            NotificationService notificationService,
+            AppDbContext db)
         {
             _vnPayService = vnPayService;
+            _notificationService = notificationService;
             _db = db;
         }
 
@@ -215,6 +221,11 @@ namespace ShopBackend.Controllers
                 {
                     order.Status = "PAID";
                     order.UpdatedAt = DateTime.Now;
+                    _notificationService.AddForUser(
+                        order.UserId,
+                        "Thanh toÃ¡n thÃ nh cÃ´ng",
+                        $"ÄÆ¡n hÃ ng {order.OrderCode} Ä‘Ã£ thanh toÃ¡n thÃ nh cÃ´ng.",
+                        "PAYMENT_SUCCESS");
 
                     var items = _db.OrderItems
                         .Where(x => x.OrderId == order.Id)
@@ -296,7 +307,17 @@ namespace ShopBackend.Controllers
             var failedOrder = _db.Orders.FirstOrDefault(x => x.Id == orderId);
             if (failedOrder != null)
             {
+                var shouldNotify = failedOrder.Status != "CANCEL";
                 failedOrder.Status = "CANCEL";
+
+                if (shouldNotify)
+                {
+                    _notificationService.AddForUser(
+                        failedOrder.UserId,
+                        "Thanh toÃ¡n tháº¥t báº¡i",
+                        $"Thanh toÃ¡n cho Ä‘Æ¡n hÃ ng {failedOrder.OrderCode} khÃ´ng thÃ nh cÃ´ng.",
+                        "PAYMENT_FAILED");
+                }
             }
 
             _db.SaveChanges();

@@ -30,6 +30,8 @@ namespace ShopBackend.Data
 
         public DbSet<ReturnRequest> ReturnRequests { get; set; }
 
+        public DbSet<Notification> Notifications { get; set; }
+
         public DbSet<ProductImage> ProductImages { get; set; }
 
         public DbSet<ProductVariant> ProductVariants { get; set; }
@@ -64,6 +66,11 @@ namespace ShopBackend.Data
                 .HasForeignKey(x => x.OrderId);
 
             modelBuilder.Entity<ReturnRequest>()
+                .HasOne(x => x.User)
+                .WithMany()
+                .HasForeignKey(x => x.UserId);
+
+            modelBuilder.Entity<Notification>()
                 .HasOne(x => x.User)
                 .WithMany()
                 .HasForeignKey(x => x.UserId);

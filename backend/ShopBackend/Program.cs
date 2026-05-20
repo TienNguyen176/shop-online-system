@@ -17,6 +17,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<NotificationService>();
 builder.Services.AddHttpClient();
 
 builder.Services.AddScoped<IVnPayService, VnPayService>();

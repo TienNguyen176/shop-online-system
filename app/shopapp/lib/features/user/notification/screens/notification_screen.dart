@@ -28,7 +28,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
       /// Delay sau khi build xong widget
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        context.read<NotificationProvider>().loadNotifications();
+        context
+            .read<NotificationProvider>()
+            .loadNotifications(forceRefresh: true);
       });
     }
   }
@@ -52,7 +54,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                 onPressed:
                     provider.notifications.isEmpty
                         ? null
-                        : provider.markAllAsRead,
+                        : () => provider.markAllAsRead(),
 
                 tooltip: 'Đánh dấu đã đọc',
               );
@@ -69,6 +71,33 @@ class _NotificationScreenState extends State<NotificationScreen> {
           /// Loading dữ liệu
           if (provider.loading) {
             return const Center(child: CircularProgressIndicator());
+          }
+
+          if (provider.error != null) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.error_outline, size: 48),
+                    const SizedBox(height: 10),
+                    Text(
+                      provider.error!,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () => provider.loadNotifications(
+                        forceRefresh: true,
+                      ),
+                      icon: const Icon(Icons.refresh),
+                      label: const Text("Thá»­ láº¡i"),
+                    ),
+                  ],
+                ),
+              ),
+            );
           }
 
           /// Không có thông báo

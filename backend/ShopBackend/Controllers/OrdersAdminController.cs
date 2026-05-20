@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShopBackend.Data;
 using ShopBackend.Models;
+using ShopBackend.Services;
 
 namespace ShopBackend.Controllers
 {
@@ -10,10 +11,12 @@ namespace ShopBackend.Controllers
     public class OrdersAdminController : ControllerBase
     {
         private readonly AppDbContext _db;
+        private readonly NotificationService _notificationService;
 
-        public OrdersAdminController(AppDbContext db)
+        public OrdersAdminController(AppDbContext db, NotificationService notificationService)
         {
             _db = db;
+            _notificationService = notificationService;
         }
 
         [HttpGet]
@@ -69,12 +72,22 @@ namespace ShopBackend.Controllers
             {
                 order.Status = "PAID";
                 order.UpdatedAt = now;
+                _notificationService.AddForUser(
+                    order.UserId,
+                    "ÄÆ¡n hÃ ng Ä‘Ã£ Ä‘Æ°á»£c duyá»‡t",
+                    $"ÄÆ¡n hÃ ng {order.OrderCode} Ä‘Ã£ Ä‘Æ°á»£c duyá»‡t vÃ  chuyá»ƒn sang chá» giao hÃ ng.",
+                    "ORDER_PAID");
             }
             else if (currentStatus == "PAID" && nextStatus == "DELIVERED")
             {
                 order.Status = "DELIVERED";
                 order.UpdatedAt = now;
                 order.DeliveredAt = now;
+                _notificationService.AddForUser(
+                    order.UserId,
+                    "ÄÆ¡n hÃ ng Ä‘Ã£ giao",
+                    $"ÄÆ¡n hÃ ng {order.OrderCode} Ä‘Ã£ Ä‘Æ°á»£c xÃ¡c nháº­n giao thÃ nh cÃ´ng.",
+                    "ORDER_DELIVERED");
             }
             else
             {
@@ -130,6 +143,17 @@ namespace ShopBackend.Controllers
                 return BadRequest(new { message = "Only APPROVED or REJECTED is allowed" });
 
             returnRequest.Status = nextStatus;
+
+            var orderCode = returnRequest.Order?.OrderCode ?? $"#{returnRequest.OrderId}";
+            _notificationService.AddForUser(
+                returnRequest.UserId,
+                nextStatus == "APPROVED"
+                    ? "YÃªu cáº§u hoÃ n tiá»n Ä‘Ã£ Ä‘Æ°á»£c duyá»‡t"
+                    : "YÃªu cáº§u hoÃ n tiá»n bá»‹ tá»« chá»‘i",
+                nextStatus == "APPROVED"
+                    ? $"YÃªu cáº§u tráº£ hÃ ng/hoÃ n tiá»n cho Ä‘Æ¡n {orderCode} Ä‘Ã£ Ä‘Æ°á»£c duyá»‡t."
+                    : $"YÃªu cáº§u tráº£ hÃ ng/hoÃ n tiá»n cho Ä‘Æ¡n {orderCode} Ä‘Ã£ bá»‹ tá»« chá»‘i.",
+                nextStatus == "APPROVED" ? "RETURN_APPROVED" : "RETURN_REJECTED");
 
             await _db.SaveChangesAsync();
             return Ok(ToReturnDto(returnRequest));
