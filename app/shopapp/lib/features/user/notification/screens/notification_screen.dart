@@ -95,7 +95,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         forceRefresh: true,
                       ),
                       icon: const Icon(Icons.refresh),
-                      label: const Text("Thá»­ láº¡i"),
+                      label: const Text("Thử lại"),
                     ),
                   ],
                 ),
